@@ -1,4 +1,5 @@
 #include "JSDate.hpp"
+#include <cassert>
 
 namespace {
 using namespace std::chrono;
@@ -43,6 +44,8 @@ Fields breakDownLocal(system_clock::time_point tp) {
 }
 } // namespace
 
+JSDate::JSDate() : JSDate(std::chrono::system_clock::now()) {}
+
 JSDate::JSDate(int year, int month, int day, int hours, int minutes,
                int seconds) {
   using namespace std::chrono;
@@ -60,6 +63,12 @@ JSDate::JSDate(int year, int month, int day, int hours, int minutes,
 
 JSDate JSDate::now() { return JSDate(std::chrono::system_clock::now()); }
 
+JSDate JSDate::invalid() {
+  JSDate d(std::chrono::system_clock::time_point{});
+  d.valid_ = false;
+  return d;
+}
+
 int JSDate::getFullYear() const { return breakDownLocal(tp_).year; }
 int JSDate::getMonth() const { return breakDownLocal(tp_).month; }
 int JSDate::getDate() const { return breakDownLocal(tp_).day; }
@@ -76,5 +85,43 @@ int JSDate::getUTCSeconds() const { return breakDownUtc(tp_).seconds; }
 
 long long JSDate::getTime() const {
   using namespace std::chrono;
+  assert(valid_ &&
+         "getTime() called on an invalid JSDate; check isValid() first");
   return duration_cast<milliseconds>(tp_.time_since_epoch()).count();
+}
+
+bool operator==(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return false; // NaN != NaN, mirroring JS
+  return lhs.tp_ == rhs.tp_;
+}
+
+bool operator!=(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return true; // NaN != NaN, mirroring JS
+  return lhs.tp_ != rhs.tp_;
+}
+
+bool operator<(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return false;
+  return lhs.tp_ < rhs.tp_;
+}
+
+bool operator<=(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return false;
+  return lhs.tp_ <= rhs.tp_;
+}
+
+bool operator>(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return false;
+  return lhs.tp_ > rhs.tp_;
+}
+
+bool operator>=(const JSDate &lhs, const JSDate &rhs) {
+  if (!lhs.valid_ || !rhs.valid_)
+    return false;
+  return lhs.tp_ >= rhs.tp_;
 }

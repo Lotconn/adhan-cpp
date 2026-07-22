@@ -3,14 +3,28 @@
 #include <cmath>
 
 TimeComponents::TimeComponents(double num) {
-  this->hours = static_cast<int>(std::floor(num));
-  this->minutes = static_cast<int>(std::floor(num - hours) * 60);
-  this->seconds =
+  valid_ = !std::isnan(num);
+  if (!valid_) {
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    return;
+  }
+
+  hours = static_cast<int>(std::floor(num));
+  minutes = static_cast<int>(std::floor((num - hours) * 60));
+  seconds =
       static_cast<int>(std::floor((num - (hours + minutes / 60.0)) * 60 * 60));
 }
 
-auto TimeComponents::utcDate(int year, int month, int date) {
-  return std::chrono::sys_days{std::chrono::year{year} / (month + 1) / date} +
-         +std::chrono::hours{hours} + std::chrono::minutes{minutes} +
-         std::chrono::seconds{seconds};
+JSDate TimeComponents::utcDate(int year, int month, int date) const {
+  if (!valid_) {
+    return JSDate::invalid();
+  }
+
+  using namespace std::chrono;
+  auto tp = sys_days{std::chrono::year{year} / (month + 1) / date} +
+            std::chrono::hours{hours} + std::chrono::minutes{minutes} +
+            std::chrono::seconds{seconds};
+  return JSDate(tp);
 }

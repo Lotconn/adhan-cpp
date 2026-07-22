@@ -2,10 +2,13 @@
 #include <chrono>
 
 JSDate dateByAddingDays(const JSDate &date, int days) {
+  if (!date.isValid()) {
+    return JSDate::invalid();
+  }
   /**
-   * JSDate's constructor normalizes overflow the same way JS's `new
-   * Date(...)` does (e.g. day 32 rolls into next month), so we can just add
-   * `days` directly to getDate() without any manual carry logic.
+   * JSDate's constructor normalizes overflow the same way JS's `new Date(...)`
+   * does (e.g. day 32 rolls into next month), so we can just add `days`
+   * directly to getDate() without any manual carry logic.
    */
   return JSDate(date.getFullYear(), date.getMonth(), date.getDate() + days,
                 date.getHours(), date.getMinutes(), date.getSeconds());
@@ -16,12 +19,19 @@ JSDate dateByAddingMinutes(const JSDate &date, double minutes) {
 }
 
 JSDate dateByAddingSeconds(const JSDate &date, double seconds) {
+  if (!date.isValid()) {
+    return JSDate::invalid();
+  }
   using namespace std::chrono;
   auto delta = duration_cast<system_clock::duration>(duration<double>(seconds));
   return JSDate(date.raw() + delta);
 }
 
 JSDate roundedMinute(const JSDate &date, Rounding rounding) {
+  if (!date.isValid()) {
+    return JSDate::invalid();
+  }
+
   int seconds = date.getUTCSeconds();
 
   int offset = (seconds >= 30) ? (60 - seconds) : (-seconds);
@@ -57,3 +67,5 @@ int dayOfYear(const JSDate &date) {
 
   return result;
 }
+
+bool isValidDate(const JSDate &date) { return date.isValid(); }

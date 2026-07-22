@@ -6,6 +6,169 @@
       "-Wall",
       "-Wextra",
       "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Adhan.o",
+      "src/Adhan.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Adhan.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Adhan.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Astronomical.o",
+      "src/Astronomical.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Astronomical.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Astronomical.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/CalculationMethod.o",
+      "src/CalculationMethod.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/CalculationMethod.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/CalculationMethod.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/CalculationParameters.o",
+      "src/CalculationParameters.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/CalculationParameters.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/CalculationParameters.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Coordinates.o",
+      "src/Coordinates.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Coordinates.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Coordinates.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/DateUtils.o",
+      "src/DateUtils.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/DateUtils.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/DateUtils.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/HighLatitudeRule.o",
+      "src/HighLatitudeRule.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/HighLatitudeRule.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/HighLatitudeRule.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/JSDate.o",
+      "src/JSDate.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/JSDate.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/JSDate.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
       "-Iinclude",
       "-c",
       "-o",
@@ -23,6 +186,89 @@
       "-Wall",
       "-Wextra",
       "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/PolarCircleResolution.o",
+      "src/PolarCircleResolution.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/PolarCircleResolution.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/PolarCircleResolution.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Prayer.o",
+      "src/Prayer.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Prayer.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Prayer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/PrayerTimes.o",
+      "src/PrayerTimes.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/PrayerTimes.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/PrayerTimes.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Qibla.o",
+      "src/Qibla.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Qibla.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Qibla.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
       "-Iinclude",
       "-c",
       "-o",
@@ -32,5 +278,105 @@
     "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
     "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Rounding.cpp",
     "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Rounding.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Shafaq.o",
+      "src/Shafaq.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Shafaq.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Shafaq.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/SolarCoordinates.o",
+      "src/SolarCoordinates.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/SolarCoordinates.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/SolarCoordinates.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/SolarTime.o",
+      "src/SolarTime.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/SolarTime.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/SolarTime.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/SunnahTimes.o",
+      "src/SunnahTimes.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/SunnahTimes.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/SunnahTimes.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wno-unused-variable",
+      "-Wno-unused-function",
+      "-Wno-unused-parameter",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/TimeComponents.o",
+      "src/TimeComponents.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/TimeComponents.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/TimeComponents.o"
   }
 ]

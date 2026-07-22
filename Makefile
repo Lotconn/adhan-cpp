@@ -1,5 +1,10 @@
 CXX := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic -Iinclude
+
+CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic \
+            -Wno-unused-variable \
+            -Wno-unused-function \
+            -Wno-unused-parameter \
+            -Iinclude
 
 SRC_DIR := src
 OBJ_DIR := obj

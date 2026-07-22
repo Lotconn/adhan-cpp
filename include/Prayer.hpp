@@ -1,7 +1,6 @@
 #ifndef PRAYER_HPP
 #define PRAYER_HPP
 
-#include <optional>
 #include <string_view>
 
 enum class Prayer {
@@ -14,8 +13,46 @@ enum class Prayer {
   None,
 };
 
-constexpr std::string_view to_string(Prayer prayer);
+namespace PrayerUtils {
 
-std::optional<Prayer> from_string(std::string_view value);
+constexpr std::string_view to_string(Prayer prayer) {
+  switch (prayer) {
+  case Prayer::Fajr:
+    return "fajr";
+  case Prayer::Sunrise:
+    return "sunrise";
+  case Prayer::Dhuhr:
+    return "dhuhr";
+  case Prayer::Asr:
+    return "asr";
+  case Prayer::Maghrib:
+    return "maghrib";
+  case Prayer::Isha:
+    return "isha";
+  case Prayer::None:
+  default:
+    return "none";
+  }
+}
+
+constexpr Prayer from_string(std::string_view value) {
+  if (value == "fajr")
+    return Prayer::Fajr;
+  if (value == "sunrise")
+    return Prayer::Sunrise;
+  if (value == "dhuhr")
+    return Prayer::Dhuhr;
+  if (value == "asr")
+    return Prayer::Asr;
+  if (value == "maghrib")
+    return Prayer::Maghrib;
+  if (value == "isha")
+    return Prayer::Isha;
+
+  /* Defaults to "none" */
+  return Prayer::None;
+}
+
+} // namespace PrayerUtils
 
 #endif /* PRAYER_HPP */

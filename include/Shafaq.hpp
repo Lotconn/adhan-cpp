@@ -6,6 +6,8 @@
  * appearance of twilight differently. These values are used by the
  * MoonsightingComittee method for the different ways to calculate Isha.
  */
+#include <stdexcept>
+#include <string_view>
 enum class Shafaq {
   /**
    * @brief General is a combination of Ahmer and Abyad.
@@ -24,5 +26,35 @@ enum class Shafaq {
    */
   Abyad,
 };
+
+namespace ShafaqUtils {
+
+constexpr std::string_view to_string(Shafaq sfq) {
+  switch (sfq) {
+
+  case Shafaq::General:
+    return "general";
+  case Shafaq::Ahmer:
+    return "ahmer";
+  case Shafaq::Abyad:
+    return "abyad";
+  }
+  throw std::logic_error("Invalid shafaq");
+  return {};
+}
+
+constexpr Shafaq from_string(std::string_view s) {
+  if (s == "general")
+    return Shafaq::General;
+  if (s == "ahmer")
+    return Shafaq::Ahmer;
+  if (s == "abyad")
+    return Shafaq::Abyad;
+
+  throw std::logic_error("Invalid shafaq");
+  return {};
+}
+
+} // namespace ShafaqUtils
 
 #endif // SHAFAQ_HPP

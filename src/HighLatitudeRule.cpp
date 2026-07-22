@@ -1,6 +1,6 @@
 #include "HighLatitudeRule.hpp"
 
-std::string HighLatitudeRule::recommended(const Coordinates &coordinates) {
+HighLatitudeRule recommended(const Coordinates &coordinates) {
   if (coordinates.latitude > 48) {
     return HighLatitudeRule::SeventhOfTheNight;
   } else {

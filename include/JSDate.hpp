@@ -5,8 +5,13 @@
 
 class JSDate {
 public:
-  // Wrap an existing time point directly (UTC-based, like JS's internal epoch)
+  /**
+   * Wrap an existing time point directly
+   * (UTC-based, like JS's internal epoch value)
+   */
   explicit JSDate(std::chrono::system_clock::time_point tp) : tp_(tp) {}
+
+  JSDate();
 
   /**
    * Mimics `new Date(year, month, day, hours, minutes, seconds)`.
@@ -18,31 +23,49 @@ public:
 
   static JSDate now();
 
-  /* Local-time getters (mirrors JS's getFullYear/getMonth/etc.) */
+  /**
+   * Returns a JSDate representing JS's "Invalid Date" state, mirroring what
+   * happens when a Date is constructed from NaN (e.g. `new Date(NaN)`).
+   * All comparison operators against an invalid JSDate return false, just
+   * like comparisons against NaN in JS.
+   */
+  static JSDate invalid();
+
+  bool isValid() const { return valid_; }
+
   int getFullYear() const;
-  /* Month is 0-indexed, like JS */
   int getMonth() const;
   int getDate() const;
   int getHours() const;
   int getMinutes() const;
   int getSeconds() const;
 
-  /* UTC getters (mirrors JS's getUTC*()) */
   int getUTCFullYear() const;
-  /* Month is 0-indexed, like JS */
   int getUTCMonth() const;
   int getUTCDate() const;
   int getUTCHours() const;
   int getUTCMinutes() const;
   int getUTCSeconds() const;
 
-  /* Milliseconds since epoch, like JS's getTime() */
+  /**
+   * Milliseconds since epoch, like JS's getTime(). Behavior is undefined
+   * (and asserts, in debug builds) if called on an invalid JSDate — check
+   * isValid() first, the same way JS code would check isNaN(date.getTime()).
+   */
   long long getTime() const;
 
   std::chrono::system_clock::time_point raw() const { return tp_; }
 
+  friend bool operator==(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator!=(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator<(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator<=(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator>(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator>=(const JSDate &lhs, const JSDate &rhs);
+
 private:
-  std::chrono::system_clock::time_point tp_;
+  std::chrono::system_clock::time_point tp_{};
+  bool valid_ = true;
 };
 
-#endif /* JSDATE_HPP */
+#endif // JSDATE_HPP
