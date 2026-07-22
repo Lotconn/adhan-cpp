@@ -1,0 +1,36 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Madhab.o",
+      "src/Madhab.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Madhab.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Madhab.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "obj/Rounding.o",
+      "src/Rounding.cpp"
+    ],
+    "directory": "/home/i_ssh_rq/dev/workspace/adhan-cpp",
+    "file": "/home/i_ssh_rq/dev/workspace/adhan-cpp/src/Rounding.cpp",
+    "output": "/home/i_ssh_rq/dev/workspace/adhan-cpp/obj/Rounding.o"
+  }
+]

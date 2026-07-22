@@ -1,0 +1,40 @@
+#include "Rounding.hpp"
+
+#include <cassert>
+#include <stdexcept>
+
+/**
+ * @brief Given a Rounding (e.g.: Rounding::Nearest), returns a std::string_view
+ *
+ * @param r
+ * @return constexpr std::string_view
+ */
+constexpr std::string_view to_string(Rounding r) {
+  switch (r) {
+  case Rounding::Nearest:
+    return "nearest";
+  case Rounding::Up:
+    return "up";
+  case Rounding::None:
+    return "none";
+  }
+  throw std::logic_error("Invalid rounding");
+  return {};
+}
+
+/**
+ * @brief Given a string (e.g.: "nearest"), returns a `Rounding`
+ * If no match is found, returns `Rounding::None` by default
+ *
+ * @param s
+ * @return constexpr Rounding
+ */
+constexpr Rounding from_string(std::string_view s) {
+  if (s == "nearest")
+    return Rounding::Nearest;
+  if (s == "up")
+    return Rounding::Up;
+
+  throw std::logic_error("Invalid rounding");
+  return Rounding::None;
+}

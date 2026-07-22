@@ -1,0 +1,8 @@
+# Target file
+libadhan.a
+
+# Object files
+obj/
+
+# Tool cache dirs
+.cache/
