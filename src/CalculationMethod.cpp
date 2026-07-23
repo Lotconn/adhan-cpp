@@ -1,4 +1,4 @@
-#include "CalculationMethod.hpp"
+#include <CalculationMethod.hpp>
 
 // Muslim World League
 CalculationParameters CalculationMethod::MuslimWorldLeague() {

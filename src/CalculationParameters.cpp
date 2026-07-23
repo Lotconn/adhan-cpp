@@ -1,4 +1,4 @@
-#include "CalculationParameters.hpp"
+#include <CalculationParameters.hpp>
 #include <stdexcept>
 
 CalculationParameters::CalculationParameters(std::optional<std::string> method,

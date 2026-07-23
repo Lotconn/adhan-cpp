@@ -1,7 +1,7 @@
-#include "SunnahTimes.hpp"
-#include "DateUtils.hpp"
+#include <DateUtils.hpp>
+#include <SunnahTimes.hpp>
 
-SunnahTimes::SunnahTimes(PrayerTimes &prayerTimes) {
+SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
   auto date = prayerTimes.date;
   auto nextDay = dateByAddingDays(date, 1);
   auto nextDayPrayerTimes = PrayerTimes(prayerTimes.coordinates, nextDay,
@@ -11,7 +11,7 @@ SunnahTimes::SunnahTimes(PrayerTimes &prayerTimes) {
       (nextDayPrayerTimes.fajr.getTime() - prayerTimes.maghrib.getTime()) /
       1000.0;
 
-  this->middleofthenight = roundedMinute(
+  this->middleOfTheNight = roundedMinute(
       dateByAddingSeconds(prayerTimes.maghrib, nightDuration / 2.0));
 
   this->lastThirdOfTheNight = roundedMinute(

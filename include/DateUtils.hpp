@@ -1,8 +1,8 @@
 #ifndef DATEUTILS_HPP
 #define DATEUTILS_HPP
 
-#include "JSDate.hpp"
-#include "Rounding.hpp"
+#include <JSDate.hpp>
+#include <Rounding.hpp>
 
 JSDate dateByAddingDays(const JSDate &date, int days);
 JSDate dateByAddingMinutes(const JSDate &date, double minutes);

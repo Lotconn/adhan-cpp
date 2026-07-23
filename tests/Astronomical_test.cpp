@@ -1,13 +1,13 @@
 #include "doctest.h"
 
-#include "Astronomical.hpp"
-#include "Coordinates.hpp"
-#include "DateUtils.hpp"
-#include "JSDate.hpp"
-#include "MathUtils.hpp"
-#include "SolarCoordinates.hpp"
-#include "SolarTime.hpp"
-#include "TimeComponents.hpp"
+#include <Astronomical.hpp>
+#include <Coordinates.hpp>
+#include <DateUtils.hpp>
+#include <JSDate.hpp>
+#include <MathUtils.hpp>
+#include <SolarCoordinates.hpp>
+#include <SolarTime.hpp>
+#include <TimeComponents.hpp>
 
 #include <cmath>
 #include <string>
@@ -230,19 +230,23 @@ TEST_CASE("get the day of the year for a date") {
 }
 
 TEST_CASE("verify approximateTransit near the International Date Line") {
-  // For longitude ~177.24°E on Dec 1, 2025, solar transit falls just after UTC
-  // midnight. The raw formula produces a tiny negative number that
-  // normalizeToScale wraps to ~1. The fix should detect this and return a value
-  // near 0, not near 1.
+  /**
+   * For longitude ~177.24°E on Dec 1, 2025, solar transit falls just after UTC
+   * midnight. The raw formula produces a tiny negative number that
+   * normalizeToScale wraps to ~1. The fix should detect this and return a value
+   * near 0, not near 1.
+   */
   double longitude = 177.24;
   double jd = Astronomical::julianDay(2025, 12, 1);
   SolarCoordinates solar(jd);
   double m0 = Astronomical::approximateTransit(
       longitude, solar.apparentSiderealTime, solar.rightAscension);
-  // Transit should be near 0 (just after UTC midnight), not near 1 (just before
-  // UTC midnight). A small negative value (floating-point rounding) is
-  // acceptable; what matters is that m0 was not incorrectly wrapped to ~1 by
-  // normalizeToScale.
+  /**
+   * Transit should be near 0 (just after UTC midnight), not near 1 (just before
+   * UTC midnight). A small negative value (floating-point rounding) is
+   * acceptable; what matters is that m0 was not incorrectly wrapped to ~1 by
+   * normalizeToScale.
+   */
   CHECK(m0 > -0.01);
   CHECK(m0 < 0.1);
 }

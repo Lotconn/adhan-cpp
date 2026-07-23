@@ -1,8 +1,8 @@
 #include "doctest.h"
 
-#include "CalculationMethod.hpp"
-#include "CalculationParameters.hpp"
-#include "HighLatitudeRule.hpp"
+#include <CalculationMethod.hpp>
+#include <CalculationParameters.hpp>
+#include <HighLatitudeRule.hpp>
 
 TEST_CASE("Verifying the night portion defined by the high latitude rule") {
   CalculationParameters p1(std::nullopt, 18, 18);
@@ -20,11 +20,13 @@ TEST_CASE("Verifying the night portion defined by the high latitude rule") {
   CHECK(p3.nightPortions().fajr == doctest::Approx(10.0 / 60));
   CHECK(p3.nightPortions().isha == doctest::Approx(15.0 / 60));
 
-  // The TS test casts an invalid/"fake" enum value to exercise the throw
-  // path in the default case of nightPortions()'s switch. C++'s enum class
-  // has no equivalent unchecked cast from a string, so we reproduce the same
-  // "invalid enum value" condition directly via static_cast. It would be ok
-  // to get rid of this check, but I kept it to (somewhat) maintain parity
+  /**
+   * The TS test casts an invalid/"fake" enum value to exercise the throw
+   * path in the default case of nightPortions()'s switch. C++'s enum class
+   * has no equivalent unchecked cast from a string, so we reproduce the same
+   * "invalid enum value" condition directly via static_cast. It would be ok
+   * to get rid of this check, but I kept it to (somewhat) maintain parity
+   */
   CalculationParameters p4(std::nullopt, 10, 15);
   p4.highLatitudeRule = static_cast<HighLatitudeRule>(999);
 

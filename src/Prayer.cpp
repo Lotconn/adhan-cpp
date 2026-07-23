@@ -1,3 +1,3 @@
-#include "Prayer.hpp"
+#include <Prayer.hpp>
 
 #include <cassert>

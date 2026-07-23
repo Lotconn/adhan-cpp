@@ -1,10 +1,10 @@
-#include "PrayerTimes.hpp"
-#include "Astronomical.hpp"
-#include "DateUtils.hpp"
-#include "Madhab.hpp"
-#include "PolarCircleResolution.hpp"
-#include "SolarTime.hpp"
-#include "TimeComponents.hpp"
+#include <Astronomical.hpp>
+#include <DateUtils.hpp>
+#include <Madhab.hpp>
+#include <PolarCircleResolution.hpp>
+#include <PrayerTimes.hpp>
+#include <SolarTime.hpp>
+#include <TimeComponents.hpp>
 
 #include <cmath>
 #include <limits>

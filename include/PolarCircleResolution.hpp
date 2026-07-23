@@ -1,14 +1,13 @@
 #ifndef POLARCIRCLERESOLUTION_HPP
 #define POLARCIRCLERESOLUTION_HPP
 
-#include "Coordinates.hpp"
-#include "JSDate.hpp"
-#include "SolarTime.hpp"
+#include <Coordinates.hpp>
+#include <JSDate.hpp>
+#include <SolarTime.hpp>
 
 #ifdef ADHAN_TESTING
 // Test-only call counter, standing in for vi.spyOn's call-tracking in the
-// TS test suite. Compiled out entirely in release builds - no footprint,
-// no symbol, in the shipped library.
+// TS test suite. Excluded entirely in release builds
 inline int polarCircleResolvedValuesCallCount = 0;
 #endif
 

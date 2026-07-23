@@ -1,10 +1,9 @@
-
-#include "Qibla.hpp"
-#include "MathUtils.hpp"
+#include <MathUtils.hpp>
+#include <Qibla.hpp>
 
 static const auto makkah = Coordinates(21.4225241, 39.8261818);
 
-double qibla(Coordinates &coordinates) {
+double qibla(const Coordinates &coordinates) {
   /**
    *  The following Equation is from:
    *  "Spherical Trigonometry For the use of colleges and schools", page 50

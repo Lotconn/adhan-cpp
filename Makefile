@@ -27,8 +27,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $@
 
-# ---- Tests -----------------------------------------------------------
-# Test-only tree: never installed, never part of $(TARGET).
+# ------------------------------- TESTS ----------------------------------
+# Test-only tree: never installed, so its never part of $(TARGET).
 # The library sources are recompiled here (separately from $(OBJ_DIR))
 # with -DADHAN_TESTING defined, since the spy-seam call counter in
 # PolarCircleResolution.cpp only exists under that macro. This keeps

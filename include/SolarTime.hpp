@@ -1,9 +1,9 @@
 #ifndef SOLARTIME_HPP
 #define SOLARTIME_HPP
 
-#include "Coordinates.hpp"
-#include "JSDate.hpp"
-#include "SolarCoordinates.hpp"
+#include <Coordinates.hpp>
+#include <JSDate.hpp>
+#include <SolarCoordinates.hpp>
 
 class SolarTime {
 public:

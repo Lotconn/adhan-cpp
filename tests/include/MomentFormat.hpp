@@ -1,7 +1,7 @@
 #ifndef MOMENTFORMAT_HPP
 #define MOMENTFORMAT_HPP
 
-#include "JSDate.hpp"
+#include <JSDate.hpp>
 #include <string>
 
 // Test-only helper. Formats a JSDate as if viewed in the given IANA time zone,

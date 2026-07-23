@@ -1,4 +1,4 @@
-#include "HighLatitudeRule.hpp"
+#include <HighLatitudeRule.hpp>
 
 HighLatitudeRule recommended(const Coordinates &coordinates) {
   if (coordinates.latitude > 48) {

@@ -1,12 +1,12 @@
-#include "MomentFormat.hpp"
 #include "doctest.h"
+#include <MomentFormat.hpp>
 
-#include "CalculationMethod.hpp"
-#include "Coordinates.hpp"
-#include "DateUtils.hpp"
-#include "JSDate.hpp"
-#include "PolarCircleResolution.hpp"
-#include "PrayerTimes.hpp"
+#include <CalculationMethod.hpp>
+#include <Coordinates.hpp>
+#include <DateUtils.hpp>
+#include <JSDate.hpp>
+#include <PolarCircleResolution.hpp>
+#include <PrayerTimes.hpp>
 
 #include <array>
 
@@ -169,11 +169,13 @@ TEST_CASE("Polar Night case: calculating times for the polar circle") {
 }
 
 TEST_CASE("calculating prayer times near the International Date Line") {
-  // Coordinates near the International Date Line (longitude ~177.24°E).
-  // Prior to the approximateTransit fix, the solar transit would be
-  // miscalculated as just before UTC midnight instead of just after, causing
-  // prayer times to be off by a full day. Verify that all prayer times are in
-  // the correct order.
+  /**
+   * Coordinates near the International Date Line (longitude ~177.24°E).
+   * Prior to the approximateTransit fix, the solar transit would be
+   * miscalculated as just before UTC midnight instead of just after, causing
+   * prayer times to be off by a full day. Verify that all prayer times are in
+   * the correct order.
+   */
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.madhab = Madhab::Shafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;

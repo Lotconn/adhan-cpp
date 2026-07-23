@@ -1,13 +1,13 @@
-#include "DateUtils.hpp"
-#include "HighLatitudeRule.hpp"
 #include "doctest.h"
+#include <DateUtils.hpp>
+#include <HighLatitudeRule.hpp>
 
-#include "CalculationMethod.hpp"
-#include "Coordinates.hpp"
-#include "JSDate.hpp"
-#include "Madhab.hpp"
-#include "MomentFormat.hpp"
-#include "PrayerTimes.hpp"
+#include <CalculationMethod.hpp>
+#include <Coordinates.hpp>
+#include <JSDate.hpp>
+#include <Madhab.hpp>
+#include <MomentFormat.hpp>
+#include <PrayerTimes.hpp>
 
 TEST_CASE("calculating prayer times") {
   JSDate date(2015, 6, 12);

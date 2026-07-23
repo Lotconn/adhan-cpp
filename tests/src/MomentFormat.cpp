@@ -1,4 +1,4 @@
-#include "MomentFormat.hpp"
+#include <MomentFormat.hpp>
 #include <array>
 #include <chrono>
 #include <iomanip>
@@ -55,6 +55,9 @@ std::string formatInZone(const JSDate &date, const std::string &tzName,
     if (matches("YYYY", 4)) {
       result += std::to_string(year);
       i += 4;
+    } else if (matches("YY", 2)) {
+      result += pad2(year % 100);
+      i += 2;
     } else if (matches("MMMM", 4)) {
       result += kMonthNames[month - 1];
       i += 4;
@@ -76,11 +79,16 @@ std::string formatInZone(const JSDate &date, const std::string &tzName,
     } else if (matches("h", 1)) {
       result += std::to_string(hour12);
       i += 1;
+    } else if (matches("M", 1)) {
+      result += std::to_string(month);
+      i += 1;
+    } else if (matches("D", 1)) {
+      result += std::to_string(day);
+      i += 1;
     } else {
       result += formatStr[i];
       i += 1;
     }
   }
-
   return result;
 }
