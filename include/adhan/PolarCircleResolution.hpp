@@ -5,6 +5,8 @@
 #include <JSDate.hpp>
 #include <SolarTime.hpp>
 
+namespace adhan {
+
 #ifdef ADHAN_TESTING
 // Test-only call counter, standing in for vi.spyOn's call-tracking in the
 // TS test suite. Excluded entirely in release builds
@@ -28,5 +30,7 @@ struct PolarCircleResolver {
 PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
                                               const JSDate &date,
                                               const Coordinates &coordinates);
+
+} // namespace adhan
 
 #endif // POLARCIRCLERESOLUTION_HPP

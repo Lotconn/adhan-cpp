@@ -12,3 +12,7 @@ obj/
 
 # Test executables
 run_tests
+
+# compile commands JSON
+**/compile_commands.json
+**/compile_commands.events.json

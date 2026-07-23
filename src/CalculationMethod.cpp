@@ -1,5 +1,7 @@
 #include <CalculationMethod.hpp>
 
+namespace adhan {
+
 // Muslim World League
 CalculationParameters CalculationMethod::MuslimWorldLeague() {
   auto params = CalculationParameters("MuslimWorldLeague", 18, 17);
@@ -90,3 +92,4 @@ CalculationParameters CalculationMethod::Turkey() {
 CalculationParameters CalculationMethod::Other() {
   return CalculationParameters("Other", 0, 0);
 }
+} // namespace adhan

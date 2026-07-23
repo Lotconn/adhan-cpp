@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+namespace adhan {
+
 namespace Astronomical {
 
 double meanSolarLongitude(double julianCentury) {
@@ -346,3 +348,4 @@ int daysSinceSolstice(int dayOfYear, int year, double latitude) {
 }
 
 } // namespace Astronomical
+} // namespace adhan

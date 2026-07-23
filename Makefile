@@ -1,10 +1,15 @@
 CXX := g++
 
+LIBNAMESPACE := adhan
+
+INCLUDE_FLAGS := -Iinclude/$(LIBNAMESPACE) \
+								-Iinclude \
+
 CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic \
             -Wno-unused-variable \
             -Wno-unused-function \
             -Wno-unused-parameter \
-            -Iinclude
+            $(INCLUDE_FLAGS)
 
 SRC_DIR := src
 OBJ_DIR := obj

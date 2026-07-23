@@ -1,6 +1,8 @@
 #include <DateUtils.hpp>
 #include <SunnahTimes.hpp>
 
+namespace adhan {
+
 SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
   auto date = prayerTimes.date;
   auto nextDay = dateByAddingDays(date, 1);
@@ -17,3 +19,5 @@ SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
   this->lastThirdOfTheNight = roundedMinute(
       dateByAddingSeconds(prayerTimes.maghrib, nightDuration * (2.0 / 3.0)));
 }
+
+} // namespace adhan

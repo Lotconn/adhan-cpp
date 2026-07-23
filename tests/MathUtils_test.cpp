@@ -9,6 +9,8 @@
 #include <cmath>
 #include <numbers>
 
+using namespace adhan;
+
 TEST_CASE("converting between degrees and radians") {
   CHECK(radiansToDegrees(std::numbers::pi) == 180);
   CHECK(degreesToRadians(180) == std::numbers::pi);

@@ -9,6 +9,8 @@
 #include <optional>
 #include <string>
 
+namespace adhan {
+
 typedef struct ManualAdjustments {
   int fajr = 0;
   int sunrise = 0;
@@ -90,5 +92,6 @@ public:
 
   NightPortions nightPortions() const;
 };
+} // namespace adhan
 
 #endif /* CALCULATIONPARAMETERS_HPP */

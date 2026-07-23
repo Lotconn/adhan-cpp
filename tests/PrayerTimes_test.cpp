@@ -9,6 +9,8 @@
 #include <MomentFormat.hpp>
 #include <PrayerTimes.hpp>
 
+using namespace adhan;
+
 TEST_CASE("calculating prayer times") {
   JSDate date(2015, 6, 12);
   CalculationParameters params = CalculationMethod::NorthAmerica();

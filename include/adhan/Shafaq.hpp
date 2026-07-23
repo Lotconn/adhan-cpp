@@ -1,13 +1,16 @@
 #ifndef SHAFAQ_HPP
 #define SHAFAQ_HPP
 
+#include <stdexcept>
+#include <string_view>
+
+namespace adhan {
+
 /**
  * @brief Shafaq is the twilight in the sky. Different madhabs define the
  * appearance of twilight differently. These values are used by the
  * MoonsightingComittee method for the different ways to calculate Isha.
  */
-#include <stdexcept>
-#include <string_view>
 enum class Shafaq {
   /**
    * @brief General is a combination of Ahmer and Abyad.
@@ -56,5 +59,6 @@ constexpr Shafaq from_string(std::string_view s) {
 }
 
 } // namespace ShafaqUtils
+} // namespace adhan
 
 #endif // SHAFAQ_HPP

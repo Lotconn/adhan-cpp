@@ -3,6 +3,8 @@
 
 #include <chrono>
 
+namespace adhan {
+
 class JSDate {
 public:
   /**
@@ -67,5 +69,6 @@ private:
   std::chrono::system_clock::time_point tp_{};
   bool valid_ = true;
 };
+} // namespace adhan
 
 #endif // JSDATE_HPP

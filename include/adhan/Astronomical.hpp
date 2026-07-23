@@ -5,6 +5,8 @@
 #include <JSDate.hpp>
 #include <Shafaq.hpp>
 
+namespace adhan {
+
 namespace Astronomical {
 
 /* The geometric mean longitude of the sun in degrees. */
@@ -98,5 +100,6 @@ JSDate seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
 int daysSinceSolstice(int dayOfYear, int year, double latitude);
 
 } // namespace Astronomical
+} // namespace adhan
 
 #endif // ASTRONOMICAL_HPP

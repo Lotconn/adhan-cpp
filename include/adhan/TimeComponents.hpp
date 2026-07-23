@@ -3,6 +3,8 @@
 
 #include <JSDate.hpp>
 
+namespace adhan {
+
 class TimeComponents {
 public:
   int hours;
@@ -17,5 +19,6 @@ public:
 private:
   bool valid_;
 };
+} // namespace adhan
 
 #endif // TIMECOMPONENTS_HPP

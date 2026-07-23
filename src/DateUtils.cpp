@@ -1,6 +1,8 @@
 #include <DateUtils.hpp>
 #include <chrono>
 
+namespace adhan {
+
 JSDate dateByAddingDays(const JSDate &date, int days) {
   if (!date.isValid()) {
     return JSDate::invalid();
@@ -69,3 +71,4 @@ int dayOfYear(const JSDate &date) {
 }
 
 bool isValidDate(const JSDate &date) { return date.isValid(); }
+} // namespace adhan

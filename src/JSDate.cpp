@@ -1,6 +1,8 @@
 #include <JSDate.hpp>
 #include <cassert>
 
+namespace adhan {
+
 namespace {
 using namespace std::chrono;
 
@@ -125,3 +127,4 @@ bool operator>=(const JSDate &lhs, const JSDate &rhs) {
     return false;
   return lhs.tp_ >= rhs.tp_;
 }
+} // namespace adhan

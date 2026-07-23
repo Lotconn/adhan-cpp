@@ -12,6 +12,8 @@
 #include <cmath>
 #include <string>
 
+using namespace adhan;
+
 namespace {
 
 // Mirrors Jest's toBeCloseTo(expected, precision):

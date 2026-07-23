@@ -3,6 +3,9 @@
 
 #include <stdexcept>
 #include <string_view>
+
+namespace adhan {
+
 enum class Rounding {
   Nearest,
   Up,
@@ -48,5 +51,6 @@ constexpr Rounding from_string(std::string_view s) {
 }
 
 } // namespace RoundingUtils
+} // namespace adhan
 
 #endif /* ROUNDING_HPP */

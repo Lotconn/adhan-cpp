@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+namespace adhan {
+
 SolarCoordinates::SolarCoordinates(double julianDay) {
   const double T = Astronomical::julianCentury(julianDay);
   const double L0 = Astronomical::meanSolarLongitude(T);
@@ -42,3 +44,4 @@ SolarCoordinates::SolarCoordinates(double julianDay) {
       Theta0 +
       (dPsi * 3600 * std::cos(degreesToRadians(Epsilon0 + dEpsilon))) / 3600;
 }
+} // namespace adhan

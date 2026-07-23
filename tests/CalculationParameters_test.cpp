@@ -4,6 +4,8 @@
 #include <CalculationParameters.hpp>
 #include <HighLatitudeRule.hpp>
 
+using namespace adhan;
+
 TEST_CASE("Verifying the night portion defined by the high latitude rule") {
   CalculationParameters p1(std::nullopt, 18, 18);
   p1.highLatitudeRule = HighLatitudeRule::MiddleOfTheNight;

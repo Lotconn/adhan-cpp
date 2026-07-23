@@ -2,6 +2,8 @@
 #include <chrono>
 #include <cmath>
 
+namespace adhan {
+
 TimeComponents::TimeComponents(double num) {
   valid_ = !std::isnan(num);
   if (!valid_) {
@@ -28,3 +30,4 @@ JSDate TimeComponents::utcDate(int year, int month, int date) const {
             std::chrono::seconds{seconds};
   return JSDate(tp);
 }
+} // namespace adhan

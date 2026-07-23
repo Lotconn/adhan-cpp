@@ -4,6 +4,8 @@
 #include <cmath>
 #include <numbers>
 
+namespace adhan {
+
 inline constexpr double PI = std::numbers::pi;
 
 constexpr double degreesToRadians(double degrees) {
@@ -29,5 +31,6 @@ inline double quadrantShiftAngle(double angle) {
 
   return angle - 360 * std::round(angle / 360.0);
 }
+} // namespace adhan
 
 #endif /* MATHUTILS_HPP */

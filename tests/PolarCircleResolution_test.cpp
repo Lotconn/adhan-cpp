@@ -10,6 +10,8 @@
 
 #include <array>
 
+using namespace adhan;
+
 namespace {
 const std::array<JSDate PrayerTimes::*, 4> kPrayersToCheck = {
     &PrayerTimes::fajr, &PrayerTimes::sunrise, &PrayerTimes::maghrib,

@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+namespace adhan {
+
 SolarTime::SolarTime(const JSDate &date, const Coordinates &coordinates)
     : observer(coordinates),
       solar(Astronomical::julianDay(date.getFullYear(), date.getMonth() + 1,
@@ -49,3 +51,4 @@ double SolarTime::afternoon(double shadowLength) {
   const double angle = radiansToDegrees(std::atan(1.0 / inverse));
   return hourAngle(angle, true);
 }
+} // namespace adhan

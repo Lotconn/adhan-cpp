@@ -5,6 +5,8 @@
 #include <sstream>
 #include <stdexcept>
 
+using namespace adhan;
+
 namespace {
 constexpr std::array<const char *, 12> kMonthNames = {
     "January", "February", "March",     "April",   "May",      "June",

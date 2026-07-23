@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+using namespace adhan;
+
 namespace {
 // Mirrors Jest's toBeCloseTo(expected, precision):
 // |actual - expected| < 10^-precision / 2

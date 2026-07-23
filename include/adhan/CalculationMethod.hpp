@@ -3,6 +3,8 @@
 
 #include <CalculationParameters.hpp>
 
+namespace adhan {
+
 namespace CalculationMethod {
 
 // Muslim World League
@@ -45,5 +47,6 @@ CalculationParameters Turkey();
 CalculationParameters Other();
 
 }; // namespace CalculationMethod
+} // namespace adhan
 
 #endif /* CALCULATIONMETHOD_HPP */

@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+namespace adhan {
+
 namespace {
 
 /* Degrees to add/remove at each resolution step */
@@ -113,3 +115,4 @@ PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
   }
   }
 }
+} // namespace adhan

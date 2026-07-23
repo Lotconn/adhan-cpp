@@ -1,4 +1,4 @@
-#include <MathUtils.hpp>
+#include <adhan/MathUtils.hpp>
 #include <fstream>
 #include <iostream>
 #include <json.hpp>

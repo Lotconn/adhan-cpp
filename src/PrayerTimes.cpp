@@ -9,6 +9,8 @@
 #include <cmath>
 #include <limits>
 
+namespace adhan {
+
 namespace {
 /**
  * Mirrors JS's `Number(someDate)` on an Invalid Date evaluating to NaN,
@@ -234,3 +236,4 @@ Prayer PrayerTimes::nextPrayer(const JSDate &date) const {
     return Prayer::Fajr;
   }
 }
+} // namespace adhan

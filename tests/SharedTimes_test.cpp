@@ -23,6 +23,8 @@
 
 using json = nlohmann::json;
 
+using namespace adhan;
+
 namespace {
 
 /**
