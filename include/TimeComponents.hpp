@@ -12,6 +12,7 @@ public:
   explicit TimeComponents(double num);
 
   JSDate utcDate(int year, int month, int date) const;
+  bool isValid() const { return valid_; } // <-- added
 
 private:
   bool valid_;

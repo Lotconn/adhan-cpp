@@ -6,43 +6,43 @@
 namespace CalculationMethod {
 
 // Muslim World League
-static CalculationParameters MuslimWorldLeague();
+CalculationParameters MuslimWorldLeague();
 
 // Egyptian General Authority of Survey
-static CalculationParameters Egyptian();
+CalculationParameters Egyptian();
 
 // University of Islamic Sciences, Karachi
-static CalculationParameters Karachi();
+CalculationParameters Karachi();
 
 // Umm al-Qura University, Makkah
-static CalculationParameters UmmAlQura();
+CalculationParameters UmmAlQura();
 
 // Dubai
-static CalculationParameters Dubai();
+CalculationParameters Dubai();
 
 // Moonsighting Committee
-static CalculationParameters MoonsightingCommittee();
+CalculationParameters MoonsightingCommittee();
 
 // ISNA
-static CalculationParameters NorthAmerica();
+CalculationParameters NorthAmerica();
 
 // Kuwait
-static CalculationParameters Kuwait();
+CalculationParameters Kuwait();
 
 // Qatar
-static CalculationParameters Qatar();
+CalculationParameters Qatar();
 
 // Singapore
-static CalculationParameters Singapore();
+CalculationParameters Singapore();
 
 // Institute of Geophysics, University of Tehran
-static CalculationParameters Tehran();
+CalculationParameters Tehran();
 
 // Dianet
-static CalculationParameters Turkey();
+CalculationParameters Turkey();
 
 // Other
-static CalculationParameters Other();
+CalculationParameters Other();
 
 }; // namespace CalculationMethod
 

@@ -8,4 +8,7 @@ obj/
 .cache/
 
 # Logs
-build.log
+*.log
+
+# Test executables
+run_tests

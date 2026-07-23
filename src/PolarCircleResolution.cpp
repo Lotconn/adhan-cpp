@@ -80,6 +80,11 @@ aqrabBaladResolver(const Coordinates &coordinates, const JSDate &date,
 PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
                                               const JSDate &date,
                                               const Coordinates &coordinates) {
+
+#ifdef ADHAN_TESTING
+  ++polarCircleResolvedValuesCallCount;
+#endif
+
   auto makeDefault = [&]() {
     const JSDate tomorrow = dateByAddingDays(date, 1);
     return PolarCircleResolver{

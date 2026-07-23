@@ -23,7 +23,6 @@ struct NightPortions {
   double isha;
 };
 
-// TODO: Only a stub for now, with a mock API
 class CalculationParameters {
 public:
   /* Madhab to determine how Asr is calculated */
