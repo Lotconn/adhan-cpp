@@ -1,4 +1,4 @@
-#include <adhan/Adhan.hpp>
+#include <adhan/MathUtils.hpp>
 #include <iostream>
 
 int main() {
