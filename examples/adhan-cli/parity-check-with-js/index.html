@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Adhan JS — CLI Parity Test Harness</title>
+<style>
+  body {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    color: #222;
+    background: #fff;
+  }
+  h1 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  p.hint {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0;
+  }
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid #ccc;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    gap: 0.2rem;
+  }
+  input, select {
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 0.3rem;
+  }
+  button {
+    grid-column: 1 / -1;
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+  pre#output {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<h1>Adhan JS — CLI Parity Test Harness</h1>
+<p class="hint">
+  Same inputs as the C++ CLI (<code>main.cpp</code>). Compare the output
+  below against a run of the CLI with matching arguments. All times shown
+  in UTC, matching the CLI's own output convention.
+</p>
+
+<form id="form">
+  <label>Latitude
+    <input type="number" step="any" id="latitude" value="23.775787" required>
+  </label>
+  <label>Longitude
+    <input type="number" step="any" id="longitude" value="90.368047" required>
+  </label>
+  <label>Date (YYYY-MM-DD)
+    <input type="date" id="date">
+  </label>
+  <label>Method
+    <select id="method">
+      <option selected>MuslimWorldLeague</option>
+      <option>Egyptian</option>
+      <option>Karachi</option>
+      <option>UmmAlQura</option>
+      <option>Dubai</option>
+      <option>MoonsightingCommittee</option>
+      <option>NorthAmerica</option>
+      <option>Kuwait</option>
+      <option>Qatar</option>
+      <option>Singapore</option>
+      <option>Turkey</option>
+      <option>Tehran</option>
+      <option>Other</option>
+    </select>
+  </label>
+  <label>Madhab
+    <select id="madhab">
+      <option selected>Shafi</option>
+      <option>Hanafi</option>
+    </select>
+  </label>
+  <label>High Latitude Rule
+    <select id="highLatitudeRule">
+      <option selected>MiddleOfTheNight</option>
+      <option>SeventhOfTheNight</option>
+      <option>TwilightAngle</option>
+    </select>
+  </label>
+  <label>Shafaq
+    <select id="shafaq">
+      <option selected>General</option>
+      <option>Ahmer</option>
+      <option>Abyad</option>
+    </select>
+  </label>
+  <label>Rounding
+    <select id="rounding">
+      <option>Nearest</option>
+      <option selected>Up</option>
+      <option>None</option>
+    </select>
+  </label>
+  <label>Polar Circle Resolution
+    <select id="polarCircleResolution">
+      <option selected>Unresolved</option>
+      <option>AqrabBalad</option>
+      <option>AqrabYaum</option>
+    </select>
+  </label>
+  <button type="submit">Calculate</button>
+</form>
+
+<pre id="output">(results appear here)</pre>
+
+<script src="./adhan.umd.min.js"></script>
+<script>
+const {
+  Coordinates,
+  CalculationMethod,
+  CalculationParameters,
+  PrayerTimes,
+  SunnahTimes,
+  HighLatitudeRule,
+  Madhab,
+  Shafaq,
+  Rounding,
+  Prayer,
+  PolarCircleResolution,
+  Qibla,
+} = adhan;
+
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
+// Pre-fill the date field with today's date (system local time), matching
+// the CLI's own default of JSDate::now() when no date argument is given.
+(function setDefaultDateToToday() {
+  const today = new Date();
+  const iso = today.getFullYear() + '-' +
+    pad2(today.getMonth() + 1) + '-' +
+    pad2(today.getDate());
+  document.getElementById('date').value = iso;
+})();
+
+// Formats a Date in UTC, matching the C++ CLI's own formatUtc() output
+// exactly, so the two can be diffed by eye.
+function formatUtc(date) {
+  if (!(date instanceof Date) || isNaN(date.valueOf())) {
+    return '(invalid — likely a polar location/date needing resolution)';
+  }
+  return (
+    date.getUTCFullYear() + '-' +
+    pad2(date.getUTCMonth() + 1) + '-' +
+    pad2(date.getUTCDate()) + ' ' +
+    pad2(date.getUTCHours()) + ':' +
+    pad2(date.getUTCMinutes()) + ':' +
+    pad2(date.getUTCSeconds()) + ' UTC'
+  );
+}
+
+function resolveMethod(name) {
+  const fn = CalculationMethod[name];
+  return fn ? fn() : CalculationMethod.Other();
+}
+
+document.getElementById('form').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const latitude = parseFloat(document.getElementById('latitude').value);
+  const longitude = parseFloat(document.getElementById('longitude').value);
+  const dateInput = document.getElementById('date').value;
+  const method = document.getElementById('method').value;
+  const madhab = document.getElementById('madhab').value;
+  const highLatitudeRule = document.getElementById('highLatitudeRule').value;
+  const shafaq = document.getElementById('shafaq').value;
+  const rounding = document.getElementById('rounding').value;
+  const polarCircleResolution = document.getElementById('polarCircleResolution').value;
+
+  // Match the CLI's date parsing: bare Y/M/D, no time-of-day, no zone.
+  let date;
+  if (dateInput) {
+    const [y, m, d] = dateInput.split('-').map(Number);
+    date = new Date(y, m - 1, d);
+  } else {
+    date = new Date();
+  }
+
+  const coordinates = new Coordinates(latitude, longitude);
+
+  const params = resolveMethod(method);
+  params.madhab = Madhab[madhab];
+  params.highLatitudeRule = HighLatitudeRule[highLatitudeRule];
+  params.shafaq = Shafaq[shafaq];
+  params.rounding = Rounding[rounding];
+  params.polarCircleResolution = polarCircleResolution;
+
+  const lines = [];
+
+  lines.push('=== Inputs ===');
+  lines.push(`Coordinates:      (${coordinates.latitude}, ${coordinates.longitude})`);
+  lines.push(`Date:             ${formatUtc(date)}`);
+  lines.push(`Method:           ${method}`);
+  lines.push(`Madhab:           ${params.madhab}`);
+  lines.push(`Rounding:         ${params.rounding}`);
+  lines.push(`Shafaq:           ${params.shafaq}`);
+  lines.push('');
+
+  const prayerTimes = new PrayerTimes(coordinates, date, params);
+
+  lines.push('=== Prayer Times (UTC) ===');
+  lines.push(`Fajr:             ${formatUtc(prayerTimes.fajr)}`);
+  lines.push(`Sunrise:          ${formatUtc(prayerTimes.sunrise)}`);
+  lines.push(`Dhuhr:            ${formatUtc(prayerTimes.dhuhr)}`);
+  lines.push(`Asr:              ${formatUtc(prayerTimes.asr)}`);
+  lines.push(`Maghrib:          ${formatUtc(prayerTimes.maghrib)}`);
+  lines.push(`Isha:             ${formatUtc(prayerTimes.isha)}`);
+  lines.push('');
+
+  lines.push('=== Convenience Utilities ===');
+  for (const p of [Prayer.Fajr, Prayer.Sunrise, Prayer.Dhuhr, Prayer.Asr, Prayer.Maghrib, Prayer.Isha]) {
+    const t = prayerTimes.timeForPrayer(p);
+    lines.push(`timeForPrayer(${p}):  ${t ? formatUtc(t) : '(none)'}`);
+  }
+  const current = prayerTimes.currentPrayer();
+  const next = prayerTimes.nextPrayer();
+  lines.push(`currentPrayer():  ${current}`);
+  lines.push(`nextPrayer():     ${next}`);
+  const nextTime = prayerTimes.timeForPrayer(next);
+  if (nextTime) {
+    lines.push(`Time of next:     ${formatUtc(nextTime)}`);
+  }
+  lines.push('');
+
+  const sunnahTimes = new SunnahTimes(prayerTimes);
+  lines.push('=== Sunnah Times (UTC) ===');
+  lines.push(`Middle of the night:    ${formatUtc(sunnahTimes.middleOfTheNight)}`);
+  lines.push(`Last third of the night: ${formatUtc(sunnahTimes.lastThirdOfTheNight)}`);
+  lines.push('');
+
+  lines.push('=== Qibla ===');
+  lines.push(`Direction from North: ${Qibla(coordinates)} degrees`);
+
+  document.getElementById('output').textContent = lines.join('\n');
+});
+</script>
+
+</body>
+</html>
