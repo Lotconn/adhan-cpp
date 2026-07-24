@@ -1,13 +1,31 @@
 # Adhan C++
 
-Adhan C++ is a C++20 port of [adhan-js](https://github.com/batoulapps/adhan-js) for calculating Islamic prayer times.
+Adhan C++ is a C++20 port of [adhan-js](https://github.com/batoulapps/adhan-js) 💜 for calculating Islamic prayer times.
 
 All of the astronomical logic, the calculation methods, and the overall semantics of this library come directly from the original TypeScript implementation. This port only translates that logic into C++; the underlying math and design were already worked out by the adhan-js authors and contributors. If you are looking for the reference implementation, or want to understand the astronomical formulas in more depth, that repository is the right place to start.
+
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Building the library](#building-the-library)
+- [Usage](#usage)
+  - [Coordinates](#coordinates)
+  - [Date](#date)
+  - [Calculation parameters](#calculation-parameters)
+  - [Prayer times](#prayer-times)
+  - [Convenience utilities](#convenience-utilities)
+  - [Sunnah times](#sunnah-times)
+  - [Qibla direction](#qibla-direction)
+- [Running the tests](#running-the-tests)
+- [Examples](#examples)
+  - [CLI](#cli)
+  - [Browser parity check](#browser-parity-check)
+- [License](#license)
 
 ## Requirements
 
 - A C++20 compiler (GCC 13+ or a comparable Clang build with full C++20 `<chrono>` calendar support)
-- No third party runtime dependencies. The library itself has no external dependencies; a couple of test-only dependencies are described below.
+- No third party runtime dependencies. The library itself has no external dependencies; a couple of test-only dependencies are described below in the [tests](#running-the-tests) section.
 
 ## Building the library
 
