@@ -5,23 +5,57 @@ LIBNAMESPACE := adhan
 INCLUDE_FLAGS := -Iinclude/$(LIBNAMESPACE) \
 								-Iinclude \
 
+# ---------------------------- TZ FALLBACK -------------------------------
+# `make TZFALLBACK=1 <target>` (or one of the *-tzfallback convenience
+# targets below) compiles the library/tests with ADHAN_USE_CTIME_FALLBACK
+# defined, using the <ctime>-based JSDate implementation instead of the
+# <chrono> calendar/tz one. OBJ_DIR/TARGET/TEST_OBJ_DIR/TEST_TARGET are all
+# renamed under this mode so the two variants never share or clobber each
+# other's object files or artifacts.
+ifdef TZFALLBACK
+TZ_DEFINE    := -DADHAN_USE_CTIME_FALLBACK
+OBJ_DIR      := obj
+TARGET       := libadhan.a
+TEST_OBJ_DIR := obj/tests
+TEST_TARGET  := run_tests
+else
+TZ_DEFINE    :=
+OBJ_DIR      := obj
+TARGET       := libadhan.a
+TEST_OBJ_DIR := obj/tests
+TEST_TARGET  := run_tests
+endif
+# -------------------------------------------------------------------------
+
 CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic \
             -Wno-unused-variable \
             -Wno-unused-function \
             -Wno-unused-parameter \
+            $(TZ_DEFINE) \
             $(INCLUDE_FLAGS)
 
 SRC_DIR := src
-OBJ_DIR := obj
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
-TARGET := libadhan.a
-
 all: $(TARGET)
 
 everything: all test-build
+
+tzfallback: all-tzfallback
+
+all-tzfallback:
+	$(MAKE) TZFALLBACK=1 all
+
+test-tzfallback:
+	$(MAKE) TZFALLBACK=1 test
+
+everything-tzfallback:
+	$(MAKE) TZFALLBACK=1 everything
+
+test-build-tzfallback:
+	$(MAKE) TZFALLBACK=1 test-build
 
 $(TARGET): $(OBJ)
 	ar rcs $@ $^
@@ -48,7 +82,7 @@ TEST_CXXFLAGS := $(CXXFLAGS) -DADHAN_TESTING \
                   -I$(TEST_INCLUDE_DIR) -I$(DOCTEST_DIR) \
                   -Wno-unused-variable -Wno-unused-parameter
 
-TEST_OBJ_DIR := obj/tests
+# TEST_OBJ_DIR is set at the top (tzfallback-aware) — not redefined here.
 
 # Library sources, recompiled with ADHAN_TESTING defined
 TEST_LIB_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(TEST_OBJ_DIR)/lib_%.o,$(SRC))
@@ -61,7 +95,7 @@ TEST_UTIL_OBJ := $(patsubst $(TEST_SRC_DIR)/%.cpp,$(TEST_OBJ_DIR)/util_%.o,$(TES
 TEST_CASE_SRC := $(wildcard $(TEST_DIR)/*.cpp)
 TEST_CASE_OBJ := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_OBJ_DIR)/case_%.o,$(TEST_CASE_SRC))
 
-TEST_TARGET := run_tests
+# TEST_TARGET is set at the top (tzfallback-aware) — not redefined here.
 
 test-build: $(TEST_TARGET)
 
@@ -88,7 +122,11 @@ $(TEST_OBJ_DIR):
 # ------------------------------------------------------------------------
 
 clean:
-	rm -rf build.log $(OBJ_DIR) $(TARGET) $(TEST_TARGET)
+	rm -rf build.log \
+	  obj obj-tzfallback \
+	  libadhan.a libadhan-tzfallback.a \
+	  run_tests run_tests-tzfallback \
+	  test.log test-verbose.log
 
 help:
 	@echo "Available targets:"
@@ -101,6 +139,13 @@ help:
 	@echo "  clean          Remove build artifacts"
 	@echo "  help           Show this help message"
 	@echo ""
+	@echo "  --- <ctime>-fallback variants (ADHAN_USE_CTIME_FALLBACK defined) ---"
+	@echo "  tzfallback             Same as all-tzfallback"
+	@echo "  all-tzfallback         Build the static library, but use the ctime fallback($(TARGET))"
+	@echo "  test-tzfallback        Build and run all tests"
+	@echo "  test-build-tzfallback  Only build the tests without running them"
+	@echo "  everything-tzfallback  Runs all-tzfallback and test-build-tzfallback"
+	@echo ""
 	@echo "Test executable options:"
 	@echo ""
 	@echo "  ./$(TEST_TARGET) --help"
@@ -110,4 +155,5 @@ help:
 	@echo "  ./$(TEST_TARGET) --list-reporters"
 	@echo "  ./$(TEST_TARGET) --test-case=<pattern>"
 
-.PHONY: everything all clean test test-verbose help
+.PHONY: everything all clean test test-verbose help \
+        tzfallback all-tzfallback test-tzfallback everything-tzfallback test-build-tzfallback
