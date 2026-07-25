@@ -1,6 +1,6 @@
-#include <Astronomical.hpp>
-#include <MathUtils.hpp>
-#include <SolarTime.hpp>
+#include "SolarTime.hpp"
+#include "Astronomical.hpp"
+#include "MathUtils.hpp"
 
 #include <cmath>
 

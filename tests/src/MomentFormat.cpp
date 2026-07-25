@@ -1,4 +1,4 @@
-#include <MomentFormat.hpp>
+#include "MomentFormat.hpp"
 #include <array>
 #include <chrono>
 #include <iomanip>
@@ -18,6 +18,8 @@ std::string pad2(int v) {
   return oss.str();
 }
 } // namespace
+
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
 
 std::string formatInZone(const JSDate &date, const std::string &tzName,
                          const std::string &formatStr) {
@@ -94,3 +96,12 @@ std::string formatInZone(const JSDate &date, const std::string &tzName,
   }
   return result;
 }
+#else
+/* The fallback build tests should never use this */
+std::string formatInZone(const JSDate &date, const std::string &tzName,
+                         const std::string &formatStr) {
+  throw std::logic_error(
+      "`formatInZone` disabled for fallback builds, cannot proceed.");
+  return {};
+}
+#endif

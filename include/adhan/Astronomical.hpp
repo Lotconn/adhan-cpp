@@ -1,9 +1,9 @@
 #ifndef ASTRONOMICAL_HPP
 #define ASTRONOMICAL_HPP
 
-#include <Coordinates.hpp>
-#include <JSDate.hpp>
-#include <Shafaq.hpp>
+#include "Coordinates.hpp"
+#include "JSDate.hpp"
+#include "Shafaq.hpp"
 
 namespace adhan {
 

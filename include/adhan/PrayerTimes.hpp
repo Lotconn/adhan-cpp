@@ -1,10 +1,10 @@
 #ifndef PRAYERTIMES_HPP
 #define PRAYERTIMES_HPP
 
-#include <CalculationParameters.hpp>
-#include <Coordinates.hpp>
-#include <JSDate.hpp>
-#include <Prayer.hpp>
+#include "CalculationParameters.hpp"
+#include "Coordinates.hpp"
+#include "JSDate.hpp"
+#include "Prayer.hpp"
 
 #include <optional>
 

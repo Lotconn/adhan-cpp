@@ -1,7 +1,7 @@
 #ifndef QIBLA_HPP
 #define QIBLA_HPP
 
-#include <Coordinates.hpp>
+#include "Coordinates.hpp"
 
 namespace adhan {
 double qibla(const Coordinates &coordinates);

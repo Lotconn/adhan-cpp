@@ -1,12 +1,12 @@
+#include "MomentFormat.hpp"
 #include "doctest.h"
-#include <MomentFormat.hpp>
 
-#include <CalculationMethod.hpp>
-#include <Coordinates.hpp>
-#include <DateUtils.hpp>
-#include <JSDate.hpp>
-#include <PolarCircleResolution.hpp>
-#include <PrayerTimes.hpp>
+#include "CalculationMethod.hpp"
+#include "Coordinates.hpp"
+#include "DateUtils.hpp"
+#include "JSDate.hpp"
+#include "PolarCircleResolution.hpp"
+#include "PrayerTimes.hpp"
 
 #include <array>
 
@@ -148,6 +148,8 @@ TEST_CASE_FIXTURE(PolarCircleFixture,
   }
 }
 
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
+
 TEST_CASE("Polar Night case: calculating times for the polar circle") {
   Coordinates coordinates(66.7222444, 17.7189);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
@@ -169,6 +171,8 @@ TEST_CASE("Polar Night case: calculating times for the polar circle") {
   CHECK(formatInZone(p.isha, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
         "June 21, 2020 11:51 PM");
 }
+
+#endif
 
 TEST_CASE("calculating prayer times near the International Date Line") {
   /**

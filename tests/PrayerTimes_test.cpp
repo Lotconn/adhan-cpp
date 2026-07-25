@@ -1,16 +1,22 @@
+#include "DateUtils.hpp"
+#include "HighLatitudeRule.hpp"
 #include "doctest.h"
-#include <DateUtils.hpp>
-#include <HighLatitudeRule.hpp>
 
-#include <CalculationMethod.hpp>
-#include <Coordinates.hpp>
-#include <JSDate.hpp>
-#include <Madhab.hpp>
-#include <MomentFormat.hpp>
-#include <PrayerTimes.hpp>
+#include "CalculationMethod.hpp"
+#include "Coordinates.hpp"
+#include "JSDate.hpp"
+#include "Madhab.hpp"
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#include "MomentFormat.hpp"
+#endif
+#include "PrayerTimes.hpp"
 
 using namespace adhan;
 
+/* ! Feature not a part of our core library ! */
+/* All the test suites/cases that use `formatInZone` */
+/* Excluded for the fallback build - will fail in unsupported systems */
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
 TEST_CASE("calculating prayer times") {
   JSDate date(2015, 6, 12);
   CalculationParameters params = CalculationMethod::NorthAmerica();
@@ -129,40 +135,6 @@ TEST_CASE("calculating times for the singapore method") {
   CHECK(formatInZone(p.isha, "Asia/Kuala_Lumpur", "h:mm A") == "8:41 PM");
 }
 
-/* Second part */
-TEST_CASE("getting the time for a given prayer") {
-  JSDate date(2016, 6, 1);
-  CalculationParameters params = CalculationMethod::MuslimWorldLeague();
-  params.madhab = Madhab::Hanafi;
-  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
-  PrayerTimes p(Coordinates(59.9094, 10.7349), date, params);
-
-  CHECK(p.timeForPrayer(Prayer::Fajr) == p.fajr);
-  CHECK(p.timeForPrayer(Prayer::Sunrise) == p.sunrise);
-  CHECK(p.timeForPrayer(Prayer::Dhuhr) == p.dhuhr);
-  CHECK(p.timeForPrayer(Prayer::Asr) == p.asr);
-  CHECK(p.timeForPrayer(Prayer::Maghrib) == p.maghrib);
-  CHECK(p.timeForPrayer(Prayer::Isha) == p.isha);
-  CHECK_FALSE(p.timeForPrayer(Prayer::None).has_value());
-}
-
-TEST_CASE("getting the current prayer") {
-  JSDate date(2015, 8, 1);
-  CalculationParameters params = CalculationMethod::Karachi();
-  params.madhab = Madhab::Hanafi;
-  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
-  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
-
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.fajr, -1)) == Prayer::None);
-  CHECK(p.currentPrayer(p.fajr) == Prayer::Fajr);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.fajr, 1)) == Prayer::Fajr);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.sunrise, 1)) == Prayer::Sunrise);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.dhuhr, 1)) == Prayer::Dhuhr);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.asr, 1)) == Prayer::Asr);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.maghrib, 1)) == Prayer::Maghrib);
-  CHECK(p.currentPrayer(dateByAddingSeconds(p.isha, 1)) == Prayer::Isha);
-}
-
 TEST_CASE("changing the time for asr with different madhabs") {
   JSDate date(2015, 11, 1);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
@@ -174,40 +146,6 @@ TEST_CASE("changing the time for asr with different madhabs") {
 
   PrayerTimes p2(Coordinates(35.775, -78.6336), date, params);
   CHECK(formatInZone(p2.asr, "America/New_York", "h:mm A") == "3:22 PM");
-}
-
-TEST_CASE("getting the next prayer") {
-  JSDate date(2015, 8, 1);
-  CalculationParameters params = CalculationMethod::Karachi();
-  params.madhab = Madhab::Hanafi;
-  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
-  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
-
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.fajr, -1)) == Prayer::Fajr);
-  CHECK(p.nextPrayer(p.fajr) == Prayer::Sunrise);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.fajr, 1)) == Prayer::Sunrise);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.sunrise, 1)) == Prayer::Dhuhr);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.dhuhr, 1)) == Prayer::Asr);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.asr, 1)) == Prayer::Maghrib);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.maghrib, 1)) == Prayer::Isha);
-  CHECK(p.nextPrayer(dateByAddingSeconds(p.isha, 1)) == Prayer::None);
-}
-
-TEST_CASE("getting the current next prayer") {
-  JSDate date = JSDate::now();
-  CalculationParameters params = CalculationMethod::Karachi();
-  params.madhab = Madhab::Hanafi;
-  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
-  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
-  Prayer current = p.currentPrayer();
-  Prayer next = p.nextPrayer();
-  CHECK((current != Prayer::None || next != Prayer::None));
-}
-
-TEST_CASE("getting the madhab shadow length") {
-  CHECK(shadow_length(Madhab::Shafi) == 1);
-  CHECK(shadow_length(Madhab::Hanafi) == 2);
-  CHECK_THROWS(shadow_length(static_cast<Madhab>(999)));
 }
 
 TEST_CASE("adjusting prayer time with high latitude rule") {
@@ -241,14 +179,6 @@ TEST_CASE("adjusting prayer time with high latitude rule") {
   CHECK(formatInZone(p3.asr, tzid, "h:mm A") == "5:46 PM");
   CHECK(formatInZone(p3.maghrib, tzid, "h:mm A") == "10:01 PM");
   CHECK(formatInZone(p3.isha, tzid, "h:mm A") == "11:50 PM");
-}
-
-TEST_CASE("getting recommended high latitude rule") {
-  Coordinates coords1(45.983226, -3.216649);
-  CHECK(recommended(coords1) == HighLatitudeRule::MiddleOfTheNight);
-
-  Coordinates coords2(48.983226, -3.216649);
-  CHECK(recommended(coords2) == HighLatitudeRule::SeventhOfTheNight);
 }
 
 TEST_SUITE("Moonsighting Committee method with shafaq general") {
@@ -423,6 +353,83 @@ TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
     CHECK(formatInZone(p.maghrib, "America/New_York", "h:mm A") == "6:13 PM");
     CHECK(formatInZone(p.isha, "America/New_York", "h:mm A") == "7:37 PM");
   }
+}
+#endif
+
+/* Second part */
+TEST_CASE("getting the time for a given prayer") {
+  JSDate date(2016, 6, 1);
+  CalculationParameters params = CalculationMethod::MuslimWorldLeague();
+  params.madhab = Madhab::Hanafi;
+  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
+  PrayerTimes p(Coordinates(59.9094, 10.7349), date, params);
+
+  CHECK(p.timeForPrayer(Prayer::Fajr) == p.fajr);
+  CHECK(p.timeForPrayer(Prayer::Sunrise) == p.sunrise);
+  CHECK(p.timeForPrayer(Prayer::Dhuhr) == p.dhuhr);
+  CHECK(p.timeForPrayer(Prayer::Asr) == p.asr);
+  CHECK(p.timeForPrayer(Prayer::Maghrib) == p.maghrib);
+  CHECK(p.timeForPrayer(Prayer::Isha) == p.isha);
+  CHECK_FALSE(p.timeForPrayer(Prayer::None).has_value());
+}
+
+TEST_CASE("getting the current prayer") {
+  JSDate date(2015, 8, 1);
+  CalculationParameters params = CalculationMethod::Karachi();
+  params.madhab = Madhab::Hanafi;
+  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
+  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
+
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.fajr, -1)) == Prayer::None);
+  CHECK(p.currentPrayer(p.fajr) == Prayer::Fajr);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.fajr, 1)) == Prayer::Fajr);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.sunrise, 1)) == Prayer::Sunrise);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.dhuhr, 1)) == Prayer::Dhuhr);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.asr, 1)) == Prayer::Asr);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.maghrib, 1)) == Prayer::Maghrib);
+  CHECK(p.currentPrayer(dateByAddingSeconds(p.isha, 1)) == Prayer::Isha);
+}
+
+TEST_CASE("getting the next prayer") {
+  JSDate date(2015, 8, 1);
+  CalculationParameters params = CalculationMethod::Karachi();
+  params.madhab = Madhab::Hanafi;
+  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
+  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
+
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.fajr, -1)) == Prayer::Fajr);
+  CHECK(p.nextPrayer(p.fajr) == Prayer::Sunrise);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.fajr, 1)) == Prayer::Sunrise);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.sunrise, 1)) == Prayer::Dhuhr);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.dhuhr, 1)) == Prayer::Asr);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.asr, 1)) == Prayer::Maghrib);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.maghrib, 1)) == Prayer::Isha);
+  CHECK(p.nextPrayer(dateByAddingSeconds(p.isha, 1)) == Prayer::None);
+}
+
+TEST_CASE("getting the current next prayer") {
+  JSDate date = JSDate::now();
+  CalculationParameters params = CalculationMethod::Karachi();
+  params.madhab = Madhab::Hanafi;
+  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
+  PrayerTimes p(Coordinates(33.720817, 73.090032), date, params);
+  Prayer current = p.currentPrayer();
+  Prayer next = p.nextPrayer();
+  CHECK((current != Prayer::None || next != Prayer::None));
+}
+
+TEST_CASE("getting the madhab shadow length") {
+  CHECK(shadow_length(Madhab::Shafi) == 1);
+  CHECK(shadow_length(Madhab::Hanafi) == 2);
+  CHECK_THROWS(shadow_length(static_cast<Madhab>(999)));
+}
+
+TEST_CASE("getting recommended high latitude rule") {
+  Coordinates coords1(45.983226, -3.216649);
+  CHECK(recommended(coords1) == HighLatitudeRule::MiddleOfTheNight);
+
+  Coordinates coords2(48.983226, -3.216649);
+  CHECK(recommended(coords2) == HighLatitudeRule::SeventhOfTheNight);
 }
 
 /* Third part */

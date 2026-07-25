@@ -27,6 +27,22 @@ All of the astronomical logic, the calculation methods, and the overall semantic
 - A C++20 compiler (GCC 13+ or a comparable Clang build with full C++20 `<chrono>` calendar support)
 - No third party runtime dependencies. The library itself has no external dependencies; a couple of test-only dependencies are described below in the [tests](#running-the-tests) section.
 
+`JSDate`'s local time handling relies on `<chrono>`'s time zone database support, which in turn depends on the platform having a usable IANA time zone database (`tzdata`) available. Some platforms and toolchains do not ship this, for example Termux on Android at the time of writing.
+
+There is no automatic detection of this at build time. If your platform lacks it, the regular build will fail to compile with errors pointing at `zoned_time`, `current_zone`, or similar. When that happens, build with `TZFALLBACK=1` instead, which compiles the library against a `localtime_r`/`mktime` based implementation instead of `<chrono>`'s calendar and time zone support:
+
+```bash
+make TZFALLBACK=1 all
+```
+
+or, equivalently, using the convenience target:
+
+```bash
+make tzfallback
+```
+
+This produces the same `libadhan.a`/`obj` output as a regular build, just compiled against the fallback implementation, so avoid mixing a regular build and a `TZFALLBACK=1` build in the same `obj` directory without running `make clean` in between. See the [Date](#date) and [Running the tests](#running-the-tests) sections for what this fallback affects, and run `make help` for the full list of `-tzfallback` targets.
+
 ## Building the library
 
 The project builds as a static library using the provided Makefile.
@@ -87,6 +103,8 @@ adhan::JSDate specific(2026, 0, 1);               // January 1, 2026
 ```
 
 Only the year, month, and day matter for prayer time calculation; any time of day components are ignored for that purpose. Internally, `JSDate` reads local time through the platform's `<chrono>` time zone database, so the system needs a usable time zone database available for local time components to resolve correctly.
+
+On platforms where that database is not available, build with `TZFALLBACK=1` as described in [Requirements](#requirements). This compiles `JSDate` against `localtime_r`/`mktime` instead. Local time components still work correctly there, since they defer to the operating system's own time zone handling, but this is worth knowing if you are digging into `JSDate`'s implementation and see two code paths gated behind `ADHAN_USE_CTIME_FALLBACK`.
 
 > **IMPORTANT**:
 > <br>
@@ -153,7 +171,15 @@ make test
 
 This compiles the test sources with the library sources and runs the resulting binary. See `tests/` for the individual test files, which mirror the upstream adhan-js test suite one file at a time so behavior can be checked against the original implementation.
 
+A handful of test cases rely on formatting prayer times in an arbitrary named time zone (see `formatInZone` in `tests/src`), so they can compare against the fixed expected values in the upstream test suite. This formatting is test-only tooling; it is not part of the shipped library, and it needs the same `<chrono>` time zone database described in [Requirements](#requirements) to work.
+
+On a `TZFALLBACK=1` build (`make test-tzfallback`, or `make tzfallback` followed by `make test-tzfallback`), this test-only formatting has no way to resolve an arbitrary named zone, so those specific test cases are excluded rather than run incorrectly. This means the fallback build has slightly less test coverage than a build with full time zone database support, though it does not affect the fallback build's correctness for prayer time calculation itself. There is currently no plan to pull in an extra date library dependency just to cover this gap on incompatible systems.
+
 ## Examples
+
+Although there are several examples in this repository under `examples`, they are mostly for sanity checks during development. With the exception of the `examples/adhan-cli`, its okay to overlook these.
+
+The key example worth talking about is `examples/adhan-cli`, which provides a look at the library usage in a real example, while also letting us check output parity between the original library (see [browser parity check](#browser-parity-check) below for more details).
 
 ### CLI
 
@@ -173,4 +199,4 @@ Run it with no arguments to see the full list of accepted options.
 
 ## License
 
-MIT, matching the license of the upstream adhan-js project. See `LICENSE`.
+MIT, matching the license of the upstream [adhan-js](https://github.com/batoulapps/adhan-js) project. See `LICENSE`.

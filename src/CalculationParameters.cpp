@@ -1,4 +1,4 @@
-#include <CalculationParameters.hpp>
+#include "CalculationParameters.hpp"
 #include <stdexcept>
 
 namespace adhan {

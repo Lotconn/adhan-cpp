@@ -1,9 +1,9 @@
 #ifndef POLARCIRCLERESOLUTION_HPP
 #define POLARCIRCLERESOLUTION_HPP
 
-#include <Coordinates.hpp>
-#include <JSDate.hpp>
-#include <SolarTime.hpp>
+#include "Coordinates.hpp"
+#include "JSDate.hpp"
+#include "SolarTime.hpp"
 
 namespace adhan {
 

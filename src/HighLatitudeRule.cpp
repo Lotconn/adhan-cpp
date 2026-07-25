@@ -1,4 +1,4 @@
-#include <HighLatitudeRule.hpp>
+#include "HighLatitudeRule.hpp"
 
 namespace adhan {
 

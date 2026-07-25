@@ -1,7 +1,7 @@
 #ifndef MOMENTFORMAT_HPP
 #define MOMENTFORMAT_HPP
 
-#include <JSDate.hpp>
+#include "JSDate.hpp"
 #include <string>
 
 using namespace adhan;

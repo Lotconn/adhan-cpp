@@ -1,13 +1,13 @@
 #include "doctest.h"
 
-#include <CalculationMethod.hpp>
-#include <Coordinates.hpp>
-#include <HighLatitudeRule.hpp>
-#include <JSDate.hpp>
-#include <Madhab.hpp>
-#include <PrayerTimes.hpp>
+#include "CalculationMethod.hpp"
+#include "Coordinates.hpp"
+#include "HighLatitudeRule.hpp"
+#include "JSDate.hpp"
+#include "Madhab.hpp"
+#include "PrayerTimes.hpp"
 
-#include <json.hpp>
+#include "json.hpp"
 
 #include <chrono>
 #include <filesystem>
@@ -77,6 +77,9 @@ JSDate parseLocalDate(const std::string &dateStr) {
   ParsedDate d = parseDateStr(dateStr);
   return JSDate(d.year, d.month - 1, d.day);
 }
+
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
+
 /**
  * Mirrors `moment.tz(dateStr + ' ' + timeStr, 'YYYY-MM-DD h:mm A',
  * tzName).toDate()` — parses the date/time as wall-clock time in the given
@@ -99,6 +102,8 @@ JSDate parseInZone(const std::string &tzName, const std::string &dateStr,
   zoned_time<system_clock::duration> zt{zone, localTime, choose::earliest};
   return JSDate(zt.get_sys_time());
 }
+
+#endif
 
 /**
  * Mirrors the custom `toBeWithinRange(comparisonDate, variance)` Jest matcher:
@@ -166,6 +171,8 @@ CalculationParameters parseParams(const json &data) {
 
 } // namespace
 
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
+
 TEST_CASE("compare calculated times against the shared prayer time fixtures") {
   const std::string dir = "tests/Shared/Times";
 
@@ -217,3 +224,5 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
     }
   }
 }
+
+#endif

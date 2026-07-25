@@ -1,11 +1,11 @@
 #ifndef CALCULATIONPARAMETERS_HPP
 #define CALCULATIONPARAMETERS_HPP
 
-#include <HighLatitudeRule.hpp>
-#include <Madhab.hpp>
-#include <PolarCircleResolution.hpp>
-#include <Rounding.hpp>
-#include <Shafaq.hpp>
+#include "HighLatitudeRule.hpp"
+#include "Madhab.hpp"
+#include "PolarCircleResolution.hpp"
+#include "Rounding.hpp"
+#include "Shafaq.hpp"
 #include <optional>
 #include <string>
 

@@ -1,7 +1,7 @@
 #ifndef TIMECOMPONENTS_HPP
 #define TIMECOMPONENTS_HPP
 
-#include <JSDate.hpp>
+#include "JSDate.hpp"
 
 namespace adhan {
 

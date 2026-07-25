@@ -1,7 +1,7 @@
 #ifndef HIGHLATITUDERULE_HPP
 #define HIGHLATITUDERULE_HPP
 
-#include <Coordinates.hpp>
+#include "Coordinates.hpp"
 #include <stdexcept>
 #include <string_view>
 

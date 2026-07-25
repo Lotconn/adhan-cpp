@@ -12,6 +12,8 @@ INCLUDE_FLAGS := -Iinclude/$(LIBNAMESPACE) \
 # <chrono> calendar/tz one. OBJ_DIR/TARGET/TEST_OBJ_DIR/TEST_TARGET are all
 # renamed under this mode so the two variants never share or clobber each
 # other's object files or artifacts.
+
+# In case we want a different name for our fallback
 ifdef TZFALLBACK
 TZ_DEFINE    := -DADHAN_USE_CTIME_FALLBACK
 OBJ_DIR      := obj
@@ -122,11 +124,10 @@ $(TEST_OBJ_DIR):
 # ------------------------------------------------------------------------
 
 clean:
-	rm -rf build.log \
-	  obj obj-tzfallback \
-	  libadhan.a libadhan-tzfallback.a \
-	  run_tests run_tests-tzfallback \
-	  test.log test-verbose.log
+	rm -rf build \
+	  $(OBJ_DIR) \
+	  $(TARGET) \
+	  $(TEST_TARGET)
 
 help:
 	@echo "Available targets:"

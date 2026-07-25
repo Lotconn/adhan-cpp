@@ -1,8 +1,8 @@
 #ifndef DATEUTILS_HPP
 #define DATEUTILS_HPP
 
-#include <JSDate.hpp>
-#include <Rounding.hpp>
+#include "JSDate.hpp"
+#include "Rounding.hpp"
 
 namespace adhan {
 

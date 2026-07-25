@@ -1,5 +1,5 @@
-#include <MathUtils.hpp>
-#include <Qibla.hpp>
+#include "Qibla.hpp"
+#include "MathUtils.hpp"
 
 namespace adhan {
 

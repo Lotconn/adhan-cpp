@@ -1,13 +1,13 @@
 #include "doctest.h"
 
-#include <Astronomical.hpp>
-#include <Coordinates.hpp>
-#include <DateUtils.hpp>
-#include <JSDate.hpp>
-#include <MathUtils.hpp>
-#include <SolarCoordinates.hpp>
-#include <SolarTime.hpp>
-#include <TimeComponents.hpp>
+#include "Astronomical.hpp"
+#include "Coordinates.hpp"
+#include "DateUtils.hpp"
+#include "JSDate.hpp"
+#include "MathUtils.hpp"
+#include "SolarCoordinates.hpp"
+#include "SolarTime.hpp"
+#include "TimeComponents.hpp"
 
 #include <cmath>
 #include <string>

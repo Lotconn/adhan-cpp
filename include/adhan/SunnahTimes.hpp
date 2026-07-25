@@ -1,8 +1,8 @@
 #ifndef SUNNAHTIMES_HPP
 #define SUNNAHTIMES_HPP
 
-#include <JSDate.hpp>
-#include <PrayerTimes.hpp>
+#include "JSDate.hpp"
+#include "PrayerTimes.hpp"
 
 namespace adhan {
 

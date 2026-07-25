@@ -1,7 +1,7 @@
 #ifndef CALCULATIONMETHOD_HPP
 #define CALCULATIONMETHOD_HPP
 
-#include <CalculationParameters.hpp>
+#include "CalculationParameters.hpp"
 
 namespace adhan {
 

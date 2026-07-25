@@ -1,12 +1,15 @@
+
+/* Every test suite includes the `formatInZone` function */
+#if not defined(ADHAN_USE_CTIME_FALLBACK)
 #include "doctest.h"
 
-#include <CalculationMethod.hpp>
-#include <Coordinates.hpp>
-#include <HighLatitudeRule.hpp>
-#include <JSDate.hpp>
-#include <MomentFormat.hpp>
-#include <PrayerTimes.hpp>
-#include <SunnahTimes.hpp>
+#include "CalculationMethod.hpp"
+#include "Coordinates.hpp"
+#include "HighLatitudeRule.hpp"
+#include "JSDate.hpp"
+#include "MomentFormat.hpp"
+#include "PrayerTimes.hpp"
+#include "SunnahTimes.hpp"
 
 using namespace adhan;
 
@@ -124,3 +127,5 @@ TEST_CASE("getting sunnah times for Europe DST change") {
   CHECK(formatInZone(sunnah.lastThirdOfTheNight, "Europe/Paris",
                      "M/D/YY, h:mm A") == "10/25/15, 2:42 AM");
 }
+
+#endif
