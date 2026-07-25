@@ -29,11 +29,18 @@ TEST_TARGET  := run_tests
 endif
 # -------------------------------------------------------------------------
 
+ifdef RELEASE
+BUILD_FLAGS := -O2 -DNDEBUG
+else
+BUILD_FLAGS := -O0 -g
+endif
+
 CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic \
             -Wno-unused-variable \
             -Wno-unused-function \
             -Wno-unused-parameter \
             $(TZ_DEFINE) \
+						$(BUILD_FLAGS) \
             $(INCLUDE_FLAGS)
 
 SRC_DIR := src
@@ -146,6 +153,14 @@ help:
 	@echo "  test-tzfallback        Build and run all tests"
 	@echo "  test-build-tzfallback  Only build the tests without running them"
 	@echo "  everything-tzfallback  Runs all-tzfallback and test-build-tzfallback"
+	@echo ""
+	@echo "  --- Release builds ---"
+	@echo "  make RELEASE=1 <target>   Build with -O2 -DNDEBUG instead of the"
+	@echo "                            default -O0 -g (asserts are disabled)"
+	@echo "                            e.g. make RELEASE=1 all"
+	@echo "                                 make RELEASE=1 test"
+	@echo "                            Combinable with TZFALLBACK=1, e.g.:"
+	@echo "                                 make RELEASE=1 TZFALLBACK=1 all"
 	@echo ""
 	@echo "Test executable options:"
 	@echo ""

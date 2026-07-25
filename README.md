@@ -53,6 +53,26 @@ make
 
 This produces `libadhan.a` in the project root, along with object files under `obj/`.
 
+By default this is a debug build: unoptimized (`-O0 -g`), with internal `assert()` checks (for example in `JSDate::getTime()`) left active, since `NDEBUG` is not defined.
+
+```bash
+make all
+```
+
+builds the debug variant explicitly, same as plain `make`.
+
+For an optimized build with asserts disabled, build with `RELEASE=1`:
+
+```bash
+make RELEASE=1 all
+```
+
+This compiles with `-O2 -DNDEBUG` instead. It can be combined with `TZFALLBACK=1` if both are needed:
+
+```bash
+make RELEASE=1 TZFALLBACK=1 all
+```
+
 ```bash
 make clean
 ```
