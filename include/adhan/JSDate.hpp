@@ -65,9 +65,18 @@ public:
   friend bool operator>(const JSDate &lhs, const JSDate &rhs);
   friend bool operator>=(const JSDate &lhs, const JSDate &rhs);
 
+  /* Boolean getter to check if we are using a fallback or not */
+  bool isUsingFallback();
+
 private:
   std::chrono::system_clock::time_point tp_{};
   bool valid_ = true;
+
+#if defined(ADHAN_USE_CTIME_FALLBACK)
+  bool fallback = true;
+#else
+  bool fallback = false;
+#endif
 };
 } // namespace adhan
 

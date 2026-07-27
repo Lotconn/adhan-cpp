@@ -177,6 +177,8 @@ long long JSDate::getTime() const {
   return duration_cast<milliseconds>(tp_.time_since_epoch()).count();
 }
 
+bool JSDate::isUsingFallback() { return this->fallback; }
+
 bool operator==(const JSDate &lhs, const JSDate &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;

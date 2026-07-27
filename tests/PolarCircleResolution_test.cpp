@@ -43,7 +43,11 @@ struct PolarCircleFixture {
 TEST_CASE_FIXTURE(PolarCircleFixture,
                   "Regular computation: should not attempt any resolution if "
                   "the resolver is set to unresolved") {
+
+  /* So that the compiler does not complain, */
+  // NOLINTBEGIN
   int before = polarCircleResolvedValuesCallCount;
+  // NOLINTEND
 
   PrayerTimes prayersTimes1(ArjeplogSweden, dateAffectedByMidnightSun,
                             unresolvedParams);

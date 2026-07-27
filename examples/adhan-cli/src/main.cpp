@@ -171,6 +171,13 @@ void printUsage(const char *progName) {
 
 int main(int argc, char **argv) {
   if (argc < 3) {
+    // Optional, but we can use this to check if we are using the TZ fallback
+    JSDate dummy;
+    if (dummy.isUsingFallback()) {
+      std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << std::endl;
+    } else {
+      std::cout << "[Note] Using <chrono> tzdb" << std::endl;
+    }
     printUsage(argv[0]);
     return 1;
   }
