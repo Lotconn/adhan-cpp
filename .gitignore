@@ -19,3 +19,7 @@ run_tests
 
 # CMAKE build dir
 build/
+
+# Personal/dev tools
+TODO.md
+todo.txt

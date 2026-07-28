@@ -25,9 +25,10 @@ JSDate TimeComponents::utcDate(int year, int month, int date) const {
   }
 
   using namespace std::chrono;
-  auto tp = sys_days{std::chrono::year{year} / (month + 1) / date} +
-            std::chrono::hours{hours} + std::chrono::minutes{minutes} +
-            std::chrono::seconds{seconds};
+  auto tp =
+      std::chrono::sys_days{std::chrono::year{year} / (month + 1) / date} +
+      std::chrono::hours{hours} + std::chrono::minutes{minutes} +
+      std::chrono::seconds{seconds};
   return JSDate(tp);
 }
 } // namespace adhan

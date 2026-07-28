@@ -22,7 +22,6 @@ struct Fields {
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
 
-// --- <ctime>-based implementation -----------------------------------------
 // Thread-safe gmtime/localtime wrappers (signatures differ per platform).
 #if defined(_WIN32)
 std::tm portableGmtime(std::time_t t) {
@@ -68,7 +67,6 @@ Fields breakDownLocal(std::chrono::system_clock::time_point tp) {
 
 #else
 
-// --- <chrono>-based implementation (unchanged) -----------------------------
 using namespace std::chrono;
 
 Fields breakDownUtc(system_clock::time_point tp) {
