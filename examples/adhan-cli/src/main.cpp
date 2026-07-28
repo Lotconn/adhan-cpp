@@ -20,8 +20,8 @@
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/CalculationParameters.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/HighLatitudeRule.hpp>
 #include <adhan/DateTime.hpp>
+#include <adhan/HighLatitudeRule.hpp>
 #include <adhan/Madhab.hpp>
 #include <adhan/PolarCircleResolution.hpp>
 #include <adhan/Prayer.hpp>
@@ -33,6 +33,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -40,11 +41,12 @@ using namespace Adhan;
 
 namespace {
 
-// ---------------------------------------------------------------------
-// Small formatting helpers (production-safe: UTC only, no named zones —
-// named-zone formatting is test-only infrastructure, not shipped).
-// ---------------------------------------------------------------------
-
+/**
+ * ---------------------------------------------------------------------
+ * Small formatting helpers (production-safe: UTC only, no named zones.
+ * Named-zone formatting is test-only infrastructure, not shipped).
+ * ---------------------------------------------------------------------
+ */
 std::string pad2(int v) {
   std::ostringstream oss;
   oss << std::setw(2) << std::setfill('0') << v;
@@ -63,11 +65,12 @@ std::string formatUtc(const DateTime &date) {
   return oss.str();
 }
 
-// ---------------------------------------------------------------------
-// Argument -> enum/parameter mapping, mirroring the CalculationMethod
-// dispatch shown in the library's own test suite.
-// ---------------------------------------------------------------------
-
+/**
+ * ---------------------------------------------------------------------
+ * Argument -> enum/parameter mapping, mirroring the CalculationMethod
+ * dispatch shown in the library's own test suite.
+ * ---------------------------------------------------------------------
+ */
 CalculationParameters resolveMethod(const std::string &method) {
   if (method == "MuslimWorldLeague")
     return CalculationMethod::MuslimWorldLeague();
@@ -137,7 +140,8 @@ DateTime parseDateArg(const std::string &s) {
   int year = std::stoi(s.substr(0, 4));
   int month = std::stoi(s.substr(5, 2)); // 1-indexed as typed by the user
   int day = std::stoi(s.substr(8, 2));
-  return DateTime(year, month - 1, day); // DateTime's month is 0-indexed, like JS
+  return DateTime(year, month - 1,
+                  day); // DateTime's month is 0-indexed, like JS
 }
 
 std::string prayerName(Prayer p) {
@@ -170,6 +174,14 @@ void printUsage(const char *progName) {
 } // namespace
 
 int main(int argc, char **argv) {
+  /**
+   * Ensure floating-point values print with enough digits to round-trip
+   * exactly, matching JS's default number-to-string behavior. Without this,
+   * std::cout's default precision (6 significant digits) silently truncates
+   * values like coordinates.latitude or the Qibla direction.
+   */
+  std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
+
   if (argc < 3) {
     // Optional, but we can use this to check if we are using the TZ fallback
     DateTime dummy;
@@ -192,10 +204,11 @@ int main(int argc, char **argv) {
   std::string shafaq = (argc > 7) ? argv[7] : "General";
   std::string rounding = (argc > 8) ? argv[8] : "Up";
   std::string polar = (argc > 9) ? argv[9] : "Unresolved";
-
-  // -----------------------------------------------------------------
-  // 1. Coordinates + CalculationParameters
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 1. Coordinates + CalculationParameters
+   * -----------------------------------------------------------------
+   */
   Coordinates coordinates(latitude, longitude);
 
   CalculationParameters params = resolveMethod(method);
@@ -206,8 +219,10 @@ int main(int argc, char **argv) {
   params.polarCircleResolution = resolvePolar(polar);
 
   std::cout << "=== Inputs ===\n";
+  std::cout << std::setprecision(8);
   std::cout << "Coordinates:      (" << coordinates.latitude << ", "
             << coordinates.longitude << ")\n";
+  std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
   std::cout << "Date:             " << formatUtc(date) << "\n";
   std::cout << "Method:           " << method << "\n";
   std::cout << "Madhab:           " << MadhabUtils::to_string(params.madhab)
@@ -217,9 +232,11 @@ int main(int argc, char **argv) {
   std::cout << "Shafaq:           " << ShafaqUtils::to_string(params.shafaq)
             << "\n\n";
 
-  // -----------------------------------------------------------------
-  // 2. PrayerTimes
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 2. PrayerTimes
+   * -----------------------------------------------------------------
+   */
   PrayerTimes prayerTimes(coordinates, date, params);
 
   std::cout << "=== Prayer Times (UTC) ===\n";
@@ -230,9 +247,11 @@ int main(int argc, char **argv) {
   std::cout << "Maghrib:          " << formatUtc(prayerTimes.maghrib) << "\n";
   std::cout << "Isha:             " << formatUtc(prayerTimes.isha) << "\n\n";
 
-  // -----------------------------------------------------------------
-  // 3. Convenience utilities: timeForPrayer / currentPrayer / nextPrayer
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 3. Convenience utilities: timeForPrayer / currentPrayer / nextPrayer
+   * -----------------------------------------------------------------
+   */
   std::cout << "=== Convenience Utilities ===\n";
   for (Prayer p : {Prayer::Fajr, Prayer::Sunrise, Prayer::Dhuhr, Prayer::Asr,
                    Prayer::Maghrib, Prayer::Isha}) {
@@ -252,9 +271,11 @@ int main(int argc, char **argv) {
   }
   std::cout << "\n";
 
-  // -----------------------------------------------------------------
-  // 4. Sunnah Times
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 4. Sunnah Times
+   * -----------------------------------------------------------------
+   */
   SunnahTimes sunnahTimes(prayerTimes);
   std::cout << "=== Sunnah Times (UTC) ===\n";
   std::cout << "Middle of the night:    "
@@ -262,16 +283,20 @@ int main(int argc, char **argv) {
   std::cout << "Last third of the night: "
             << formatUtc(sunnahTimes.lastThirdOfTheNight) << "\n\n";
 
-  // -----------------------------------------------------------------
-  // 5. Qibla direction
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 5. Qibla direction
+   * -----------------------------------------------------------------
+   */
   double qiblaDirection = qibla(coordinates);
   std::cout << "=== Qibla ===\n";
   std::cout << "Direction from North: " << qiblaDirection << " degrees\n\n";
 
-  // -----------------------------------------------------------------
-  // 6. HighLatitudeRule::recommended — suggests a rule based on latitude
-  // -----------------------------------------------------------------
+  /**
+   * -----------------------------------------------------------------
+   * 6. HighLatitudeRule::recommended — suggests a rule based on latitude
+   * -----------------------------------------------------------------
+   */
   HighLatitudeRule recommended_rule = recommended(coordinates);
   std::cout << "=== Recommendations ===\n";
   std::cout << "Recommended high latitude rule for this location: ";

@@ -193,7 +193,7 @@
         return String(n).padStart(2, "0");
       }
 
-      // Rounds to 4 decimal places, matching the C++ CLI's coordinate precision.
+      // Rounds to 4 decimal places of precision.
       // Uses numeric rounding rather than toFixed(4) so trailing zeros are
       // dropped the same way the C++ side's plain double output drops them
       // (e.g. 90.368047 -> 90.368, not 90.3680).
@@ -303,7 +303,7 @@
 
         lines.push("=== Inputs ===");
         lines.push(
-          `Coordinates:      (${round4(coordinates.latitude)}, ${round4(coordinates.longitude)})`,
+          `Coordinates:      (${coordinates.latitude}, ${coordinates.longitude})`,
         );
         lines.push(`Date:             ${formatUtc(date)}`);
         lines.push(`Method:           ${method}`);
@@ -356,9 +356,7 @@
         lines.push("");
 
         lines.push("=== Qibla ===");
-        lines.push(
-          `Direction from North: ${round3(Qibla(coordinates))} degrees`,
-        );
+        lines.push(`Direction from North: ${Qibla(coordinates)} degrees`);
         lines.push("");
 
         lines.push("=== Recommendations ===");

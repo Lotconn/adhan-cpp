@@ -8,7 +8,7 @@ INCLUDE_FLAGS := -Iinclude/$(LIBNAMESPACE) \
 # ---------------------------- TZ FALLBACK -------------------------------
 # `make TZFALLBACK=1 <target>` (or one of the *-tzfallback convenience
 # targets below) compiles the library/tests with ADHAN_USE_CTIME_FALLBACK
-# defined, using the <ctime>-based JSDate implementation instead of the
+# defined, using the <ctime>-based DateTime implementation instead of the
 # <chrono> calendar/tz one. OBJ_DIR/TARGET/TEST_OBJ_DIR/TEST_TARGET are all
 # renamed under this mode so the two variants never share or clobber each
 # other's object files or artifacts.

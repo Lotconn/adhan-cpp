@@ -1,5 +1,5 @@
-#ifndef JSDATE_HPP
-#define JSDATE_HPP
+#ifndef DateTime_HPP
+#define DateTime_HPP
 
 #include <chrono>
 
@@ -21,7 +21,7 @@ public:
    * is normalized the same way (e.g. day 32 rolls into the next month).
    */
   DateTime(int year, int month, int day, int hours = 0, int minutes = 0,
-         int seconds = 0);
+           int seconds = 0);
 
   static DateTime now();
 
@@ -80,4 +80,4 @@ private:
 };
 } // namespace Adhan
 
-#endif // JSDATE_HPP
+#endif // DateTime_HPP
