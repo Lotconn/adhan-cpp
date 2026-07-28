@@ -1,7 +1,7 @@
 #ifndef TIMECOMPONENTS_HPP
 #define TIMECOMPONENTS_HPP
 
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 
 namespace Adhan {
 
@@ -13,7 +13,7 @@ public:
 
   explicit TimeComponents(double num);
 
-  JSDate utcDate(int year, int month, int date) const;
+  DateTime utcDate(int year, int month, int date) const;
   bool isValid() const { return valid_; } // <-- added
 
 private:

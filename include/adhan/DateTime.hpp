@@ -5,33 +5,33 @@
 
 namespace Adhan {
 
-class JSDate {
+class DateTime {
 public:
   /**
    * Wrap an existing time point directly
    * (UTC-based, like JS's internal epoch value)
    */
-  explicit JSDate(std::chrono::system_clock::time_point tp) : tp_(tp) {}
+  explicit DateTime(std::chrono::system_clock::time_point tp) : tp_(tp) {}
 
-  JSDate();
+  DateTime();
 
   /**
    * Mimics `new Date(year, month, day, hours, minutes, seconds)`.
    * Components are interpreted as LOCAL time, exactly like JS, and overflow
    * is normalized the same way (e.g. day 32 rolls into the next month).
    */
-  JSDate(int year, int month, int day, int hours = 0, int minutes = 0,
+  DateTime(int year, int month, int day, int hours = 0, int minutes = 0,
          int seconds = 0);
 
-  static JSDate now();
+  static DateTime now();
 
   /**
-   * Returns a JSDate representing JS's "Invalid Date" state, mirroring what
+   * Returns a DateTime representing JS's "Invalid Date" state, mirroring what
    * happens when a Date is constructed from NaN (e.g. `new Date(NaN)`).
-   * All comparison operators against an invalid JSDate return false, just
+   * All comparison operators against an invalid DateTime return false, just
    * like comparisons against NaN in JS.
    */
-  static JSDate invalid();
+  static DateTime invalid();
 
   bool isValid() const { return valid_; }
 
@@ -51,19 +51,19 @@ public:
 
   /**
    * Milliseconds since epoch, like JS's getTime(). Behavior is undefined
-   * (and asserts, in debug builds) if called on an invalid JSDate — check
+   * (and asserts, in debug builds) if called on an invalid DateTime — check
    * isValid() first, the same way JS code would check isNaN(date.getTime()).
    */
   long long getTime() const;
 
   std::chrono::system_clock::time_point raw() const { return tp_; }
 
-  friend bool operator==(const JSDate &lhs, const JSDate &rhs);
-  friend bool operator!=(const JSDate &lhs, const JSDate &rhs);
-  friend bool operator<(const JSDate &lhs, const JSDate &rhs);
-  friend bool operator<=(const JSDate &lhs, const JSDate &rhs);
-  friend bool operator>(const JSDate &lhs, const JSDate &rhs);
-  friend bool operator>=(const JSDate &lhs, const JSDate &rhs);
+  friend bool operator==(const DateTime &lhs, const DateTime &rhs);
+  friend bool operator!=(const DateTime &lhs, const DateTime &rhs);
+  friend bool operator<(const DateTime &lhs, const DateTime &rhs);
+  friend bool operator<=(const DateTime &lhs, const DateTime &rhs);
+  friend bool operator>(const DateTime &lhs, const DateTime &rhs);
+  friend bool operator>=(const DateTime &lhs, const DateTime &rhs);
 
   /* Boolean getter to check if we are using a fallback or not */
   bool isUsingFallback();

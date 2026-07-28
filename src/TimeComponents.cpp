@@ -19,9 +19,9 @@ TimeComponents::TimeComponents(double num) {
       static_cast<int>(std::floor((num - (hours + minutes / 60.0)) * 60 * 60));
 }
 
-JSDate TimeComponents::utcDate(int year, int month, int date) const {
+DateTime TimeComponents::utcDate(int year, int month, int date) const {
   if (!valid_) {
-    return JSDate::invalid();
+    return DateTime::invalid();
   }
 
   using namespace std::chrono;
@@ -29,6 +29,6 @@ JSDate TimeComponents::utcDate(int year, int month, int date) const {
       std::chrono::sys_days{std::chrono::year{year} / (month + 1) / date} +
       std::chrono::hours{hours} + std::chrono::minutes{minutes} +
       std::chrono::seconds{seconds};
-  return JSDate(tp);
+  return DateTime(tp);
 }
 } // namespace Adhan

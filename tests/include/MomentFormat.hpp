@@ -1,13 +1,13 @@
 #ifndef MOMENTFORMAT_HPP
 #define MOMENTFORMAT_HPP
 
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include <string>
 
 using namespace Adhan;
 
 /**
- * Test-only helper. Formats a JSDate as if viewed in the given IANA time zone,
+ * Test-only helper. Formats a DateTime as if viewed in the given IANA time zone,
  * using a small subset of moment.js format tokens — only the tokens actually
  * used by the ported test suite:
  *   YYYY  - 4-digit year
@@ -19,7 +19,7 @@ using namespace Adhan;
  *   A     - AM/PM
  * Any other character (spaces, colons, commas) is copied through literally.
  */
-std::string formatInZone(const JSDate &date, const std::string &tzName,
+std::string formatInZone(const DateTime &date, const std::string &tzName,
                          const std::string &formatStr);
 
 #endif // MOMENTFORMAT_HPP

@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 #include "DateUtils.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "MathUtils.hpp"
 #include "Rounding.hpp"
 #include "TimeComponents.hpp"
@@ -81,33 +81,33 @@ TEST_CASE(
 }
 
 TEST_CASE("rounding a date to the closest minute") {
-  JSDate date1 = roundedMinute(JSDate(2015, 0, 1, 10, 2, 29));
+  DateTime date1 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29));
   CHECK(date1.getMinutes() == 2);
   CHECK(date1.getSeconds() == 0);
 
-  JSDate date2 = roundedMinute(JSDate(2015, 0, 1, 10, 2, 31));
+  DateTime date2 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 31));
   CHECK(date2.getMinutes() == 3);
   CHECK(date2.getSeconds() == 0);
 
-  JSDate date3 = roundedMinute(JSDate(2015, 0, 1, 10, 2, 29), Rounding::Up);
+  DateTime date3 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::Up);
   CHECK(date3.getMinutes() == 3);
   CHECK(date3.getSeconds() == 0);
 
-  JSDate date4 = roundedMinute(JSDate(2015, 0, 1, 10, 2, 29), Rounding::None);
+  DateTime date4 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::None);
   CHECK(date4.getMinutes() == 2);
   CHECK(date4.getSeconds() == 29);
 
-  JSDate date5 =
-      roundedMinute(JSDate(2015, 0, 1, 10, 2, 29), Rounding::Nearest);
+  DateTime date5 =
+      roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::Nearest);
   CHECK(date5.getMinutes() == 2);
   CHECK(date5.getSeconds() == 0);
 }
 
 TEST_CASE("adding days to date") {
-  JSDate date1(2015, 10, 1, 0, 0, 0);
+  DateTime date1(2015, 10, 1, 0, 0, 0);
   CHECK(date1.getDate() == 1);
 
-  JSDate date2 = dateByAddingDays(date1, 1);
+  DateTime date2 = dateByAddingDays(date1, 1);
   CHECK(date2.getDate() == 2);
 }
 

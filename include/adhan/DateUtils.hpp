@@ -1,18 +1,18 @@
 #ifndef DATEUTILS_HPP
 #define DATEUTILS_HPP
 
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "Rounding.hpp"
 
 namespace Adhan {
 
-JSDate dateByAddingDays(const JSDate &date, int days);
-JSDate dateByAddingMinutes(const JSDate &date, double minutes);
-JSDate dateByAddingSeconds(const JSDate &date, double seconds);
-JSDate roundedMinute(const JSDate &date, Rounding rounding = Rounding::Nearest);
+DateTime dateByAddingDays(const DateTime &date, int days);
+DateTime dateByAddingMinutes(const DateTime &date, double minutes);
+DateTime dateByAddingSeconds(const DateTime &date, double seconds);
+DateTime roundedMinute(const DateTime &date, Rounding rounding = Rounding::Nearest);
 bool isLeapYear(int year);
-int dayOfYear(const JSDate &date);
-bool isValidDate(const JSDate &date);
+int dayOfYear(const DateTime &date);
+bool isValidDate(const DateTime &date);
 } // namespace Adhan
 
 #endif // DATEUTILS_HPP

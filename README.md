@@ -29,7 +29,7 @@ All of the astronomical logic, the calculation methods, and the overall semantic
 - A C++20 compiler (GCC 13+ or a comparable Clang build with full C++20 `<chrono>` calendar support)
 - No third party runtime dependencies. The library itself has no external dependencies; a couple of test-only dependencies are described below in the [tests](#running-the-tests) section.
 
-`JSDate`'s local time handling relies on `<chrono>`'s time zone database support, which in turn depends on the platform having a usable IANA time zone database (`tzdata`) available. Some platforms and toolchains do not ship this, for example Termux on Android at the time of writing.
+`DateTime`'s local time handling relies on `<chrono>`'s time zone database support, which in turn depends on the platform having a usable IANA time zone database (`tzdata`) available. Some platforms and toolchains do not ship this, for example Termux on Android at the time of writing.
 
 There is no automatic detection of this at configure time. If your platform lacks it, the regular build will fail to compile with errors pointing at `zoned_time`, `current_zone`, or similar. When that happens, configure with the `ADHAN_USE_CTIME_FALLBACK` option instead, which compiles the library against a `localtime_r`/`mktime` based implementation instead of `<chrono>`'s calendar and time zone support:
 
@@ -55,7 +55,7 @@ Useful options, passed with `-D` at the configure step:
 - `-DADHAN_USE_CTIME_FALLBACK=ON` — use the `localtime_r`/`mktime` fallback described in [Requirements](#requirements). Default is `OFF`.
 - `-DBUILD_TESTS=OFF` — skip building the test suite. Default is `ON`.
 - `-DBUILD_EXAMPLES=ON` — build the examples under `examples/`, including `adhan-cli`. Default is `OFF`.
-- `-DCMAKE_BUILD_TYPE=Release` — an optimized build (`-O2`, `NDEBUG` defined, so internal `assert()` checks such as the one in `JSDate::getTime()` are compiled out). If `CMAKE_BUILD_TYPE` is left unset, CMake does not add any optimization flags by default, so it is worth setting explicitly.
+- `-DCMAKE_BUILD_TYPE=Release` — an optimized build (`-O2`, `NDEBUG` defined, so internal `assert()` checks such as the one in `DateTime::getTime()` are compiled out). If `CMAKE_BUILD_TYPE` is left unset, CMake does not add any optimization flags by default, so it is worth setting explicitly.
 - `-DCMAKE_BUILD_TYPE=Debug` — unoptimized, with debug symbols and asserts left active.
 
 These can be combined, for example:
@@ -75,15 +75,15 @@ Headers live under `include/adhan`, and everything is scoped under the `adhan` n
 #include <adhan/Coordinates.hpp>
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/PrayerTimes.hpp>
-#include <adhan/JSDate.hpp>
+#include <adhan/DateTime.hpp>
 
 int main() {
   adhan::Coordinates coordinates(35.789751, -78.691249);
   adhan::CalculationParameters params = adhan::CalculationMethod::NorthAmerica();
-  adhan::PrayerTimes prayerTimes(coordinates, adhan::JSDate::now(), params);
+  adhan::PrayerTimes prayerTimes(coordinates, adhan::DateTime::now(), params);
 
   // prayerTimes.fajr, .sunrise, .dhuhr, .asr, .maghrib, .isha
-  // are each a JSDate representing that prayer time in UTC.
+  // are each a DateTime representing that prayer time in UTC.
 }
 ```
 
@@ -97,16 +97,16 @@ adhan::Coordinates coordinates(35.78056, -78.6389);
 
 ### Date
 
-`JSDate` is this library's date type. It mirrors the parts of JavaScript's `Date` that the original library actually relies on: constructing a date from year, month, and day (month is zero indexed, matching JavaScript), reading back local or UTC components, and getting the current time.
+`DateTime` is this library's date type. It mirrors the parts of JavaScript's `Date` that the original library actually relies on: constructing a date from year, month, and day (month is zero indexed, matching JavaScript), reading back local or UTC components, and getting the current time.
 
 ```cpp
-adhan::JSDate date = adhan::JSDate::now();        // current date and time
-adhan::JSDate specific(2026, 0, 1);               // January 1, 2026
+adhan::DateTime date = adhan::DateTime::now();        // current date and time
+adhan::DateTime specific(2026, 0, 1);               // January 1, 2026
 ```
 
-Only the year, month, and day matter for prayer time calculation; any time of day components are ignored for that purpose. Internally, `JSDate` reads local time through the platform's `<chrono>` time zone database, so the system needs a usable time zone database available for local time components to resolve correctly.
+Only the year, month, and day matter for prayer time calculation; any time of day components are ignored for that purpose. Internally, `DateTime` reads local time through the platform's `<chrono>` time zone database, so the system needs a usable time zone database available for local time components to resolve correctly.
 
-On platforms where that database is not available, configure with `-DADHAN_USE_CTIME_FALLBACK=ON` as described in [Requirements](#requirements). This compiles `JSDate` against `localtime_r`/`mktime` instead. Local time components still work correctly there, since they defer to the operating system's own time zone handling, but this is worth knowing if you are digging into `JSDate`'s implementation and see two code paths gated behind `ADHAN_USE_CTIME_FALLBACK`.
+On platforms where that database is not available, configure with `-DADHAN_USE_CTIME_FALLBACK=ON` as described in [Requirements](#requirements). This compiles `DateTime` against `localtime_r`/`mktime` instead. Local time components still work correctly there, since they defer to the operating system's own time zone handling, but this is worth knowing if you are digging into `DateTime`'s implementation and see two code paths gated behind `ADHAN_USE_CTIME_FALLBACK`.
 
 > **IMPORTANT**:
 > <br>
@@ -132,14 +132,14 @@ See `CalculationMethod.hpp` for the full list of available presets (MuslimWorldL
 adhan::PrayerTimes prayerTimes(coordinates, date, params);
 ```
 
-The resulting object exposes `fajr`, `sunrise`, `dhuhr`, `asr`, `sunset`, `maghrib`, and `isha`, each a `JSDate` in UTC.
+The resulting object exposes `fajr`, `sunrise`, `dhuhr`, `asr`, `sunset`, `maghrib`, and `isha`, each a `DateTime` in UTC.
 
 ### Convenience utilities
 
 ```cpp
 adhan::Prayer current = prayerTimes.currentPrayer();
 adhan::Prayer next = prayerTimes.nextPrayer();
-auto nextTime = prayerTimes.timeForPrayer(next); // std::optional<adhan::JSDate>
+auto nextTime = prayerTimes.timeForPrayer(next); // std::optional<adhan::DateTime>
 ```
 
 ### Sunnah times

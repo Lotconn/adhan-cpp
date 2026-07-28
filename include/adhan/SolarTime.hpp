@@ -2,7 +2,7 @@
 #define SOLARTIME_HPP
 
 #include "Coordinates.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "SolarCoordinates.hpp"
 
 namespace Adhan {
@@ -18,7 +18,7 @@ public:
   double sunrise;
   double sunset;
 
-  SolarTime(const JSDate &date, const Coordinates &coordinates);
+  SolarTime(const DateTime &date, const Coordinates &coordinates);
 
   double hourAngle(double angle, bool afterTransit);
   double afternoon(double shadowLength);

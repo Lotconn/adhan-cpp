@@ -4,7 +4,7 @@
 
 #include "CalculationMethod.hpp"
 #include "Coordinates.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "Madhab.hpp"
 #if not defined(ADHAN_USE_CTIME_FALLBACK)
 #include "MomentFormat.hpp"
@@ -18,7 +18,7 @@ using namespace Adhan;
 /* Excluded for the fallback build - will fail in unsupported systems */
 #if not defined(ADHAN_USE_CTIME_FALLBACK)
 TEST_CASE("calculating prayer times") {
-  JSDate date(2015, 6, 12);
+  DateTime date(2015, 6, 12);
   CalculationParameters params = CalculationMethod::NorthAmerica();
   params.madhab = Madhab::Hanafi;
   PrayerTimes p(Coordinates(35.775, -78.6336), date, params);
@@ -33,7 +33,7 @@ TEST_CASE("calculating prayer times") {
 }
 
 TEST_CASE("using offsets to manually adjust prayer times") {
-  JSDate date(2015, 11, 1);
+  DateTime date(2015, 11, 1);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.madhab = Madhab::Shafi;
   PrayerTimes p(Coordinates(35.775, -78.6336), date, params);
@@ -64,7 +64,7 @@ TEST_CASE("using offsets to manually adjust prayer times") {
 TEST_CASE("calculating prayer times using the Moonsighting Committee "
           "calculation method") {
   // Values from http://www.moonsighting.com/pray.php
-  JSDate date(2016, 0, 31);
+  DateTime date(2016, 0, 31);
   PrayerTimes p(Coordinates(35.775, -78.6336), date,
                 CalculationMethod::MoonsightingCommittee());
 
@@ -79,7 +79,7 @@ TEST_CASE("calculating prayer times using the Moonsighting Committee "
 TEST_CASE("calculating Moonsighting Committee prayer times at a high latitude "
           "location") {
   // Values from http://www.moonsighting.com/pray.php
-  JSDate date(2016, 0, 1);
+  DateTime date(2016, 0, 1);
   CalculationParameters params = CalculationMethod::MoonsightingCommittee();
   params.madhab = Madhab::Hanafi;
   PrayerTimes p(Coordinates(59.9094, 10.7349), date, params);
@@ -95,7 +95,7 @@ TEST_CASE("calculating Moonsighting Committee prayer times at a high latitude "
 TEST_CASE("calculating times for turkey method") {
   // values from
   // https://namazvakitleri.diyanet.gov.tr/en-US/9541/prayer-time-for-istanbul
-  JSDate date(2020, 3, 16);
+  DateTime date(2020, 3, 16);
   CalculationParameters params = CalculationMethod::Turkey();
   PrayerTimes p(Coordinates(41.005616, 28.97638), date, params);
 
@@ -110,7 +110,7 @@ TEST_CASE("calculating times for turkey method") {
 }
 
 TEST_CASE("calculating times for the egyptian method") {
-  JSDate date(2020, 0, 1);
+  DateTime date(2020, 0, 1);
   CalculationParameters params = CalculationMethod::Egyptian();
   PrayerTimes p(Coordinates(30.028703, 31.249528), date, params);
 
@@ -123,7 +123,7 @@ TEST_CASE("calculating times for the egyptian method") {
 }
 
 TEST_CASE("calculating times for the singapore method") {
-  JSDate date(2021, 5, 14);
+  DateTime date(2021, 5, 14);
   CalculationParameters params = CalculationMethod::Singapore();
   PrayerTimes p(Coordinates(3.7333333333, 101.3833333333), date, params);
 
@@ -136,7 +136,7 @@ TEST_CASE("calculating times for the singapore method") {
 }
 
 TEST_CASE("changing the time for asr with different madhabs") {
-  JSDate date(2015, 11, 1);
+  DateTime date(2015, 11, 1);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.madhab = Madhab::Shafi;
   PrayerTimes p(Coordinates(35.775, -78.6336), date, params);
@@ -149,7 +149,7 @@ TEST_CASE("changing the time for asr with different madhabs") {
 }
 
 TEST_CASE("adjusting prayer time with high latitude rule") {
-  JSDate date(2020, 5, 15);
+  DateTime date(2020, 5, 15);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   const std::string tzid = "Europe/London";
   Coordinates coords(55.983226, -3.216649);
@@ -184,7 +184,7 @@ TEST_CASE("adjusting prayer time with high latitude rule") {
 TEST_SUITE("Moonsighting Committee method with shafaq general") {
   // Values from http://www.moonsighting.com/pray.php
   TEST_CASE("Shafaq general in winter") {
-    JSDate date(2021, 0, 1);
+    DateTime date(2021, 0, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::General;
     params.madhab = Madhab::Hanafi;
@@ -198,7 +198,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq general") {
   }
 
   TEST_CASE("Shafaq general in Spring") {
-    JSDate date(2021, 3, 1);
+    DateTime date(2021, 3, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::General;
     params.madhab = Madhab::Hanafi;
@@ -212,7 +212,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq general") {
   }
 
   TEST_CASE("Shafaq general in Summer") {
-    JSDate date(2021, 6, 1);
+    DateTime date(2021, 6, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::General;
     params.madhab = Madhab::Hanafi;
@@ -226,7 +226,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq general") {
   }
 
   TEST_CASE("Shafaq general in Fall") {
-    JSDate date(2021, 10, 1);
+    DateTime date(2021, 10, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::General;
     params.madhab = Madhab::Hanafi;
@@ -243,7 +243,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq general") {
 TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
   // Values from http://www.moonsighting.com/pray.php
   TEST_CASE("Shafaq ahmer in winter") {
-    JSDate date(2021, 0, 1);
+    DateTime date(2021, 0, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Ahmer;
     PrayerTimes p(Coordinates(43.494, -79.844), date, params);
@@ -257,7 +257,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
   }
 
   TEST_CASE("Shafaq ahmer in Spring") {
-    JSDate date(2021, 3, 1);
+    DateTime date(2021, 3, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Ahmer;
     PrayerTimes p(Coordinates(43.494, -79.844), date, params);
@@ -270,7 +270,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
   }
 
   TEST_CASE("Shafaq ahmer in Summer") {
-    JSDate date(2021, 6, 1);
+    DateTime date(2021, 6, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Ahmer;
     PrayerTimes p(Coordinates(43.494, -79.844), date, params);
@@ -283,7 +283,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
   }
 
   TEST_CASE("Shafaq ahmer in Fall") {
-    JSDate date(2021, 10, 1);
+    DateTime date(2021, 10, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Ahmer;
     PrayerTimes p(Coordinates(43.494, -79.844), date, params);
@@ -299,7 +299,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
 TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
   // Values from http://www.moonsighting.com/pray.php
   TEST_CASE("Shafaq abyad in winter") {
-    JSDate date(2021, 0, 1);
+    DateTime date(2021, 0, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Abyad;
     params.madhab = Madhab::Hanafi;
@@ -313,7 +313,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
   }
 
   TEST_CASE("Shafaq abyad in Spring") {
-    JSDate date(2021, 3, 1);
+    DateTime date(2021, 3, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Abyad;
     params.madhab = Madhab::Hanafi;
@@ -327,7 +327,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
   }
 
   TEST_CASE("Shafaq abyad in Summer") {
-    JSDate date(2021, 6, 1);
+    DateTime date(2021, 6, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Abyad;
     params.madhab = Madhab::Hanafi;
@@ -341,7 +341,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
   }
 
   TEST_CASE("Shafaq abyad in Fall") {
-    JSDate date(2021, 10, 1);
+    DateTime date(2021, 10, 1);
     CalculationParameters params = CalculationMethod::MoonsightingCommittee();
     params.shafaq = Shafaq::Abyad;
     params.madhab = Madhab::Hanafi;
@@ -358,7 +358,7 @@ TEST_SUITE("Moonsighting Committee method with shafaq abyad") {
 
 /* Second part */
 TEST_CASE("getting the time for a given prayer") {
-  JSDate date(2016, 6, 1);
+  DateTime date(2016, 6, 1);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.madhab = Madhab::Hanafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
@@ -374,7 +374,7 @@ TEST_CASE("getting the time for a given prayer") {
 }
 
 TEST_CASE("getting the current prayer") {
-  JSDate date(2015, 8, 1);
+  DateTime date(2015, 8, 1);
   CalculationParameters params = CalculationMethod::Karachi();
   params.madhab = Madhab::Hanafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
@@ -391,7 +391,7 @@ TEST_CASE("getting the current prayer") {
 }
 
 TEST_CASE("getting the next prayer") {
-  JSDate date(2015, 8, 1);
+  DateTime date(2015, 8, 1);
   CalculationParameters params = CalculationMethod::Karachi();
   params.madhab = Madhab::Hanafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
@@ -408,7 +408,7 @@ TEST_CASE("getting the next prayer") {
 }
 
 TEST_CASE("getting the current next prayer") {
-  JSDate date = JSDate::now();
+  DateTime date = DateTime::now();
   CalculationParameters params = CalculationMethod::Karachi();
   params.madhab = Madhab::Hanafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;

@@ -2,7 +2,7 @@
 #define ASTRONOMICAL_HPP
 
 #include "Coordinates.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "Shafaq.hpp"
 
 namespace Adhan {
@@ -91,11 +91,11 @@ double julianDay(int year, int month, int day, double hours = 0);
 /* Julian century from the epoch. */
 double julianCentury(double julianDay);
 
-JSDate seasonAdjustedMorningTwilight(double latitude, int dayOfYear, int year,
-                                     const JSDate &sunrise);
+DateTime seasonAdjustedMorningTwilight(double latitude, int dayOfYear, int year,
+                                     const DateTime &sunrise);
 
-JSDate seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
-                                     const JSDate &sunset, Shafaq shafaq);
+DateTime seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
+                                     const DateTime &sunset, Shafaq shafaq);
 
 int daysSinceSolstice(int dayOfYear, int year, double latitude);
 

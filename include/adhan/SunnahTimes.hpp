@@ -1,15 +1,15 @@
 #ifndef SUNNAHTIMES_HPP
 #define SUNNAHTIMES_HPP
 
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "PrayerTimes.hpp"
 
 namespace Adhan {
 
 class SunnahTimes {
 public:
-  JSDate middleOfTheNight;
-  JSDate lastThirdOfTheNight;
+  DateTime middleOfTheNight;
+  DateTime lastThirdOfTheNight;
 
   SunnahTimes(const PrayerTimes &prayerTimes);
 };

@@ -21,12 +21,12 @@ std::string pad2(int v) {
 
 #if not defined(ADHAN_USE_CTIME_FALLBACK)
 
-std::string formatInZone(const JSDate &date, const std::string &tzName,
+std::string formatInZone(const DateTime &date, const std::string &tzName,
                          const std::string &formatStr) {
   using namespace std::chrono;
 
   if (!date.isValid()) {
-    throw std::runtime_error("formatInZone: cannot format an invalid JSDate");
+    throw std::runtime_error("formatInZone: cannot format an invalid DateTime");
   }
 
   const time_zone *zone = locate_zone(tzName);
@@ -98,7 +98,7 @@ std::string formatInZone(const JSDate &date, const std::string &tzName,
 }
 #else
 /* The fallback build tests should never use this */
-std::string formatInZone(const JSDate &date, const std::string &tzName,
+std::string formatInZone(const DateTime &date, const std::string &tzName,
                          const std::string &formatStr) {
   throw std::logic_error(
       "`formatInZone` disabled for fallback builds, cannot proceed.");

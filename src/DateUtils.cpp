@@ -3,35 +3,35 @@
 
 namespace Adhan {
 
-JSDate dateByAddingDays(const JSDate &date, int days) {
+DateTime dateByAddingDays(const DateTime &date, int days) {
   if (!date.isValid()) {
-    return JSDate::invalid();
+    return DateTime::invalid();
   }
   /**
-   * JSDate's constructor normalizes overflow the same way JS's `new Date(...)`
+   * DateTime's constructor normalizes overflow the same way JS's `new Date(...)`
    * does (e.g. day 32 rolls into next month), so we can just add `days`
    * directly to getDate() without any manual carry logic.
    */
-  return JSDate(date.getFullYear(), date.getMonth(), date.getDate() + days,
+  return DateTime(date.getFullYear(), date.getMonth(), date.getDate() + days,
                 date.getHours(), date.getMinutes(), date.getSeconds());
 }
 
-JSDate dateByAddingMinutes(const JSDate &date, double minutes) {
+DateTime dateByAddingMinutes(const DateTime &date, double minutes) {
   return dateByAddingSeconds(date, minutes * 60);
 }
 
-JSDate dateByAddingSeconds(const JSDate &date, double seconds) {
+DateTime dateByAddingSeconds(const DateTime &date, double seconds) {
   if (!date.isValid()) {
-    return JSDate::invalid();
+    return DateTime::invalid();
   }
   using namespace std::chrono;
   auto delta = duration_cast<system_clock::duration>(duration<double>(seconds));
-  return JSDate(date.raw() + delta);
+  return DateTime(date.raw() + delta);
 }
 
-JSDate roundedMinute(const JSDate &date, Rounding rounding) {
+DateTime roundedMinute(const DateTime &date, Rounding rounding) {
   if (!date.isValid()) {
-    return JSDate::invalid();
+    return DateTime::invalid();
   }
 
   int seconds = date.getUTCSeconds();
@@ -56,7 +56,7 @@ bool isLeapYear(int year) {
   return true;
 }
 
-int dayOfYear(const JSDate &date) {
+int dayOfYear(const DateTime &date) {
   int year = date.getFullYear();
   int feb = isLeapYear(year) ? 29 : 28;
   int months[] = {31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -70,5 +70,5 @@ int dayOfYear(const JSDate &date) {
   return result;
 }
 
-bool isValidDate(const JSDate &date) { return date.isValid(); }
+bool isValidDate(const DateTime &date) { return date.isValid(); }
 } // namespace Adhan

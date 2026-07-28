@@ -6,7 +6,7 @@
 
 namespace Adhan {
 
-SolarTime::SolarTime(const JSDate &date, const Coordinates &coordinates)
+SolarTime::SolarTime(const DateTime &date, const Coordinates &coordinates)
     : observer(coordinates),
       solar(Astronomical::julianDay(date.getFullYear(), date.getMonth() + 1,
                                     date.getDate(), 0)),

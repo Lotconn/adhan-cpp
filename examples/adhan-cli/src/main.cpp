@@ -21,7 +21,7 @@
 #include <adhan/CalculationParameters.hpp>
 #include <adhan/Coordinates.hpp>
 #include <adhan/HighLatitudeRule.hpp>
-#include <adhan/JSDate.hpp>
+#include <adhan/DateTime.hpp>
 #include <adhan/Madhab.hpp>
 #include <adhan/PolarCircleResolution.hpp>
 #include <adhan/Prayer.hpp>
@@ -51,7 +51,7 @@ std::string pad2(int v) {
   return oss.str();
 }
 
-std::string formatUtc(const JSDate &date) {
+std::string formatUtc(const DateTime &date) {
   if (!date.isValid()) {
     return "(invalid — likely a polar location/date needing resolution)";
   }
@@ -132,12 +132,12 @@ PolarCircleResolution resolvePolar(const std::string &s) {
   return PolarCircleResolution::Unresolved;
 }
 
-JSDate parseDateArg(const std::string &s) {
+DateTime parseDateArg(const std::string &s) {
   // Expects "YYYY-MM-DD"
   int year = std::stoi(s.substr(0, 4));
   int month = std::stoi(s.substr(5, 2)); // 1-indexed as typed by the user
   int day = std::stoi(s.substr(8, 2));
-  return JSDate(year, month - 1, day); // JSDate's month is 0-indexed, like JS
+  return DateTime(year, month - 1, day); // DateTime's month is 0-indexed, like JS
 }
 
 std::string prayerName(Prayer p) {
@@ -172,7 +172,7 @@ void printUsage(const char *progName) {
 int main(int argc, char **argv) {
   if (argc < 3) {
     // Optional, but we can use this to check if we are using the TZ fallback
-    JSDate dummy;
+    DateTime dummy;
     if (dummy.isUsingFallback()) {
       std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << std::endl;
     } else {
@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
   double latitude = std::stod(argv[1]);
   double longitude = std::stod(argv[2]);
 
-  JSDate date = (argc > 3) ? parseDateArg(argv[3]) : JSDate::now();
+  DateTime date = (argc > 3) ? parseDateArg(argv[3]) : DateTime::now();
   std::string method = (argc > 4) ? argv[4] : "MuslimWorldLeague";
   std::string madhab = (argc > 5) ? argv[5] : "Shafi";
   std::string highLatRule = (argc > 6) ? argv[6] : "MiddleOfTheNight";

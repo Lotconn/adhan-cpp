@@ -2,7 +2,7 @@
 #define POLARCIRCLERESOLUTION_HPP
 
 #include "Coordinates.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "SolarTime.hpp"
 
 namespace Adhan {
@@ -20,15 +20,15 @@ enum class PolarCircleResolution {
 };
 
 struct PolarCircleResolver {
-  JSDate date;
-  JSDate tomorrow;
+  DateTime date;
+  DateTime tomorrow;
   Coordinates coordinates;
   SolarTime solarTime;
   SolarTime tomorrowSolarTime;
 };
 
 PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
-                                              const JSDate &date,
+                                              const DateTime &date,
                                               const Coordinates &coordinates);
 
 } // namespace Adhan

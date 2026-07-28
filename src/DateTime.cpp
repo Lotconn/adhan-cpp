@@ -1,4 +1,4 @@
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include <cassert>
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
@@ -103,11 +103,11 @@ Fields breakDownLocal(system_clock::time_point tp) {
 
 } // namespace
 
-JSDate::JSDate() : JSDate(std::chrono::system_clock::now()) {}
+DateTime::DateTime() : DateTime(std::chrono::system_clock::now()) {}
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
 
-JSDate::JSDate(int year, int month, int day, int hours, int minutes,
+DateTime::DateTime(int year, int month, int day, int hours, int minutes,
                int seconds) {
   std::tm tm{};
   tm.tm_year = year - 1900;
@@ -129,7 +129,7 @@ JSDate::JSDate(int year, int month, int day, int hours, int minutes,
 
 #else
 
-JSDate::JSDate(int year, int month, int day, int hours, int minutes,
+DateTime::DateTime(int year, int month, int day, int hours, int minutes,
                int seconds) {
   using namespace std::chrono;
 
@@ -146,68 +146,68 @@ JSDate::JSDate(int year, int month, int day, int hours, int minutes,
 
 #endif
 
-JSDate JSDate::now() { return JSDate(std::chrono::system_clock::now()); }
+DateTime DateTime::now() { return DateTime(std::chrono::system_clock::now()); }
 
-JSDate JSDate::invalid() {
-  JSDate d(std::chrono::system_clock::time_point{});
+DateTime DateTime::invalid() {
+  DateTime d(std::chrono::system_clock::time_point{});
   d.valid_ = false;
   return d;
 }
 
-int JSDate::getFullYear() const { return breakDownLocal(tp_).year; }
-int JSDate::getMonth() const { return breakDownLocal(tp_).month; }
-int JSDate::getDate() const { return breakDownLocal(tp_).day; }
-int JSDate::getHours() const { return breakDownLocal(tp_).hours; }
-int JSDate::getMinutes() const { return breakDownLocal(tp_).minutes; }
-int JSDate::getSeconds() const { return breakDownLocal(tp_).seconds; }
+int DateTime::getFullYear() const { return breakDownLocal(tp_).year; }
+int DateTime::getMonth() const { return breakDownLocal(tp_).month; }
+int DateTime::getDate() const { return breakDownLocal(tp_).day; }
+int DateTime::getHours() const { return breakDownLocal(tp_).hours; }
+int DateTime::getMinutes() const { return breakDownLocal(tp_).minutes; }
+int DateTime::getSeconds() const { return breakDownLocal(tp_).seconds; }
 
-int JSDate::getUTCFullYear() const { return breakDownUtc(tp_).year; }
-int JSDate::getUTCMonth() const { return breakDownUtc(tp_).month; }
-int JSDate::getUTCDate() const { return breakDownUtc(tp_).day; }
-int JSDate::getUTCHours() const { return breakDownUtc(tp_).hours; }
-int JSDate::getUTCMinutes() const { return breakDownUtc(tp_).minutes; }
-int JSDate::getUTCSeconds() const { return breakDownUtc(tp_).seconds; }
+int DateTime::getUTCFullYear() const { return breakDownUtc(tp_).year; }
+int DateTime::getUTCMonth() const { return breakDownUtc(tp_).month; }
+int DateTime::getUTCDate() const { return breakDownUtc(tp_).day; }
+int DateTime::getUTCHours() const { return breakDownUtc(tp_).hours; }
+int DateTime::getUTCMinutes() const { return breakDownUtc(tp_).minutes; }
+int DateTime::getUTCSeconds() const { return breakDownUtc(tp_).seconds; }
 
-long long JSDate::getTime() const {
+long long DateTime::getTime() const {
   using namespace std::chrono;
   assert(valid_ &&
-         "getTime() called on an invalid JSDate; check isValid() first");
+         "getTime() called on an invalid DateTime; check isValid() first");
   return duration_cast<milliseconds>(tp_.time_since_epoch()).count();
 }
 
-bool JSDate::isUsingFallback() { return this->fallback; }
+bool DateTime::isUsingFallback() { return this->fallback; }
 
-bool operator==(const JSDate &lhs, const JSDate &rhs) {
+bool operator==(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;
   return lhs.tp_ == rhs.tp_;
 }
 
-bool operator!=(const JSDate &lhs, const JSDate &rhs) {
+bool operator!=(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return true;
   return lhs.tp_ != rhs.tp_;
 }
 
-bool operator<(const JSDate &lhs, const JSDate &rhs) {
+bool operator<(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;
   return lhs.tp_ < rhs.tp_;
 }
 
-bool operator<=(const JSDate &lhs, const JSDate &rhs) {
+bool operator<=(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;
   return lhs.tp_ <= rhs.tp_;
 }
 
-bool operator>(const JSDate &lhs, const JSDate &rhs) {
+bool operator>(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;
   return lhs.tp_ > rhs.tp_;
 }
 
-bool operator>=(const JSDate &lhs, const JSDate &rhs) {
+bool operator>=(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)
     return false;
   return lhs.tp_ >= rhs.tp_;

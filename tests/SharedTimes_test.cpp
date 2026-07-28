@@ -3,7 +3,7 @@
 #include "CalculationMethod.hpp"
 #include "Coordinates.hpp"
 #include "HighLatitudeRule.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "Madhab.hpp"
 #include "PrayerTimes.hpp"
 
@@ -71,11 +71,11 @@ ParsedTime parseTimeOfDay(const std::string &s) {
 /**
  * Mirrors `moment(dateStr, 'YYYY-MM-DD').toDate()` — parsed as local
  * (system) time at midnight, with no explicit time zone. This matches
- * JSDate's own local-time constructor semantics directly.
+ * DateTime's own local-time constructor semantics directly.
  */
-JSDate parseLocalDate(const std::string &dateStr) {
+DateTime parseLocalDate(const std::string &dateStr) {
   ParsedDate d = parseDateStr(dateStr);
-  return JSDate(d.year, d.month - 1, d.day);
+  return DateTime(d.year, d.month - 1, d.day);
 }
 
 #if not defined(ADHAN_USE_CTIME_FALLBACK)
@@ -85,7 +85,7 @@ JSDate parseLocalDate(const std::string &dateStr) {
  * tzName).toDate()` — parses the date/time as wall-clock time in the given
  * named zone.
  */
-JSDate parseInZone(const std::string &tzName, const std::string &dateStr,
+DateTime parseInZone(const std::string &tzName, const std::string &dateStr,
                    const std::string &timeStr) {
   using namespace std::chrono;
 
@@ -100,7 +100,7 @@ JSDate parseInZone(const std::string &tzName, const std::string &dateStr,
 
   const time_zone *zone = locate_zone(tzName);
   zoned_time<system_clock::duration> zt{zone, localTime, choose::earliest};
-  return JSDate(zt.get_sys_time());
+  return DateTime(zt.get_sys_time());
 }
 
 #endif
@@ -109,7 +109,7 @@ JSDate parseInZone(const std::string &tzName, const std::string &dateStr,
  * Mirrors the custom `toBeWithinRange(comparisonDate, variance)` Jest matcher:
  * passes if actual is within `variance` minutes of expected, inclusive.
  */
-bool withinRange(const JSDate &actual, const JSDate &expected,
+bool withinRange(const DateTime &actual, const DateTime &expected,
                  double varianceMinutes) {
   long long actualMs = actual.getTime();
   long long expectedMs = expected.getTime();
@@ -198,20 +198,20 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
 
       for (const auto &timeEntry : data["times"]) {
         std::string dateStr = timeEntry["date"].get<std::string>();
-        JSDate date = parseLocalDate(dateStr);
+        DateTime date = parseLocalDate(dateStr);
         PrayerTimes p(coordinates, date, params);
 
-        JSDate testFajr = parseInZone(timezone, dateStr,
+        DateTime testFajr = parseInZone(timezone, dateStr,
                                       timeEntry["fajr"].get<std::string>());
-        JSDate testSunrise = parseInZone(
+        DateTime testSunrise = parseInZone(
             timezone, dateStr, timeEntry["sunrise"].get<std::string>());
-        JSDate testDhuhr = parseInZone(timezone, dateStr,
+        DateTime testDhuhr = parseInZone(timezone, dateStr,
                                        timeEntry["dhuhr"].get<std::string>());
-        JSDate testAsr =
+        DateTime testAsr =
             parseInZone(timezone, dateStr, timeEntry["asr"].get<std::string>());
-        JSDate testMaghrib = parseInZone(
+        DateTime testMaghrib = parseInZone(
             timezone, dateStr, timeEntry["maghrib"].get<std::string>());
-        JSDate testIsha = parseInZone(timezone, dateStr,
+        DateTime testIsha = parseInZone(timezone, dateStr,
                                       timeEntry["isha"].get<std::string>());
 
         CHECK(withinRange(p.fajr, testFajr, variance));

@@ -4,7 +4,7 @@
 #include "CalculationMethod.hpp"
 #include "Coordinates.hpp"
 #include "DateUtils.hpp"
-#include "JSDate.hpp"
+#include "DateTime.hpp"
 #include "PolarCircleResolution.hpp"
 #include "PrayerTimes.hpp"
 
@@ -13,15 +13,15 @@
 using namespace Adhan;
 
 namespace {
-const std::array<JSDate PrayerTimes::*, 4> kPrayersToCheck = {
+const std::array<DateTime PrayerTimes::*, 4> kPrayersToCheck = {
     &PrayerTimes::fajr, &PrayerTimes::sunrise, &PrayerTimes::maghrib,
     &PrayerTimes::isha};
 } // namespace
 
 struct PolarCircleFixture {
-  JSDate regularDate{2020, 4, 15, 20, 0, 0};
-  JSDate dateAffectedByPolarNight{2020, 11, 21, 20, 0, 0};
-  JSDate dateAffectedByMidnightSun{2020, 5, 21, 20, 0, 0};
+  DateTime regularDate{2020, 4, 15, 20, 0, 0};
+  DateTime dateAffectedByPolarNight{2020, 11, 21, 20, 0, 0};
+  DateTime dateAffectedByMidnightSun{2020, 5, 21, 20, 0, 0};
   Coordinates regularCoordinates{31.947351, 35.227163};
   Coordinates ArjeplogSweden{66.7222444, 17.7189};
   Coordinates AmundsenScottAntarctic{-84.996, 0.01013};
@@ -159,7 +159,7 @@ TEST_CASE("Polar Night case: calculating times for the polar circle") {
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.polarCircleResolution = PolarCircleResolution::AqrabYaum;
   params.highLatitudeRule = HighLatitudeRule::SeventhOfTheNight;
-  JSDate date(2020, 5, 21);
+  DateTime date(2020, 5, 21);
 
   PrayerTimes p(coordinates, date, params);
   CHECK(formatInZone(p.fajr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
@@ -190,7 +190,7 @@ TEST_CASE("calculating prayer times near the International Date Line") {
   params.madhab = Madhab::Shafi;
   params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
 
-  JSDate date(2025, 11, 1); // Dec 1, 2025
+  DateTime date(2025, 11, 1); // Dec 1, 2025
 
   PrayerTimes p1(Coordinates(42.74674252600066, 177.2401196144623), date,
                  params);

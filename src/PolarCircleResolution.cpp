@@ -30,14 +30,14 @@ double jsSign(double x) {
 }
 
 std::optional<PolarCircleResolver>
-aqrabYaumResolver(const Coordinates &coordinates, const JSDate &date,
+aqrabYaumResolver(const Coordinates &coordinates, const DateTime &date,
                   int daysAdded = 1, int direction = 1) {
   if (daysAdded > static_cast<int>(std::ceil(365 / 2.0))) {
     return std::nullopt;
   }
 
-  const JSDate testDate = dateByAddingDays(date, direction * daysAdded);
-  const JSDate tomorrow = dateByAddingDays(testDate, 1);
+  const DateTime testDate = dateByAddingDays(date, direction * daysAdded);
+  const DateTime tomorrow = dateByAddingDays(testDate, 1);
   SolarTime solarTime(testDate, coordinates);
   SolarTime tomorrowSolarTime(tomorrow, coordinates);
 
@@ -52,11 +52,11 @@ aqrabYaumResolver(const Coordinates &coordinates, const JSDate &date,
 }
 
 std::optional<PolarCircleResolver>
-aqrabBaladResolver(const Coordinates &coordinates, const JSDate &date,
+aqrabBaladResolver(const Coordinates &coordinates, const DateTime &date,
                    double latitude) {
   const Coordinates adjusted(latitude, coordinates.longitude);
   SolarTime solarTime(date, adjusted);
-  const JSDate tomorrow = dateByAddingDays(date, 1);
+  const DateTime tomorrow = dateByAddingDays(date, 1);
   SolarTime tomorrowSolarTime(tomorrow, adjusted);
 
   if (!isValidSolarTime(solarTime) || !isValidSolarTime(tomorrowSolarTime)) {
@@ -80,7 +80,7 @@ aqrabBaladResolver(const Coordinates &coordinates, const JSDate &date,
 } // namespace
 
 PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
-                                              const JSDate &date,
+                                              const DateTime &date,
                                               const Coordinates &coordinates) {
 
 #ifdef ADHAN_TESTING
@@ -88,7 +88,7 @@ PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
 #endif
 
   auto makeDefault = [&]() {
-    const JSDate tomorrow = dateByAddingDays(date, 1);
+    const DateTime tomorrow = dateByAddingDays(date, 1);
     return PolarCircleResolver{
         date,
         tomorrow,
