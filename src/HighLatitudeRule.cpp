@@ -1,6 +1,6 @@
 #include "HighLatitudeRule.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 HighLatitudeRule recommended(const Coordinates &coordinates) {
   if (coordinates.latitude > 48) {
@@ -9,4 +9,4 @@ HighLatitudeRule recommended(const Coordinates &coordinates) {
     return HighLatitudeRule::MiddleOfTheNight;
   }
 }
-} // namespace adhan
+} // namespace Adhan

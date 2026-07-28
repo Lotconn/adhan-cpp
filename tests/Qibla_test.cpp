@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-using namespace adhan;
+using namespace Adhan;
 
 namespace {
 // Mirrors Jest's toBeCloseTo(expected, precision):

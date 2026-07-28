@@ -4,7 +4,7 @@
 #include "JSDate.hpp"
 #include "Rounding.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 JSDate dateByAddingDays(const JSDate &date, int days);
 JSDate dateByAddingMinutes(const JSDate &date, double minutes);
@@ -13,6 +13,6 @@ JSDate roundedMinute(const JSDate &date, Rounding rounding = Rounding::Nearest);
 bool isLeapYear(int year);
 int dayOfYear(const JSDate &date);
 bool isValidDate(const JSDate &date);
-} // namespace adhan
+} // namespace Adhan
 
 #endif // DATEUTILS_HPP

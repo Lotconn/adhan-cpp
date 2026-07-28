@@ -3,7 +3,7 @@
 
 #include "Coordinates.hpp"
 
-namespace adhan {
+namespace Adhan {
 double qibla(const Coordinates &coordinates);
 }
 

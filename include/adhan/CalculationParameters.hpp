@@ -9,7 +9,7 @@
 #include <optional>
 #include <string>
 
-namespace adhan {
+namespace Adhan {
 
 typedef struct ManualAdjustments {
   int fajr = 0;
@@ -92,6 +92,6 @@ public:
 
   NightPortions nightPortions() const;
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* CALCULATIONPARAMETERS_HPP */

@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace adhan {
+namespace Adhan {
 
 namespace Astronomical {
 
@@ -348,4 +348,4 @@ int daysSinceSolstice(int dayOfYear, int year, double latitude) {
 }
 
 } // namespace Astronomical
-} // namespace adhan
+} // namespace Adhan

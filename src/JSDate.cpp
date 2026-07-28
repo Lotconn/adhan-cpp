@@ -7,7 +7,7 @@
 #include <chrono>
 #endif
 
-namespace adhan {
+namespace Adhan {
 
 namespace {
 
@@ -213,4 +213,4 @@ bool operator>=(const JSDate &lhs, const JSDate &rhs) {
   return lhs.tp_ >= rhs.tp_;
 }
 
-} // namespace adhan
+} // namespace Adhan

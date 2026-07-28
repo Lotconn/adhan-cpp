@@ -3,7 +3,7 @@
 
 #include <string_view>
 
-namespace adhan {
+namespace Adhan {
 
 enum class Prayer {
   Fajr,
@@ -56,6 +56,6 @@ constexpr Prayer from_string(std::string_view value) {
 }
 
 } // namespace PrayerUtils
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* PRAYER_HPP */

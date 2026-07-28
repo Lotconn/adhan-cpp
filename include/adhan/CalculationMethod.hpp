@@ -3,7 +3,7 @@
 
 #include "CalculationParameters.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 namespace CalculationMethod {
 
@@ -47,6 +47,6 @@ CalculationParameters Turkey();
 CalculationParameters Other();
 
 }; // namespace CalculationMethod
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* CALCULATIONMETHOD_HPP */

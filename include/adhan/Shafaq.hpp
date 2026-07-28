@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string_view>
 
-namespace adhan {
+namespace Adhan {
 
 /**
  * @brief Shafaq is the twilight in the sky. Different madhabs define the
@@ -59,6 +59,6 @@ constexpr Shafaq from_string(std::string_view s) {
 }
 
 } // namespace ShafaqUtils
-} // namespace adhan
+} // namespace Adhan
 
 #endif // SHAFAQ_HPP

@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-namespace adhan {
+namespace Adhan {
 
 SolarTime::SolarTime(const JSDate &date, const Coordinates &coordinates)
     : observer(coordinates),
@@ -51,4 +51,4 @@ double SolarTime::afternoon(double shadowLength) {
   const double angle = radiansToDegrees(std::atan(1.0 / inverse));
   return hourAngle(angle, true);
 }
-} // namespace adhan
+} // namespace Adhan

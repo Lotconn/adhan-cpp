@@ -1,6 +1,6 @@
 #include "CalculationMethod.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 // Muslim World League
 CalculationParameters CalculationMethod::MuslimWorldLeague() {
@@ -92,4 +92,4 @@ CalculationParameters CalculationMethod::Turkey() {
 CalculationParameters CalculationMethod::Other() {
   return CalculationParameters("Other", 0, 0);
 }
-} // namespace adhan
+} // namespace Adhan

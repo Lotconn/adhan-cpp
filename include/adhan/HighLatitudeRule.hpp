@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string_view>
 
-namespace adhan {
+namespace Adhan {
 
 enum class HighLatitudeRule {
   MiddleOfTheNight,
@@ -57,6 +57,6 @@ constexpr HighLatitudeRule from_string(std::string_view s) {
 } // namespace HighLatitudeRuleUtils
 
 HighLatitudeRule recommended(const Coordinates &coordinates);
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* HIGHLATITUDERULE_HPP */

@@ -9,7 +9,7 @@
 #include <cmath>
 #include <numbers>
 
-using namespace adhan;
+using namespace Adhan;
 
 TEST_CASE("converting between degrees and radians") {
   CHECK(radiansToDegrees(std::numbers::pi) == 180);

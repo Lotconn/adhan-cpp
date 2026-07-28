@@ -9,7 +9,7 @@
 #include <cmath>
 #include <limits>
 
-namespace adhan {
+namespace Adhan {
 
 namespace {
 /**
@@ -236,4 +236,4 @@ Prayer PrayerTimes::nextPrayer(const JSDate &date) const {
     return Prayer::Fajr;
   }
 }
-} // namespace adhan
+} // namespace Adhan

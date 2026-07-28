@@ -4,7 +4,7 @@
 #include "JSDate.hpp"
 #include <string>
 
-using namespace adhan;
+using namespace Adhan;
 
 /**
  * Test-only helper. Formats a JSDate as if viewed in the given IANA time zone,

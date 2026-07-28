@@ -36,7 +36,7 @@
 #include <sstream>
 #include <string>
 
-using namespace adhan;
+using namespace Adhan;
 
 namespace {
 

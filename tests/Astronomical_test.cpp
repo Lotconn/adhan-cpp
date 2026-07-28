@@ -12,7 +12,7 @@
 #include <cmath>
 #include <string>
 
-using namespace adhan;
+using namespace Adhan;
 
 namespace {
 

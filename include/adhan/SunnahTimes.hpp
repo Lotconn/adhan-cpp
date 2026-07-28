@@ -4,7 +4,7 @@
 #include "JSDate.hpp"
 #include "PrayerTimes.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 class SunnahTimes {
 public:
@@ -13,6 +13,6 @@ public:
 
   SunnahTimes(const PrayerTimes &prayerTimes);
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* SUNNAHTIMES_HPP */

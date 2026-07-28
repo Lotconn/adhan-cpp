@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-namespace adhan {
+namespace Adhan {
 
 namespace {
 
@@ -115,4 +115,4 @@ PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
   }
   }
 }
-} // namespace adhan
+} // namespace Adhan

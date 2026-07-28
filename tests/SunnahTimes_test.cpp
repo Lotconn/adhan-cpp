@@ -11,7 +11,7 @@
 #include "PrayerTimes.hpp"
 #include "SunnahTimes.hpp"
 
-using namespace adhan;
+using namespace Adhan;
 
 TEST_CASE("getting sunnah times for the New York timezone") {
   Coordinates coords(35.775, -78.6336);

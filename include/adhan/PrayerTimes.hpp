@@ -8,7 +8,7 @@
 
 #include <optional>
 
-namespace adhan {
+namespace Adhan {
 
 class PrayerTimes {
 public:
@@ -31,6 +31,6 @@ public:
   Prayer currentPrayer(const JSDate &date = JSDate::now()) const;
   Prayer nextPrayer(const JSDate &date = JSDate::now()) const;
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif // PRAYERTIMES_HPP

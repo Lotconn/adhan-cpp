@@ -1,7 +1,7 @@
 #ifndef SOLARCOORDINATES_HPP
 #define SOLARCOORDINATES_HPP
 
-namespace adhan {
+namespace Adhan {
 
 class SolarCoordinates {
 public:
@@ -11,6 +11,6 @@ public:
 
   explicit SolarCoordinates(double julianDay);
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif // SOLARCOORDINATES_HPP

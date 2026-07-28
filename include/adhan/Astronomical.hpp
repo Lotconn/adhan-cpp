@@ -5,7 +5,7 @@
 #include "JSDate.hpp"
 #include "Shafaq.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 namespace Astronomical {
 
@@ -100,6 +100,6 @@ JSDate seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
 int daysSinceSolstice(int dayOfYear, int year, double latitude);
 
 } // namespace Astronomical
-} // namespace adhan
+} // namespace Adhan
 
 #endif // ASTRONOMICAL_HPP

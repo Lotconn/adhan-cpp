@@ -5,7 +5,7 @@
 #include "JSDate.hpp"
 #include "SolarCoordinates.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 class SolarTime {
 public:
@@ -23,6 +23,6 @@ public:
   double hourAngle(double angle, bool afterTransit);
   double afternoon(double shadowLength);
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif // SOLARTIME_HPP

@@ -3,7 +3,7 @@
 
 #include <chrono>
 
-namespace adhan {
+namespace Adhan {
 
 class JSDate {
 public:
@@ -78,6 +78,6 @@ private:
   bool fallback = false;
 #endif
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif // JSDATE_HPP

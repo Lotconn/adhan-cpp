@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string_view>
 
-namespace adhan {
+namespace Adhan {
 
 enum class Madhab {
   Shafi,
@@ -50,6 +50,6 @@ constexpr int shadow_length(Madhab madhab) {
 constexpr int shadow_length(std::string_view s) {
   return shadow_length(MadhabUtils::from_string(s));
 }
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* MADHAB_HPP */

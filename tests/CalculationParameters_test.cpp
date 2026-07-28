@@ -4,7 +4,7 @@
 #include "CalculationParameters.hpp"
 #include "HighLatitudeRule.hpp"
 
-using namespace adhan;
+using namespace Adhan;
 
 TEST_CASE("Verifying the night portion defined by the high latitude rule") {
   CalculationParameters p1(std::nullopt, 18, 18);

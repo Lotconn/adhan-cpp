@@ -1,7 +1,7 @@
 #include "CalculationParameters.hpp"
 #include <stdexcept>
 
-namespace adhan {
+namespace Adhan {
 
 CalculationParameters::CalculationParameters(std::optional<std::string> method,
                                              double fajrAngle, double ishaAngle,
@@ -27,4 +27,4 @@ NightPortions CalculationParameters::nightPortions() const {
                              "to compute night portions");
   }
 }
-} // namespace adhan
+} // namespace Adhan

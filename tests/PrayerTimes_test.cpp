@@ -11,7 +11,7 @@
 #endif
 #include "PrayerTimes.hpp"
 
-using namespace adhan;
+using namespace Adhan;
 
 /* ! Feature not a part of our core library ! */
 /* All the test suites/cases that use `formatInZone` */

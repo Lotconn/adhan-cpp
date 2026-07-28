@@ -1,7 +1,7 @@
 #include "Qibla.hpp"
 #include "MathUtils.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 static const auto makkah = Coordinates(21.4225241, 39.8261818);
 
@@ -26,4 +26,4 @@ double qibla(const Coordinates &coordinates) {
   return unwindAngle(radiansToDegrees(angle));
 }
 
-} // namespace adhan
+} // namespace Adhan

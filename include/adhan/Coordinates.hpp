@@ -1,7 +1,7 @@
 #ifndef COORDINATES_HPP
 #define COORDINATES_HPP
 
-namespace adhan {
+namespace Adhan {
 
 class Coordinates {
 public:
@@ -9,6 +9,6 @@ public:
   double longitude;
   Coordinates(double latitude, double longitude);
 };
-} // namespace adhan
+} // namespace Adhan
 
 #endif /* COORDINATES_HPP */

@@ -10,7 +10,7 @@
 
 #include <array>
 
-using namespace adhan;
+using namespace Adhan;
 
 namespace {
 const std::array<JSDate PrayerTimes::*, 4> kPrayersToCheck = {

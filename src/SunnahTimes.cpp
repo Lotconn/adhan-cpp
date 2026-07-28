@@ -1,7 +1,7 @@
 #include "SunnahTimes.hpp"
 #include "DateUtils.hpp"
 
-namespace adhan {
+namespace Adhan {
 
 SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
   auto date = prayerTimes.date;
@@ -20,4 +20,4 @@ SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
       dateByAddingSeconds(prayerTimes.maghrib, nightDuration * (2.0 / 3.0)));
 }
 
-} // namespace adhan
+} // namespace Adhan

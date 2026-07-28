@@ -2,7 +2,7 @@
 #include <chrono>
 #include <cmath>
 
-namespace adhan {
+namespace Adhan {
 
 TimeComponents::TimeComponents(double num) {
   valid_ = !std::isnan(num);
@@ -31,4 +31,4 @@ JSDate TimeComponents::utcDate(int year, int month, int date) const {
       std::chrono::seconds{seconds};
   return JSDate(tp);
 }
-} // namespace adhan
+} // namespace Adhan

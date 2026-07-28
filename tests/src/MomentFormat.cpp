@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-using namespace adhan;
+using namespace Adhan;
 
 namespace {
 constexpr std::array<const char *, 12> kMonthNames = {
