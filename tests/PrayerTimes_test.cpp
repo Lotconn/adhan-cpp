@@ -2,14 +2,15 @@
 #include "HighLatitudeRule.hpp"
 #include "doctest.h"
 
-#include "CalculationMethod.hpp"
-#include "Coordinates.hpp"
-#include "DateTime.hpp"
-#include "Madhab.hpp"
+#include <adhan/CalculationMethod.hpp>
+#include <adhan/Coordinates.hpp>
+#include <adhan/DateTime.hpp>
+#include <adhan/Madhab.hpp>
+#include <adhan/PrayerTimes.hpp>
+
 #if not defined(ADHAN_USE_CTIME_FALLBACK)
-#include "MomentFormat.hpp"
+#include <MomentFormat.hpp>
 #endif
-#include "PrayerTimes.hpp"
 
 using namespace Adhan;
 
@@ -61,12 +62,14 @@ TEST_CASE("using offsets to manually adjust prayer times") {
   CHECK(formatInZone(p2.isha, "America/New_York", "h:mm A") == "6:36 PM");
 }
 
-TEST_CASE("calculating prayer times using the Moonsighting Committee "
-          "calculation method") {
+TEST_CASE(
+    "calculating prayer times using the Moonsighting Committee "
+    "calculation method") {
   // Values from http://www.moonsighting.com/pray.php
   DateTime date(2016, 0, 31);
-  PrayerTimes p(Coordinates(35.775, -78.6336), date,
-                CalculationMethod::MoonsightingCommittee());
+  PrayerTimes p(
+      Coordinates(35.775, -78.6336), date,
+      CalculationMethod::MoonsightingCommittee());
 
   CHECK(formatInZone(p.fajr, "America/New_York", "h:mm A") == "5:48 AM");
   CHECK(formatInZone(p.sunrise, "America/New_York", "h:mm A") == "7:16 AM");
@@ -76,8 +79,9 @@ TEST_CASE("calculating prayer times using the Moonsighting Committee "
   CHECK(formatInZone(p.isha, "America/New_York", "h:mm A") == "7:05 PM");
 }
 
-TEST_CASE("calculating Moonsighting Committee prayer times at a high latitude "
-          "location") {
+TEST_CASE(
+    "calculating Moonsighting Committee prayer times at a high latitude "
+    "location") {
   // Values from http://www.moonsighting.com/pray.php
   DateTime date(2016, 0, 1);
   CalculationParameters params = CalculationMethod::MoonsightingCommittee();
@@ -102,11 +106,13 @@ TEST_CASE("calculating times for turkey method") {
   CHECK(formatInZone(p.fajr, "Europe/Istanbul", "h:mm A") == "4:44 AM");
   CHECK(formatInZone(p.sunrise, "Europe/Istanbul", "h:mm A") == "6:16 AM");
   CHECK(formatInZone(p.dhuhr, "Europe/Istanbul", "h:mm A") == "1:09 PM");
-  CHECK(formatInZone(p.asr, "Europe/Istanbul", "h:mm A") ==
-        "4:53 PM"); // original time 4:52 PM
+  CHECK(
+      formatInZone(p.asr, "Europe/Istanbul", "h:mm A") ==
+      "4:53 PM"); // original time 4:52 PM
   CHECK(formatInZone(p.maghrib, "Europe/Istanbul", "h:mm A") == "7:52 PM");
-  CHECK(formatInZone(p.isha, "Europe/Istanbul", "h:mm A") ==
-        "9:19 PM"); // original time 9:18 PM
+  CHECK(
+      formatInZone(p.isha, "Europe/Istanbul", "h:mm A") ==
+      "9:19 PM"); // original time 9:18 PM
 }
 
 TEST_CASE("calculating times for the egyptian method") {
@@ -252,8 +258,9 @@ TEST_SUITE("Moonsighting Committee method with shafaq ahmer") {
     CHECK(formatInZone(p.dhuhr, "America/New_York", "h:mm A") == "12:28 PM");
     CHECK(formatInZone(p.asr, "America/New_York", "h:mm A") == "2:37 PM");
     CHECK(formatInZone(p.maghrib, "America/New_York", "h:mm A") == "4:57 PM");
-    CHECK(formatInZone(p.isha, "America/New_York", "h:mm A") ==
-          "6:07 PM"); // value from source is 6:08 PM
+    CHECK(
+        formatInZone(p.isha, "America/New_York", "h:mm A") ==
+        "6:07 PM"); // value from source is 6:08 PM
   }
 
   TEST_CASE("Shafaq ahmer in Spring") {

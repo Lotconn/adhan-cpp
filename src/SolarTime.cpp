@@ -1,6 +1,6 @@
-#include "SolarTime.hpp"
-#include "Astronomical.hpp"
-#include "MathUtils.hpp"
+#include <adhan/Astronomical.hpp>
+#include <adhan/MathUtils.hpp>
+#include <adhan/SolarTime.hpp>
 
 #include <cmath>
 
@@ -8,14 +8,17 @@ namespace Adhan {
 
 SolarTime::SolarTime(const DateTime &date, const Coordinates &coordinates)
     : observer(coordinates),
-      solar(Astronomical::julianDay(date.getFullYear(), date.getMonth() + 1,
-                                    date.getDate(), 0)),
-      prevSolar(Astronomical::julianDay(date.getFullYear(), date.getMonth() + 1,
-                                        date.getDate(), 0) -
-                1),
-      nextSolar(Astronomical::julianDay(date.getFullYear(), date.getMonth() + 1,
-                                        date.getDate(), 0) +
-                1) {
+      solar(
+          Astronomical::julianDay(
+              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0)),
+      prevSolar(
+          Astronomical::julianDay(
+              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0) -
+          1),
+      nextSolar(
+          Astronomical::julianDay(
+              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0) +
+          1) {
   const double m0 = Astronomical::approximateTransit(
       coordinates.longitude, solar.apparentSiderealTime, solar.rightAscension);
   const double solarAltitude = -50.0 / 60.0;

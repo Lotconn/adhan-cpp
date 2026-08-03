@@ -1,10 +1,10 @@
 #include "doctest.h"
 
-#include "DateUtils.hpp"
-#include "DateTime.hpp"
-#include "MathUtils.hpp"
-#include "Rounding.hpp"
-#include "TimeComponents.hpp"
+#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
+#include <adhan/MathUtils.hpp>
+#include <adhan/Rounding.hpp>
+#include <adhan/TimeComponents.hpp>
 
 #include <cmath>
 #include <numbers>
@@ -93,7 +93,8 @@ TEST_CASE("rounding a date to the closest minute") {
   CHECK(date3.getMinutes() == 3);
   CHECK(date3.getSeconds() == 0);
 
-  DateTime date4 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::None);
+  DateTime date4 =
+      roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::None);
   CHECK(date4.getMinutes() == 2);
   CHECK(date4.getSeconds() == 29);
 

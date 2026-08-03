@@ -15,17 +15,46 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 file(GLOB SOURCES "src/*.cpp")
 
-add_library(
-  ${PROJECT_NAME} SHARED ${SOURCES}
+option(BUILD_SHARED_LIBS
+  "Build shared library for adhan"
+  ON
 )
+
+if(BUILD_SHARED_LIBS)
+  add_library(
+    ${PROJECT_NAME} SHARED ${SOURCES}
+  )
+else()
+  add_library(
+    ${PROJECT_NAME} STATIC ${SOURCES}
+  )
+endif()
+
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC "include/adhan" "include"
+  ${PROJECT_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 
+# ####################
+#  BUILD TYPE DEFAULT
+# ####################
+
+set(default_build_type "Debug")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+    STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 # #################
 #  COMPILE OPTIONS
@@ -105,21 +134,10 @@ endif()
 
 # The Library (`libadhan.so` or `libadhan.a`)
 #
-# For windows, we need to add the `RUNTIME` install
-# For the rest, just the archive + library should be enough
-# 
-if(MSVC)
-  install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-  )
-else()
-  install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-  )
-endif()
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+)
 
 # The Headers (all *.hpp files should be contained in an `adhan` directory)
 # i.e. inside the prefix, the headers should be arranged like this:
@@ -128,8 +146,38 @@ endif()
 # └── adhan
 #     └── *.hpp
 #
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-  DESTINATION include
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+# Install the target file under `<LIBDIR>/cmake/adhan/`
+#
+install(EXPORT "${PROJECT_NAME}Targets"
+  FILE "${PROJECT_NAME}Targets.cmake"
+  NAMESPACE "${PROJECT_NAME}::"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+# Make a new version configuration file
+#
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${PROJECT_NAME}ConfigVersion.cmake
+  COMPATIBILITY AnyNewerVersion
+)
+# Make a new configuration file
+#
+configure_file(
+  ${PROJECT_NAME}Config.cmake.in
+  ${PROJECT_NAME}Config.cmake
+  @ONLY
+)
+# Install the configuration and version configuration files under `<LIBDIR>/cmake/adhan/`
+#
+install(
+  FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  DESTINATION
+  ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
 # #####################################

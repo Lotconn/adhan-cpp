@@ -1,7 +1,7 @@
 #include "doctest.h"
 
-#include "Coordinates.hpp"
-#include "Qibla.hpp"
+#include <adhan/Coordinates.hpp>
+#include <adhan/Qibla.hpp>
 
 #include <cmath>
 

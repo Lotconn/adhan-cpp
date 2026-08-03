@@ -1,12 +1,12 @@
 #include "MomentFormat.hpp"
 #include "doctest.h"
 
-#include "CalculationMethod.hpp"
-#include "Coordinates.hpp"
-#include "DateUtils.hpp"
-#include "DateTime.hpp"
-#include "PolarCircleResolution.hpp"
-#include "PrayerTimes.hpp"
+#include <adhan/CalculationMethod.hpp>
+#include <adhan/Coordinates.hpp>
+#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
+#include <adhan/PolarCircleResolution.hpp>
+#include <adhan/PrayerTimes.hpp>
 
 #include <array>
 
@@ -40,19 +40,20 @@ struct PolarCircleFixture {
 
 // --- Regular computation ---
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Regular computation: should not attempt any resolution if "
-                  "the resolver is set to unresolved") {
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Regular computation: should not attempt any resolution if "
+    "the resolver is set to unresolved") {
 
   /* So that the compiler does not complain, */
   // NOLINTBEGIN
   int before = polarCircleResolvedValuesCallCount;
   // NOLINTEND
 
-  PrayerTimes prayersTimes1(ArjeplogSweden, dateAffectedByMidnightSun,
-                            unresolvedParams);
-  PrayerTimes prayersTimes2(ArjeplogSweden, dateAffectedByMidnightSun,
-                            unresolvedParams);
+  PrayerTimes prayersTimes1(
+      ArjeplogSweden, dateAffectedByMidnightSun, unresolvedParams);
+  PrayerTimes prayersTimes2(
+      ArjeplogSweden, dateAffectedByMidnightSun, unresolvedParams);
 
   CHECK(polarCircleResolvedValuesCallCount == before);
 }
@@ -69,48 +70,52 @@ TEST_CASE_FIXTURE(
   CHECK(polarCircleResolvedValuesCallCount == before);
 }
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Regular computation: should not make any search if the "
-                  "location is outside the polar circles") {
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Regular computation: should not make any search if the "
+    "location is outside the polar circles") {
   int before = polarCircleResolvedValuesCallCount;
 
-  PrayerTimes prayersTimes1(regularCoordinates, dateAffectedByPolarNight,
-                            aqrabBaladParams);
-  PrayerTimes prayersTimes2(regularCoordinates, dateAffectedByPolarNight,
-                            aqrabYaumParams);
+  PrayerTimes prayersTimes1(
+      regularCoordinates, dateAffectedByPolarNight, aqrabBaladParams);
+  PrayerTimes prayersTimes2(
+      regularCoordinates, dateAffectedByPolarNight, aqrabYaumParams);
 
   CHECK(polarCircleResolvedValuesCallCount == before);
 }
 
 // --- Midnight Sun case ---
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Midnight Sun case: should fail to compute targeted prayer "
-                  "times with the unresolved resolver") {
-  PrayerTimes prayersTimes(ArjeplogSweden, dateAffectedByMidnightSun,
-                           unresolvedParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Midnight Sun case: should fail to compute targeted prayer "
+    "times with the unresolved resolver") {
+  PrayerTimes prayersTimes(
+      ArjeplogSweden, dateAffectedByMidnightSun, unresolvedParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == false);
   }
 }
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Midnight Sun case: should succeed in computing all prayer "
-                  "times with the aqrabBalad resolver") {
-  PrayerTimes prayersTimes(ArjeplogSweden, dateAffectedByMidnightSun,
-                           aqrabBaladParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Midnight Sun case: should succeed in computing all prayer "
+    "times with the aqrabBalad resolver") {
+  PrayerTimes prayersTimes(
+      ArjeplogSweden, dateAffectedByMidnightSun, aqrabBaladParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == true);
   }
 }
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Midnight Sun case: should succeed in computing all prayer "
-                  "times with the aqrabYaum resolver") {
-  PrayerTimes prayersTimes(ArjeplogSweden, dateAffectedByMidnightSun,
-                           aqrabYaumParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Midnight Sun case: should succeed in computing all prayer "
+    "times with the aqrabYaum resolver") {
+  PrayerTimes prayersTimes(
+      ArjeplogSweden, dateAffectedByMidnightSun, aqrabYaumParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == true);
@@ -119,33 +124,36 @@ TEST_CASE_FIXTURE(PolarCircleFixture,
 
 // --- Polar Night case ---
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Polar Night case: should fail to compute targeted prayer "
-                  "times with the unresolved resolver") {
-  PrayerTimes prayersTimes(AmundsenScottAntarctic, dateAffectedByPolarNight,
-                           unresolvedParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Polar Night case: should fail to compute targeted prayer "
+    "times with the unresolved resolver") {
+  PrayerTimes prayersTimes(
+      AmundsenScottAntarctic, dateAffectedByPolarNight, unresolvedParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == false);
   }
 }
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Polar Night case: should succeed in computing all prayer "
-                  "times with the aqrabBalad resolver") {
-  PrayerTimes prayersTimes(AmundsenScottAntarctic, dateAffectedByPolarNight,
-                           aqrabBaladParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Polar Night case: should succeed in computing all prayer "
+    "times with the aqrabBalad resolver") {
+  PrayerTimes prayersTimes(
+      AmundsenScottAntarctic, dateAffectedByPolarNight, aqrabBaladParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == true);
   }
 }
 
-TEST_CASE_FIXTURE(PolarCircleFixture,
-                  "Polar Night case: should succeed in computing all prayer "
-                  "times with the aqrabYaum resolver") {
-  PrayerTimes prayersTimes(AmundsenScottAntarctic, dateAffectedByPolarNight,
-                           aqrabYaumParams);
+TEST_CASE_FIXTURE(
+    PolarCircleFixture,
+    "Polar Night case: should succeed in computing all prayer "
+    "times with the aqrabYaum resolver") {
+  PrayerTimes prayersTimes(
+      AmundsenScottAntarctic, dateAffectedByPolarNight, aqrabYaumParams);
 
   for (auto member : kPrayersToCheck) {
     CHECK(isValidDate(prayersTimes.*member) == true);
@@ -162,18 +170,24 @@ TEST_CASE("Polar Night case: calculating times for the polar circle") {
   DateTime date(2020, 5, 21);
 
   PrayerTimes p(coordinates, date, params);
-  CHECK(formatInZone(p.fajr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 12:40 AM");
-  CHECK(formatInZone(p.sunrise, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 12:54 AM");
-  CHECK(formatInZone(p.dhuhr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 12:55 PM");
-  CHECK(formatInZone(p.asr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 5:49 PM");
-  CHECK(formatInZone(p.maghrib, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 11:36 PM");
-  CHECK(formatInZone(p.isha, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-        "June 21, 2020 11:51 PM");
+  CHECK(
+      formatInZone(p.fajr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 12:40 AM");
+  CHECK(
+      formatInZone(p.sunrise, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 12:54 AM");
+  CHECK(
+      formatInZone(p.dhuhr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 12:55 PM");
+  CHECK(
+      formatInZone(p.asr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 5:49 PM");
+  CHECK(
+      formatInZone(p.maghrib, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 11:36 PM");
+  CHECK(
+      formatInZone(p.isha, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
+      "June 21, 2020 11:51 PM");
 }
 
 #endif
@@ -192,16 +206,16 @@ TEST_CASE("calculating prayer times near the International Date Line") {
 
   DateTime date(2025, 11, 1); // Dec 1, 2025
 
-  PrayerTimes p1(Coordinates(42.74674252600066, 177.2401196144623), date,
-                 params);
+  PrayerTimes p1(
+      Coordinates(42.74674252600066, 177.2401196144623), date, params);
   CHECK(p1.fajr.getTime() < p1.sunrise.getTime());
   CHECK(p1.sunrise.getTime() < p1.dhuhr.getTime());
   CHECK(p1.dhuhr.getTime() < p1.asr.getTime());
   CHECK(p1.asr.getTime() < p1.maghrib.getTime());
   CHECK(p1.maghrib.getTime() < p1.isha.getTime());
 
-  PrayerTimes p2(Coordinates(47.082209457885355, 177.24642294208638), date,
-                 params);
+  PrayerTimes p2(
+      Coordinates(47.082209457885355, 177.24642294208638), date, params);
   CHECK(p2.fajr.getTime() < p2.sunrise.getTime());
   CHECK(p2.sunrise.getTime() < p2.dhuhr.getTime());
   CHECK(p2.dhuhr.getTime() < p2.asr.getTime());

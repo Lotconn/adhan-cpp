@@ -1,4 +1,4 @@
-#include "DateTime.hpp"
+#include <adhan/DateTime.hpp>
 #include <cassert>
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
@@ -107,8 +107,8 @@ DateTime::DateTime() : DateTime(std::chrono::system_clock::now()) {}
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
 
-DateTime::DateTime(int year, int month, int day, int hours, int minutes,
-               int seconds) {
+DateTime::DateTime(
+    int year, int month, int day, int hours, int minutes, int seconds) {
   std::tm tm{};
   tm.tm_year = year - 1900;
   tm.tm_mon = month; // 0-based, matches mktime's expectation
@@ -129,8 +129,8 @@ DateTime::DateTime(int year, int month, int day, int hours, int minutes,
 
 #else
 
-DateTime::DateTime(int year, int month, int day, int hours, int minutes,
-               int seconds) {
+DateTime::DateTime(
+    int year, int month, int day, int hours, int minutes, int seconds) {
   using namespace std::chrono;
 
   auto base = local_days{std::chrono::year{year} /
@@ -146,7 +146,9 @@ DateTime::DateTime(int year, int month, int day, int hours, int minutes,
 
 #endif
 
-DateTime DateTime::now() { return DateTime(std::chrono::system_clock::now()); }
+DateTime DateTime::now() {
+  return DateTime(std::chrono::system_clock::now());
+}
 
 DateTime DateTime::invalid() {
   DateTime d(std::chrono::system_clock::time_point{});
@@ -154,28 +156,55 @@ DateTime DateTime::invalid() {
   return d;
 }
 
-int DateTime::getFullYear() const { return breakDownLocal(tp_).year; }
-int DateTime::getMonth() const { return breakDownLocal(tp_).month; }
-int DateTime::getDate() const { return breakDownLocal(tp_).day; }
-int DateTime::getHours() const { return breakDownLocal(tp_).hours; }
-int DateTime::getMinutes() const { return breakDownLocal(tp_).minutes; }
-int DateTime::getSeconds() const { return breakDownLocal(tp_).seconds; }
+int DateTime::getFullYear() const {
+  return breakDownLocal(tp_).year;
+}
+int DateTime::getMonth() const {
+  return breakDownLocal(tp_).month;
+}
+int DateTime::getDate() const {
+  return breakDownLocal(tp_).day;
+}
+int DateTime::getHours() const {
+  return breakDownLocal(tp_).hours;
+}
+int DateTime::getMinutes() const {
+  return breakDownLocal(tp_).minutes;
+}
+int DateTime::getSeconds() const {
+  return breakDownLocal(tp_).seconds;
+}
 
-int DateTime::getUTCFullYear() const { return breakDownUtc(tp_).year; }
-int DateTime::getUTCMonth() const { return breakDownUtc(tp_).month; }
-int DateTime::getUTCDate() const { return breakDownUtc(tp_).day; }
-int DateTime::getUTCHours() const { return breakDownUtc(tp_).hours; }
-int DateTime::getUTCMinutes() const { return breakDownUtc(tp_).minutes; }
-int DateTime::getUTCSeconds() const { return breakDownUtc(tp_).seconds; }
+int DateTime::getUTCFullYear() const {
+  return breakDownUtc(tp_).year;
+}
+int DateTime::getUTCMonth() const {
+  return breakDownUtc(tp_).month;
+}
+int DateTime::getUTCDate() const {
+  return breakDownUtc(tp_).day;
+}
+int DateTime::getUTCHours() const {
+  return breakDownUtc(tp_).hours;
+}
+int DateTime::getUTCMinutes() const {
+  return breakDownUtc(tp_).minutes;
+}
+int DateTime::getUTCSeconds() const {
+  return breakDownUtc(tp_).seconds;
+}
 
 long long DateTime::getTime() const {
   using namespace std::chrono;
-  assert(valid_ &&
-         "getTime() called on an invalid DateTime; check isValid() first");
+  assert(
+      valid_ &&
+      "getTime() called on an invalid DateTime; check isValid() first");
   return duration_cast<milliseconds>(tp_.time_since_epoch()).count();
 }
 
-bool DateTime::isUsingFallback() { return this->fallback; }
+bool DateTime::isUsingFallback() {
+  return this->fallback;
+}
 
 bool operator==(const DateTime &lhs, const DateTime &rhs) {
   if (!lhs.valid_ || !rhs.valid_)

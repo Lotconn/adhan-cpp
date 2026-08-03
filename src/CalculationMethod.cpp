@@ -1,4 +1,4 @@
-#include "CalculationMethod.hpp"
+#include <adhan/CalculationMethod.hpp>
 
 namespace Adhan {
 

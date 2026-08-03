@@ -1,6 +1,6 @@
-#include "SolarCoordinates.hpp"
-#include "Astronomical.hpp"
-#include "MathUtils.hpp"
+#include <adhan/Astronomical.hpp>
+#include <adhan/MathUtils.hpp>
+#include <adhan/SolarCoordinates.hpp>
 
 #include <cmath>
 
@@ -33,8 +33,9 @@ SolarCoordinates::SolarCoordinates(double julianDay) {
    * celestial equator from the vernal equinox to the hour circle, in degrees.
    * Equation from Astronomical Algorithms page 165
    */
-  rightAscension = unwindAngle(radiansToDegrees(std::atan2(
-      std::cos(EpsilonApparent) * std::sin(Lambda), std::cos(Lambda))));
+  rightAscension = unwindAngle(radiansToDegrees(
+      std::atan2(
+          std::cos(EpsilonApparent) * std::sin(Lambda), std::cos(Lambda))));
 
   /**
    * apparentSiderealTime: Apparent sidereal time, the hour angle of the vernal

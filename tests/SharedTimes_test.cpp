@@ -1,11 +1,11 @@
 #include "doctest.h"
 
-#include "CalculationMethod.hpp"
-#include "Coordinates.hpp"
-#include "HighLatitudeRule.hpp"
-#include "DateTime.hpp"
-#include "Madhab.hpp"
-#include "PrayerTimes.hpp"
+#include <adhan/CalculationMethod.hpp>
+#include <adhan/Coordinates.hpp>
+#include <adhan/DateTime.hpp>
+#include <adhan/HighLatitudeRule.hpp>
+#include <adhan/Madhab.hpp>
+#include <adhan/PrayerTimes.hpp>
 
 #include "json.hpp"
 
@@ -85,8 +85,9 @@ DateTime parseLocalDate(const std::string &dateStr) {
  * tzName).toDate()` — parses the date/time as wall-clock time in the given
  * named zone.
  */
-DateTime parseInZone(const std::string &tzName, const std::string &dateStr,
-                   const std::string &timeStr) {
+DateTime parseInZone(
+    const std::string &tzName, const std::string &dateStr,
+    const std::string &timeStr) {
   using namespace std::chrono;
 
   ParsedDate d = parseDateStr(dateStr);
@@ -109,8 +110,8 @@ DateTime parseInZone(const std::string &tzName, const std::string &dateStr,
  * Mirrors the custom `toBeWithinRange(comparisonDate, variance)` Jest matcher:
  * passes if actual is within `variance` minutes of expected, inclusive.
  */
-bool withinRange(const DateTime &actual, const DateTime &expected,
-                 double varianceMinutes) {
+bool withinRange(
+    const DateTime &actual, const DateTime &expected, double varianceMinutes) {
   long long actualMs = actual.getTime();
   long long expectedMs = expected.getTime();
   long long varianceMs = static_cast<long long>(varianceMinutes * 60 * 1000);
@@ -190,8 +191,9 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
       json data = json::parse(f);
       const json &paramsJson = data["params"];
 
-      Coordinates coordinates(paramsJson["latitude"].get<double>(),
-                              paramsJson["longitude"].get<double>());
+      Coordinates coordinates(
+          paramsJson["latitude"].get<double>(),
+          paramsJson["longitude"].get<double>());
       CalculationParameters params = parseParams(paramsJson);
       double variance = data.value("variance", 0.0);
       std::string timezone = paramsJson["timezone"].get<std::string>();
@@ -201,18 +203,18 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
         DateTime date = parseLocalDate(dateStr);
         PrayerTimes p(coordinates, date, params);
 
-        DateTime testFajr = parseInZone(timezone, dateStr,
-                                      timeEntry["fajr"].get<std::string>());
+        DateTime testFajr = parseInZone(
+            timezone, dateStr, timeEntry["fajr"].get<std::string>());
         DateTime testSunrise = parseInZone(
             timezone, dateStr, timeEntry["sunrise"].get<std::string>());
-        DateTime testDhuhr = parseInZone(timezone, dateStr,
-                                       timeEntry["dhuhr"].get<std::string>());
+        DateTime testDhuhr = parseInZone(
+            timezone, dateStr, timeEntry["dhuhr"].get<std::string>());
         DateTime testAsr =
             parseInZone(timezone, dateStr, timeEntry["asr"].get<std::string>());
         DateTime testMaghrib = parseInZone(
             timezone, dateStr, timeEntry["maghrib"].get<std::string>());
-        DateTime testIsha = parseInZone(timezone, dateStr,
-                                      timeEntry["isha"].get<std::string>());
+        DateTime testIsha = parseInZone(
+            timezone, dateStr, timeEntry["isha"].get<std::string>());
 
         CHECK(withinRange(p.fajr, testFajr, variance));
         CHECK(withinRange(p.sunrise, testSunrise, variance));

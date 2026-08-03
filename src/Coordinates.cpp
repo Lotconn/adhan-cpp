@@ -1,4 +1,4 @@
-#include "Coordinates.hpp"
+#include <adhan/Coordinates.hpp>
 
 namespace Adhan {
 

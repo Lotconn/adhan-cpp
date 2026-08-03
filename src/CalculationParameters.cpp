@@ -1,12 +1,11 @@
-#include "CalculationParameters.hpp"
+#include <adhan/CalculationParameters.hpp>
 #include <stdexcept>
 
 namespace Adhan {
 
-CalculationParameters::CalculationParameters(std::optional<std::string> method,
-                                             double fajrAngle, double ishaAngle,
-                                             double ishaInterval,
-                                             double maghribAngle)
+CalculationParameters::CalculationParameters(
+    std::optional<std::string> method, double fajrAngle, double ishaAngle,
+    double ishaInterval, double maghribAngle)
     : fajrAngle(fajrAngle), ishaAngle(ishaAngle), ishaInterval(ishaInterval),
       maghribAngle(maghribAngle) {
 
@@ -23,8 +22,9 @@ NightPortions CalculationParameters::nightPortions() const {
   case HighLatitudeRule::TwilightAngle:
     return {fajrAngle / 60, ishaAngle / 60};
   default:
-    throw std::runtime_error("Invalid high latitude rule found when attempting "
-                             "to compute night portions");
+    throw std::runtime_error(
+        "Invalid high latitude rule found when attempting "
+        "to compute night portions");
   }
 }
 } // namespace Adhan

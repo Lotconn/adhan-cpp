@@ -1,7 +1,7 @@
 // TODO: RECHECK THIS MODULE
-#include "Astronomical.hpp"
-#include "DateUtils.hpp"
-#include "MathUtils.hpp"
+#include "adhan/Astronomical.hpp"
+#include "adhan/DateUtils.hpp"
+#include "adhan/MathUtils.hpp"
 
 #include <cmath>
 
@@ -83,8 +83,8 @@ double meanObliquityOfTheEcliptic(double julianCentury) {
   return term1 - term2 - term3 + term4;
 }
 
-double apparentObliquityOfTheEcliptic(double julianCentury,
-                                      double meanObliquityOfTheEcliptic) {
+double apparentObliquityOfTheEcliptic(
+    double julianCentury, double meanObliquityOfTheEcliptic) {
   const double T = julianCentury;
   const double Epsilon0 = meanObliquityOfTheEcliptic;
   /* Equation from Astronomical Algorithms page 165 */
@@ -104,8 +104,9 @@ double meanSiderealTime(double julianCentury) {
   return unwindAngle(Theta);
 }
 
-double nutationInLongitude(double julianCentury, double solarLongitude,
-                           double lunarLongitude, double ascendingNode) {
+double nutationInLongitude(
+    double julianCentury, double solarLongitude, double lunarLongitude,
+    double ascendingNode) {
   const double L0 = solarLongitude;
   const double Lp = lunarLongitude;
   const double Omega = ascendingNode;
@@ -117,8 +118,9 @@ double nutationInLongitude(double julianCentury, double solarLongitude,
   return term1 - term2 - term3 + term4;
 }
 
-double nutationInObliquity(double julianCentury, double solarLongitude,
-                           double lunarLongitude, double ascendingNode) {
+double nutationInObliquity(
+    double julianCentury, double solarLongitude, double lunarLongitude,
+    double ascendingNode) {
   const double L0 = solarLongitude;
   const double Lp = lunarLongitude;
   const double Omega = ascendingNode;
@@ -130,8 +132,8 @@ double nutationInObliquity(double julianCentury, double solarLongitude,
   return term1 + term2 + term3 - term4;
 }
 
-double altitudeOfCelestialBody(double observerLatitude, double declination,
-                               double localHourAngle) {
+double altitudeOfCelestialBody(
+    double observerLatitude, double declination, double localHourAngle) {
   const double Phi = observerLatitude;
   const double delta = declination;
   const double H = localHourAngle;
@@ -144,8 +146,8 @@ double altitudeOfCelestialBody(double observerLatitude, double declination,
   return radiansToDegrees(std::asin(term1 + term2));
 }
 
-double approximateTransit(double longitude, double siderealTime,
-                          double rightAscension) {
+double approximateTransit(
+    double longitude, double siderealTime, double rightAscension) {
   const double L = longitude;
   const double Theta0 = siderealTime;
   const double a2 = rightAscension;
@@ -167,10 +169,10 @@ double approximateTransit(double longitude, double siderealTime,
   }
 }
 
-double correctedTransit(double approximateTransit, double longitude,
-                        double siderealTime, double rightAscension,
-                        double previousRightAscension,
-                        double nextRightAscension) {
+double correctedTransit(
+    double approximateTransit, double longitude, double siderealTime,
+    double rightAscension, double previousRightAscension,
+    double nextRightAscension) {
   const double m0 = approximateTransit;
   const double L = longitude;
   const double Theta0 = siderealTime;
@@ -186,12 +188,11 @@ double correctedTransit(double approximateTransit, double longitude,
   return (m0 + dm) * 24;
 }
 
-double correctedHourAngle(double approximateTransit, double angle,
-                          const Coordinates &coordinates, bool afterTransit,
-                          double siderealTime, double rightAscension,
-                          double previousRightAscension,
-                          double nextRightAscension, double declination,
-                          double previousDeclination, double nextDeclination) {
+double correctedHourAngle(
+    double approximateTransit, double angle, const Coordinates &coordinates,
+    bool afterTransit, double siderealTime, double rightAscension,
+    double previousRightAscension, double nextRightAscension,
+    double declination, double previousDeclination, double nextDeclination) {
   const double m0 = approximateTransit;
   const double h0 = angle;
   const double Theta0 = siderealTime;
@@ -261,8 +262,8 @@ double julianCentury(double julianDay) {
   return (julianDay - 2451545.0) / 36525;
 }
 
-DateTime seasonAdjustedMorningTwilight(double latitude, int dayOfYear, int year,
-                                     const DateTime &sunrise) {
+DateTime seasonAdjustedMorningTwilight(
+    double latitude, int dayOfYear, int year, const DateTime &sunrise) {
   const double a = 75 + (28.65 / 55.0) * std::abs(latitude);
   const double b = 75 + (19.44 / 55.0) * std::abs(latitude);
   const double c = 75 + (32.74 / 55.0) * std::abs(latitude);
@@ -287,8 +288,9 @@ DateTime seasonAdjustedMorningTwilight(double latitude, int dayOfYear, int year,
   return dateByAddingSeconds(sunrise, std::round(adjustment * -60.0));
 }
 
-DateTime seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
-                                     const DateTime &sunset, Shafaq shafaq) {
+DateTime seasonAdjustedEveningTwilight(
+    double latitude, int dayOfYear, int year, const DateTime &sunset,
+    Shafaq shafaq) {
   double a, b, c, d;
   if (shafaq == Shafaq::Ahmer) {
     a = 62 + (17.4 / 55.0) * std::abs(latitude);

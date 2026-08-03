@@ -14,8 +14,8 @@ obj/
 run_tests
 
 # compile commands JSON
-**/compile_commands.json
-**/compile_commands.events.json
+compile_commands.json
+compile_commands.events.json
 
 # CMAKE build dir
 build/
@@ -23,3 +23,6 @@ build/
 # Personal/dev tools
 TODO.md
 todo.txt
+
+# Junk
+*.zip

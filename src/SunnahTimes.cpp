@@ -1,13 +1,13 @@
-#include "SunnahTimes.hpp"
-#include "DateUtils.hpp"
+#include <adhan/DateUtils.hpp>
+#include <adhan/SunnahTimes.hpp>
 
 namespace Adhan {
 
 SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
   auto date = prayerTimes.date;
   auto nextDay = dateByAddingDays(date, 1);
-  auto nextDayPrayerTimes = PrayerTimes(prayerTimes.coordinates, nextDay,
-                                        prayerTimes.calculationParameters);
+  auto nextDayPrayerTimes = PrayerTimes(
+      prayerTimes.coordinates, nextDay, prayerTimes.calculationParameters);
 
   auto nightDuration =
       (nextDayPrayerTimes.fajr.getTime() - prayerTimes.maghrib.getTime()) /

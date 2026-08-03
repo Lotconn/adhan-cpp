@@ -1,4 +1,4 @@
-#include "DateUtils.hpp"
+#include <adhan/DateUtils.hpp>
 #include <chrono>
 
 namespace Adhan {
@@ -8,12 +8,13 @@ DateTime dateByAddingDays(const DateTime &date, int days) {
     return DateTime::invalid();
   }
   /**
-   * DateTime's constructor normalizes overflow the same way JS's `new Date(...)`
-   * does (e.g. day 32 rolls into next month), so we can just add `days`
-   * directly to getDate() without any manual carry logic.
+   * DateTime's constructor normalizes overflow the same way JS's `new
+   * Date(...)` does (e.g. day 32 rolls into next month), so we can just add
+   * `days` directly to getDate() without any manual carry logic.
    */
-  return DateTime(date.getFullYear(), date.getMonth(), date.getDate() + days,
-                date.getHours(), date.getMinutes(), date.getSeconds());
+  return DateTime(
+      date.getFullYear(), date.getMonth(), date.getDate() + days,
+      date.getHours(), date.getMinutes(), date.getSeconds());
 }
 
 DateTime dateByAddingMinutes(const DateTime &date, double minutes) {
@@ -70,5 +71,7 @@ int dayOfYear(const DateTime &date) {
   return result;
 }
 
-bool isValidDate(const DateTime &date) { return date.isValid(); }
+bool isValidDate(const DateTime &date) {
+  return date.isValid();
+}
 } // namespace Adhan

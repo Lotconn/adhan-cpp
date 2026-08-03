@@ -1,13 +1,13 @@
 #include "doctest.h"
 
-#include "Astronomical.hpp"
-#include "Coordinates.hpp"
-#include "DateUtils.hpp"
-#include "DateTime.hpp"
-#include "MathUtils.hpp"
-#include "SolarCoordinates.hpp"
-#include "SolarTime.hpp"
-#include "TimeComponents.hpp"
+#include <adhan/Astronomical.hpp>
+#include <adhan/Coordinates.hpp>
+#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
+#include <adhan/MathUtils.hpp>
+#include <adhan/SolarCoordinates.hpp>
+#include <adhan/SolarTime.hpp>
+#include <adhan/TimeComponents.hpp>
 
 #include <cmath>
 #include <string>
@@ -113,8 +113,8 @@ TEST_CASE("Calculate the Transit and Hour Angle") {
 
   CHECK(closeTo(m0, 0.81965, 4));
 
-  double transit = Astronomical::correctedTransit(m0, longitude, Theta, Alpha2,
-                                                  Alpha1, Alpha3) /
+  double transit = Astronomical::correctedTransit(
+                       m0, longitude, Theta, Alpha2, Alpha1, Alpha3) /
                    24;
 
   CHECK(closeTo(transit, 0.8198, 4));
@@ -181,8 +181,9 @@ TEST_CASE("verify the correct calendar date is being used for calculations") {
   CHECK(timeString(day2) == "16:14");
 }
 
-TEST_CASE("interpolate a value given previous and next values along with an "
-          "interpolation factor") {
+TEST_CASE(
+    "interpolate a value given previous and next values along with an "
+    "interpolation factor") {
   double interpolatedValue =
       Astronomical::interpolate(0.877366, 0.884226, 0.870531, 4.35 / 24);
   CHECK(closeTo(interpolatedValue, 0.876125, 5));
@@ -274,31 +275,44 @@ TEST_CASE("verify Right Ascension Edge Case near the International Date Line") {
 }
 
 TEST_CASE("calculate the days since the winter or summer solstice") {
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 0, 1)), 2016,
-                                        1) == 11);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2015, 11, 31)), 2015,
-                                        1) == 10);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 11, 31)), 2016,
-                                        1) == 10);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 11, 21)), 2016,
-                                        1) == 0);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 11, 22)), 2016,
-                                        1) == 1);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 2, 1)), 2016,
-                                        1) == 71);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2015, 2, 1)), 2015,
-                                        1) == 70);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 11, 20)), 2016,
-                                        1) == 365);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2015, 11, 20)), 2015,
-                                        1) == 364);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 0, 1)), 2016, 1) == 11);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2015, 11, 31)), 2015, 1) == 10);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 11, 31)), 2016, 1) == 10);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 11, 21)), 2016, 1) == 0);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 11, 22)), 2016, 1) == 1);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 2, 1)), 2016, 1) == 71);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2015, 2, 1)), 2015, 1) == 70);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 11, 20)), 2016, 1) == 365);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2015, 11, 20)), 2015, 1) == 364);
 
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2015, 5, 21)), 2015,
-                                        -1) == 0);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 5, 21)), 2016,
-                                        -1) == 0);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2015, 5, 20)), 2015,
-                                        -1) == 364);
-  CHECK(Astronomical::daysSinceSolstice(dayOfYear(DateTime(2016, 5, 20)), 2016,
-                                        -1) == 365);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2015, 5, 21)), 2015, -1) == 0);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 5, 21)), 2016, -1) == 0);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2015, 5, 20)), 2015, -1) == 364);
+  CHECK(
+      Astronomical::daysSinceSolstice(
+          dayOfYear(DateTime(2016, 5, 20)), 2016, -1) == 365);
 }

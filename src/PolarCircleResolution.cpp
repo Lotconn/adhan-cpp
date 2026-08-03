@@ -1,5 +1,5 @@
-#include "PolarCircleResolution.hpp"
-#include "DateUtils.hpp"
+#include <adhan/DateUtils.hpp>
+#include <adhan/PolarCircleResolution.hpp>
 
 #include <cmath>
 
@@ -29,9 +29,9 @@ double jsSign(double x) {
   return 0;
 }
 
-std::optional<PolarCircleResolver>
-aqrabYaumResolver(const Coordinates &coordinates, const DateTime &date,
-                  int daysAdded = 1, int direction = 1) {
+std::optional<PolarCircleResolver> aqrabYaumResolver(
+    const Coordinates &coordinates, const DateTime &date, int daysAdded = 1,
+    int direction = 1) {
   if (daysAdded > static_cast<int>(std::ceil(365 / 2.0))) {
     return std::nullopt;
   }
@@ -42,8 +42,8 @@ aqrabYaumResolver(const Coordinates &coordinates, const DateTime &date,
   SolarTime tomorrowSolarTime(tomorrow, coordinates);
 
   if (!isValidSolarTime(solarTime) || !isValidSolarTime(tomorrowSolarTime)) {
-    return aqrabYaumResolver(coordinates, date,
-                             daysAdded + (direction > 0 ? 0 : 1), -direction);
+    return aqrabYaumResolver(
+        coordinates, date, daysAdded + (direction > 0 ? 0 : 1), -direction);
   }
 
   return PolarCircleResolver{
@@ -51,9 +51,8 @@ aqrabYaumResolver(const Coordinates &coordinates, const DateTime &date,
   };
 }
 
-std::optional<PolarCircleResolver>
-aqrabBaladResolver(const Coordinates &coordinates, const DateTime &date,
-                   double latitude) {
+std::optional<PolarCircleResolver> aqrabBaladResolver(
+    const Coordinates &coordinates, const DateTime &date, double latitude) {
   const Coordinates adjusted(latitude, coordinates.longitude);
   SolarTime solarTime(date, adjusted);
   const DateTime tomorrow = dateByAddingDays(date, 1);
@@ -61,9 +60,9 @@ aqrabBaladResolver(const Coordinates &coordinates, const DateTime &date,
 
   if (!isValidSolarTime(solarTime) || !isValidSolarTime(tomorrowSolarTime)) {
     if (std::abs(latitude) >= UNSAFE_LATITUDE) {
-      return aqrabBaladResolver(coordinates, date,
-                                latitude -
-                                    jsSign(latitude) * LATITUDE_VARIATION_STEP);
+      return aqrabBaladResolver(
+          coordinates, date,
+          latitude - jsSign(latitude) * LATITUDE_VARIATION_STEP);
     }
     return std::nullopt;
   }
@@ -79,9 +78,9 @@ aqrabBaladResolver(const Coordinates &coordinates, const DateTime &date,
 
 } // namespace
 
-PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
-                                              const DateTime &date,
-                                              const Coordinates &coordinates) {
+PolarCircleResolver polarCircleResolvedValues(
+    PolarCircleResolution resolver, const DateTime &date,
+    const Coordinates &coordinates) {
 
 #ifdef ADHAN_TESTING
   ++polarCircleResolvedValuesCallCount;
@@ -105,9 +104,9 @@ PolarCircleResolver polarCircleResolvedValues(PolarCircleResolution resolver,
   }
   case PolarCircleResolution::AqrabBalad: {
     const double latitude = coordinates.latitude;
-    auto result = aqrabBaladResolver(coordinates, date,
-                                     latitude - jsSign(latitude) *
-                                                    LATITUDE_VARIATION_STEP);
+    auto result = aqrabBaladResolver(
+        coordinates, date,
+        latitude - jsSign(latitude) * LATITUDE_VARIATION_STEP);
     return result ? *result : makeDefault();
   }
   default: {

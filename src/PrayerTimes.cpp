@@ -1,10 +1,10 @@
-#include "PrayerTimes.hpp"
-#include "Astronomical.hpp"
-#include "DateUtils.hpp"
-#include "Madhab.hpp"
-#include "PolarCircleResolution.hpp"
-#include "SolarTime.hpp"
-#include "TimeComponents.hpp"
+#include <adhan/Astronomical.hpp>
+#include <adhan/DateUtils.hpp>
+#include <adhan/Madhab.hpp>
+#include <adhan/PolarCircleResolution.hpp>
+#include <adhan/PrayerTimes.hpp>
+#include <adhan/SolarTime.hpp>
+#include <adhan/TimeComponents.hpp>
 
 #include <cmath>
 #include <limits>
@@ -24,8 +24,9 @@ double millisOrNaN(const DateTime &d) {
 }
 } // namespace
 
-PrayerTimes::PrayerTimes(const Coordinates &coordinates, const DateTime &date,
-                         const CalculationParameters &calculationParameters)
+PrayerTimes::PrayerTimes(
+    const Coordinates &coordinates, const DateTime &date,
+    const CalculationParameters &calculationParameters)
     : coordinates(coordinates), date(date),
       calculationParameters(calculationParameters) {
   SolarTime solarTime(date, coordinates);
@@ -79,8 +80,8 @@ PrayerTimes::PrayerTimes(const Coordinates &coordinates, const DateTime &date,
 
   DateTime tomorrowSunrise =
       TimeComponents(tomorrowSolarTime.sunrise)
-          .utcDate(tomorrow.getFullYear(), tomorrow.getMonth(),
-                   tomorrow.getDate());
+          .utcDate(
+              tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
   double night =
       (millisOrNaN(tomorrowSunrise) - millisOrNaN(sunsetTime)) / 1000;
 
@@ -168,19 +169,25 @@ PrayerTimes::PrayerTimes(const Coordinates &coordinates, const DateTime &date,
   int ishaAdjustment = calculationParameters.adjustments.isha +
                        calculationParameters.methodAdjustments.isha;
 
-  fajr = roundedMinute(dateByAddingMinutes(fajrTime, fajrAdjustment),
-                       calculationParameters.rounding);
-  sunrise = roundedMinute(dateByAddingMinutes(sunriseTime, sunriseAdjustment),
-                          calculationParameters.rounding);
-  dhuhr = roundedMinute(dateByAddingMinutes(dhuhrTime, dhuhrAdjustment),
-                        calculationParameters.rounding);
-  asr = roundedMinute(dateByAddingMinutes(asrTime, asrAdjustment),
-                      calculationParameters.rounding);
+  fajr = roundedMinute(
+      dateByAddingMinutes(fajrTime, fajrAdjustment),
+      calculationParameters.rounding);
+  sunrise = roundedMinute(
+      dateByAddingMinutes(sunriseTime, sunriseAdjustment),
+      calculationParameters.rounding);
+  dhuhr = roundedMinute(
+      dateByAddingMinutes(dhuhrTime, dhuhrAdjustment),
+      calculationParameters.rounding);
+  asr = roundedMinute(
+      dateByAddingMinutes(asrTime, asrAdjustment),
+      calculationParameters.rounding);
   sunset = roundedMinute(sunsetTime, calculationParameters.rounding);
-  maghrib = roundedMinute(dateByAddingMinutes(maghribTime, maghribAdjustment),
-                          calculationParameters.rounding);
-  isha = roundedMinute(dateByAddingMinutes(ishaTime, ishaAdjustment),
-                       calculationParameters.rounding);
+  maghrib = roundedMinute(
+      dateByAddingMinutes(maghribTime, maghribAdjustment),
+      calculationParameters.rounding);
+  isha = roundedMinute(
+      dateByAddingMinutes(ishaTime, ishaAdjustment),
+      calculationParameters.rounding);
 }
 
 std::optional<DateTime> PrayerTimes::timeForPrayer(Prayer prayer) const {

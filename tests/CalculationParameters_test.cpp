@@ -1,8 +1,8 @@
 #include "doctest.h"
 
-#include "CalculationMethod.hpp"
-#include "CalculationParameters.hpp"
-#include "HighLatitudeRule.hpp"
+#include <adhan/CalculationMethod.hpp>
+#include <adhan/CalculationParameters.hpp>
+#include <adhan/HighLatitudeRule.hpp>
 
 using namespace Adhan;
 
