@@ -1,5 +1,6 @@
 #include <adhan/DateTime.hpp>
 #include <cassert>
+#include <stdexcept>
 
 #if defined(ADHAN_USE_CTIME_FALLBACK)
 #include <ctime>
@@ -109,6 +110,10 @@ DateTime::DateTime() : DateTime(std::chrono::system_clock::now()) {}
 
 DateTime::DateTime(
     int year, int month, int day, int hours, int minutes, int seconds) {
+  if (year < -32767 || year > 32767) {
+    throw std::invalid_argument(
+        "DateTime: year is outside the representable range");
+  }
   std::tm tm{};
   tm.tm_year = year - 1900;
   tm.tm_mon = month; // 0-based, matches mktime's expectation
@@ -131,6 +136,10 @@ DateTime::DateTime(
 
 DateTime::DateTime(
     int year, int month, int day, int hours, int minutes, int seconds) {
+  if (year < -32767 || year > 32767) {
+    throw std::invalid_argument(
+        "DateTime: year is outside the representable range");
+  }
   using namespace std::chrono;
 
   auto base = local_days{std::chrono::year{year} /

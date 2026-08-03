@@ -4,6 +4,7 @@
 #include "adhan/MathUtils.hpp"
 
 #include <cmath>
+#include <stdexcept>
 
 namespace Adhan {
 
@@ -242,6 +243,17 @@ double interpolateAngles(double y2, double y1, double y3, double n) {
 }
 
 double julianDay(int year, int month, int day, double hours) {
+  /* Range validation */
+  /* Month/Day is range-checked, but Hours are rolled over */
+  if (month < 1 || month > 12) {
+    throw std::invalid_argument(
+        "Astronomical::julianDay: month must be in [1, 12]");
+  }
+  if (day < 1 || day > 31) {
+    throw std::invalid_argument(
+        "Astronomical::julianDay: day must be in [1, 31]");
+  }
+
   /* Equation from Astronomical Algorithms page 60 */
 
   const double Y = std::trunc(month > 2 ? year : year - 1);

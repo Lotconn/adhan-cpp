@@ -140,8 +140,9 @@ DateTime parseDateArg(const std::string &s) {
   int year = std::stoi(s.substr(0, 4));
   int month = std::stoi(s.substr(5, 2)); // 1-indexed as typed by the user
   int day = std::stoi(s.substr(8, 2));
-  return DateTime(year, month - 1,
-                  day); // DateTime's month is 0-indexed, like JS
+  return DateTime(
+      year, month - 1,
+      day); // DateTime's month is 0-indexed, like JS
 }
 
 std::string prayerName(Prayer p) {
@@ -150,25 +151,69 @@ std::string prayerName(Prayer p) {
 
 void printUsage(const char *progName) {
   std::cout
-      << "Usage: " << progName
-      << " <latitude> <longitude> [date=YYYY-MM-DD] [method] [madhab]"
-         " [highLatitudeRule] [shafaq] [rounding] [polarCircleResolution]\n\n"
-      << "  method:            MuslimWorldLeague | Egyptian | Karachi | "
-         "UmmAlQura |\n"
-      << "                     Dubai | MoonsightingCommittee | NorthAmerica | "
-         "Kuwait |\n"
-      << "                     Qatar | Singapore | Turkey | Tehran | Other "
-         "(default)\n"
-      << "  madhab:            Shafi (default) | Hanafi\n"
-      << "  highLatitudeRule:  MiddleOfTheNight (default) | SeventhOfTheNight "
-         "| TwilightAngle\n"
-      << "  shafaq:            General (default) | Ahmer | Abyad\n"
-      << "  rounding:          Nearest (default) | Up | None\n"
-      << "  polarCircleResolution: Unresolved (default) | AqrabBalad | "
-         "AqrabYaum\n\n"
-      << "Example:\n  " << progName
-      << " 23.775787 90.368047 2026-07-24 MuslimWorldLeague Shafi "
-         "TwilightAngle\n";
+      << "Adhan C++ CLI\n\n"
+
+      << "Usage:\n"
+      << "  " << progName << " [OPTIONS]\n\n"
+
+      << "Required:\n"
+      << "  -a, --latitude <degrees>\n"
+      << "      Latitude in decimal degrees.\n\n"
+
+      << "  -o, --longitude <degrees>\n"
+      << "      Longitude in decimal degrees.\n\n"
+
+      << "Options:\n"
+      << "  -d, --date <YYYY-MM-DD>\n"
+      << "      Date to calculate prayer times for.\n"
+      << "      Default: current date.\n\n"
+
+      << "  -m, --method <method>\n"
+      << "      Prayer time calculation method.\n"
+      << "      Default: MuslimWorldLeague\n"
+      << "      Values: {MuslimWorldLeague | Egyptian | Karachi | UmmAlQura |\n"
+      << "               Dubai | MoonsightingCommittee | NorthAmerica |\n"
+      << "               Kuwait | Qatar | Singapore | Turkey | Tehran |\n"
+      << "               Other}\n\n"
+
+      << "  -M, --madhab <madhab>\n"
+      << "      School of thought.\n"
+      << "      Default: Shafi\n"
+      << "      Values: {Shafi | Hanafi}\n\n"
+
+      << "  -H, --high-latitude-rule <rule>\n"
+      << "      High latitude adjustment rule.\n"
+      << "      Default: MiddleOfTheNight\n"
+      << "      Values: {MiddleOfTheNight | SeventhOfTheNight | "
+         "TwilightAngle}\n\n"
+
+      << "  -s, --shafaq <shafaq>\n"
+      << "      Shafaq variant.\n"
+      << "      Default: General\n"
+      << "      Values: {General | Ahmer | Abyad}\n\n"
+
+      << "  -r, --rounding <rounding>\n"
+      << "      Prayer time rounding mode.\n"
+      << "      Default: Nearest\n"
+      << "      Values: {Nearest | Up | None}\n\n"
+
+      << "  -p, --polar-circle-resolution <resolution>\n"
+      << "      Polar circle resolution strategy.\n"
+      << "      Default: Unresolved\n"
+      << "      Values: {Unresolved | AqrabBalad | AqrabYaum}\n\n"
+
+      << "  -h, --help\n"
+      << "      Show this help message.\n\n"
+
+      << "Example:\n"
+      << "  " << progName << " \\\n"
+      << "    --latitude 23.775787 \\\n"
+      << "    --longitude 90.368047 \\\n"
+      << "    --date 2026-07-24 \\\n"
+      << "    --method MuslimWorldLeague \\\n"
+      << "    --madhab Shafi \\\n"
+      << "    --high-latitude-rule TwilightAngle \\\n"
+      << "    --rounding Nearest\n";
 }
 
 } // namespace
@@ -194,22 +239,74 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  double latitude = std::stod(argv[1]);
-  double longitude = std::stod(argv[2]);
+  std::optional<double> latitude;
+  std::optional<double> longitude;
 
-  DateTime date = (argc > 3) ? parseDateArg(argv[3]) : DateTime::now();
-  std::string method = (argc > 4) ? argv[4] : "MuslimWorldLeague";
-  std::string madhab = (argc > 5) ? argv[5] : "Shafi";
-  std::string highLatRule = (argc > 6) ? argv[6] : "MiddleOfTheNight";
-  std::string shafaq = (argc > 7) ? argv[7] : "General";
-  std::string rounding = (argc > 8) ? argv[8] : "Up";
-  std::string polar = (argc > 9) ? argv[9] : "Unresolved";
+  DateTime date = DateTime::now();
+  std::string method = "MuslimWorldLeague";
+  std::string madhab = "Shafi";
+  std::string highLatRule = "MiddleOfTheNight";
+  std::string shafaq = "General";
+  std::string rounding = "Nearest";
+  std::string polar = "Unresolved";
+
+  auto requireValue = [&](int &i) -> std::string {
+    if (++i >= argc) {
+      throw std::runtime_error(std::string("Missing value for ") + argv[i - 1]);
+    }
+    return argv[i];
+  };
+
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = argv[i];
+
+    if (arg == "--help" || arg == "-h") {
+      printUsage(argv[0]);
+      return 0;
+    } else if (arg == "--latitude" || arg == "-a") {
+      latitude = std::stod(requireValue(i));
+    } else if (arg == "--longitude" || arg == "-o") {
+      longitude = std::stod(requireValue(i));
+    } else if (arg == "--date" || arg == "-d") {
+      date = parseDateArg(requireValue(i));
+    } else if (arg == "--method" || arg == "-m") {
+      method = requireValue(i);
+    } else if (arg == "--madhab" || arg == "-M") {
+      madhab = requireValue(i);
+    } else if (arg == "--high-latitude-rule" || arg == "-H") {
+      highLatRule = requireValue(i);
+    } else if (arg == "--shafaq" || arg == "-s") {
+      shafaq = requireValue(i);
+    } else if (arg == "--rounding" || arg == "-r") {
+      rounding = requireValue(i);
+    } else if (arg == "--polar-circle-resolution" || arg == "-p") {
+      polar = requireValue(i);
+    } else {
+      std::cerr << "Unknown option: " << arg << '\n';
+      printUsage(argv[0]);
+      return 1;
+    }
+  }
+
+  if (!latitude || !longitude) {
+    std::cerr << "Both `--latitude` and `--longitude` are required.\n\n";
+
+    DateTime dummy;
+    std::cout << "[Note] Using "
+              << (dummy.isUsingFallback() ? "ctime fallback for <chrono> tzdb"
+                                          : "<chrono> tzdb")
+              << '\n';
+
+    printUsage(argv[0]);
+    return 1;
+  }
+
   /**
    * -----------------------------------------------------------------
    * 1. Coordinates + CalculationParameters
    * -----------------------------------------------------------------
    */
-  Coordinates coordinates(latitude, longitude);
+  Coordinates coordinates(latitude.value(), longitude.value());
 
   CalculationParameters params = resolveMethod(method);
   params.madhab = resolveMadhab(madhab);

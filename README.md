@@ -78,6 +78,9 @@ You can add these options at the configure step, with the `-D` flag:
 
 ## CMake Options
 
+- `-DBUILD_SHARED_LIBS=OFF` (default: `ON`)
+  Build `libadhan` as a static library instead of a shared library.
+
 - `-DADHAN_USE_CTIME_FALLBACK=ON` (default: `OFF`)
   Use the localtime_r/mktime fallback function from the Requirements
   section.
@@ -128,7 +131,7 @@ int main() {
   Adhan::CalculationParameters params = Adhan::CalculationMethod::NorthAmerica();
   Adhan::PrayerTimes prayerTimes(coordinates, Adhan::DateTime::now(), params);
 
-  // prayerTimes.fajr, .sunrise, .dhuhr, .asr, .maghrib, .isha
+  // prayerTimes.fajr, .sunrise, .dhuhr, .asr, .sunset, .maghrib, .isha
   // are each a DateTime representing that prayer time in UTC.
 }
 ```
@@ -151,7 +154,7 @@ It is possible to also get the current date and time.
 
 ```cpp
 Adhan::DateTime specific(2026, 0, 1);               // January 1, 2026
-Adhan::DateTime date = adhan::DateTime::now();      // current date and time
+Adhan::DateTime date = Adhan::DateTime::now();      // current date and time
 ```
 
 The prayer time calculation uses only the year, the month, and the day.
@@ -318,9 +321,11 @@ public interface of the library. The program calculates prayer times, Sunnah tim
 and the Qibla direction. The program also shows some convenience functions.
 
 <!-- markdownlint-disable MD013 -->
+
 ```bash
 ./build/examples/adhan-cli/adhan-cli 23.775787 90.368047 2026-07-24 MuslimWorldLeague Shafi MiddleOfTheNight General Up
 ```
+
 <!-- markdownlint-enable MD013 -->
 
 Run the program with no arguments to see the full list of options.

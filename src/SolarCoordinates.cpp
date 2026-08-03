@@ -3,10 +3,15 @@
 #include <adhan/SolarCoordinates.hpp>
 
 #include <cmath>
+#include <stdexcept>
 
 namespace Adhan {
 
 SolarCoordinates::SolarCoordinates(double julianDay) {
+  if (!std::isfinite(julianDay)) {
+    throw std::invalid_argument(
+        "SolarCoordinates: julianDay must be a finite number");
+  }
   const double T = Astronomical::julianCentury(julianDay);
   const double L0 = Astronomical::meanSolarLongitude(T);
   const double Lp = Astronomical::meanLunarLongitude(T);

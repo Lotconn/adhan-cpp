@@ -44,7 +44,7 @@ constexpr int shadow_length(Madhab madhab) {
     return 2;
   }
   throw std::logic_error("Invalid Madhab");
-  return 0;
+  return {};
 }
 
 constexpr int shadow_length(std::string_view s) {

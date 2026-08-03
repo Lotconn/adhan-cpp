@@ -5,7 +5,7 @@
 namespace Adhan {
 
 TimeComponents::TimeComponents(double num) {
-  valid_ = !std::isnan(num);
+  valid_ = std::isfinite(num);
   if (!valid_) {
     hours = 0;
     minutes = 0;

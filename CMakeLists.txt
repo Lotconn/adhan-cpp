@@ -6,6 +6,12 @@ cmake_minimum_required(VERSION 4.3.0)
 
 project("adhan" VERSION 1.0.0)
 
+# #######################
+#  CMake Module Includes
+# #######################
+
+include(GNUInstallDirs)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
@@ -21,15 +27,23 @@ option(BUILD_SHARED_LIBS
 )
 
 if(BUILD_SHARED_LIBS)
-  add_library(
-    ${PROJECT_NAME} SHARED ${SOURCES}
+  # Make a shared library (default)
+  add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+  # Version naming with symlinks
+  # e.g. (libadhan.so -> libadhan.so.1 -> libadhan.so.1.0.0)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    # 1.0.0  --> libadhan.so.1.0.0
+    VERSION ${PROJECT_VERSION}
+    # 1      --> libadhan.so.1 
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    # appends "-<SOVERSION>" to the DLL name on Windows
+    DLL_NAME_WITH_SOVERSION ON
   )
 else()
-  add_library(
-    ${PROJECT_NAME} STATIC ${SOURCES}
-  )
+  # Make a static library
+  add_library(${PROJECT_NAME} STATIC ${SOURCES})
 endif()
-
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
@@ -134,7 +148,6 @@ endif()
 
 # The Library (`libadhan.so` or `libadhan.a`)
 #
-include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}Targets
 )

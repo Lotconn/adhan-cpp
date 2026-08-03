@@ -46,7 +46,6 @@ constexpr Rounding from_string(std::string_view s) {
   if (s == "up")
     return Rounding::Up;
 
-  throw std::logic_error("Invalid rounding");
   return Rounding::None;
 }
 
