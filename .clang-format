@@ -3,5 +3,3 @@ BreakBeforeBraces: Attach
 BreakAfterOpenBracketFunction: true
 
 AllowShortFunctionsOnASingleLine: Empty
-
-
