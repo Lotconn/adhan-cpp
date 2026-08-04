@@ -101,11 +101,10 @@ PrayerTimes::PrayerTimes(
       return Astronomical::seasonAdjustedMorningTwilight(
           coordinates.latitude, dayOfYear(date), date.getFullYear(),
           sunriseTime);
-    } else {
-      double portion = calculationParameters.nightPortions().fajr;
-      nightFraction = portion * night;
-      return dateByAddingSeconds(sunriseTime, -nightFraction);
     }
+    double portion = calculationParameters.nightPortions().fajr;
+    nightFraction = portion * night;
+    return dateByAddingSeconds(sunriseTime, -nightFraction);
   }();
 
   if (!fajrTime.isValid() || safeFajr > fajrTime) {
@@ -133,11 +132,10 @@ PrayerTimes::PrayerTimes(
         return Astronomical::seasonAdjustedEveningTwilight(
             coordinates.latitude, dayOfYear(date), date.getFullYear(),
             sunsetTime, calculationParameters.shafaq);
-      } else {
-        double portion = calculationParameters.nightPortions().isha;
-        nightFraction = portion * night;
-        return dateByAddingSeconds(sunsetTime, nightFraction);
       }
+      double portion = calculationParameters.nightPortions().isha;
+      nightFraction = portion * night;
+      return dateByAddingSeconds(sunsetTime, nightFraction);
     }();
 
     if (!ishaTime.isValid() || safeIsha < ishaTime) {
@@ -193,54 +191,66 @@ PrayerTimes::PrayerTimes(
 std::optional<DateTime> PrayerTimes::timeForPrayer(Prayer prayer) const {
   if (prayer == Prayer::Fajr) {
     return fajr;
-  } else if (prayer == Prayer::Sunrise) {
-    return sunrise;
-  } else if (prayer == Prayer::Dhuhr) {
-    return dhuhr;
-  } else if (prayer == Prayer::Asr) {
-    return asr;
-  } else if (prayer == Prayer::Maghrib) {
-    return maghrib;
-  } else if (prayer == Prayer::Isha) {
-    return isha;
-  } else {
-    return std::nullopt;
   }
+  if (prayer == Prayer::Sunrise) {
+    return sunrise;
+  }
+  if (prayer == Prayer::Dhuhr) {
+    return dhuhr;
+  }
+  if (prayer == Prayer::Asr) {
+    return asr;
+  }
+  if (prayer == Prayer::Maghrib) {
+    return maghrib;
+  }
+  if (prayer == Prayer::Isha) {
+    return isha;
+  }
+  return std::nullopt;
 }
 
 Prayer PrayerTimes::currentPrayer(const DateTime &date) const {
   if (date >= isha) {
     return Prayer::Isha;
-  } else if (date >= maghrib) {
-    return Prayer::Maghrib;
-  } else if (date >= asr) {
-    return Prayer::Asr;
-  } else if (date >= dhuhr) {
-    return Prayer::Dhuhr;
-  } else if (date >= sunrise) {
-    return Prayer::Sunrise;
-  } else if (date >= fajr) {
-    return Prayer::Fajr;
-  } else {
-    return Prayer::None;
   }
+  if (date >= maghrib) {
+    return Prayer::Maghrib;
+  }
+  if (date >= asr) {
+    return Prayer::Asr;
+  }
+  if (date >= dhuhr) {
+    return Prayer::Dhuhr;
+  }
+  if (date >= sunrise) {
+    return Prayer::Sunrise;
+  }
+  if (date >= fajr) {
+    return Prayer::Fajr;
+  }
+  return Prayer::None;
 }
 
 Prayer PrayerTimes::nextPrayer(const DateTime &date) const {
   if (date >= isha) {
     return Prayer::None;
-  } else if (date >= maghrib) {
-    return Prayer::Isha;
-  } else if (date >= asr) {
-    return Prayer::Maghrib;
-  } else if (date >= dhuhr) {
-    return Prayer::Asr;
-  } else if (date >= sunrise) {
-    return Prayer::Dhuhr;
-  } else if (date >= fajr) {
-    return Prayer::Sunrise;
-  } else {
-    return Prayer::Fajr;
   }
+  if (date >= maghrib) {
+    return Prayer::Isha;
+  }
+  if (date >= asr) {
+    return Prayer::Maghrib;
+  }
+  if (date >= dhuhr) {
+    return Prayer::Asr;
+  }
+  if (date >= sunrise) {
+    return Prayer::Dhuhr;
+  }
+  if (date >= fajr) {
+    return Prayer::Sunrise;
+  }
+  return Prayer::Fajr;
 }
 } // namespace Adhan

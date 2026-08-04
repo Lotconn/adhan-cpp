@@ -2,7 +2,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#if defined(ADHAN_USE_CTIME_FALLBACK)
+#ifdef ADHAN_USE_CTIME_FALLBACK
 #include <ctime>
 #else
 #include <chrono>
@@ -21,10 +21,10 @@ struct Fields {
   int seconds;
 };
 
-#if defined(ADHAN_USE_CTIME_FALLBACK)
+#ifdef ADHAN_USE_CTIME_FALLBACK
 
 // Thread-safe gmtime/localtime wrappers (signatures differ per platform).
-#if defined(_WIN32)
+#ifdef _WIN32
 std::tm portableGmtime(std::time_t t) {
   std::tm out{};
   gmtime_s(&out, &t);
@@ -50,9 +50,12 @@ std::tm portableLocaltime(std::time_t t) {
 
 Fields fieldsFromTm(const std::tm &tm) {
   return Fields{
-      tm.tm_year + 1900,
-      tm.tm_mon, // already 0-based
-      tm.tm_mday,        tm.tm_hour, tm.tm_min, tm.tm_sec,
+      .year = tm.tm_year + 1900,
+      .month = tm.tm_mon, // already 0-based
+      .day = tm.tm_mday,
+      .hours = tm.tm_hour,
+      .minutes = tm.tm_min,
+      .seconds = tm.tm_sec,
   };
 }
 
@@ -75,12 +78,12 @@ Fields breakDownUtc(system_clock::time_point tp) {
   year_month_day ymd{dp};
   hh_mm_ss hms{floor<seconds>(tp - dp)};
   return Fields{
-      static_cast<int>(ymd.year()),
-      static_cast<int>(static_cast<unsigned>(ymd.month())) - 1,
-      static_cast<int>(static_cast<unsigned>(ymd.day())),
-      static_cast<int>(hms.hours().count()),
-      static_cast<int>(hms.minutes().count()),
-      static_cast<int>(hms.seconds().count()),
+      .year = static_cast<int>(ymd.year()),
+      .month = static_cast<int>(static_cast<unsigned>(ymd.month())) - 1,
+      .day = static_cast<int>(static_cast<unsigned>(ymd.day())),
+      .hours = static_cast<int>(hms.hours().count()),
+      .minutes = static_cast<int>(hms.minutes().count()),
+      .seconds = static_cast<int>(hms.seconds().count()),
   };
 }
 
@@ -91,12 +94,12 @@ Fields breakDownLocal(system_clock::time_point tp) {
   year_month_day ymd{dp};
   hh_mm_ss hms{floor<seconds>(local - dp)};
   return Fields{
-      static_cast<int>(ymd.year()),
-      static_cast<int>(static_cast<unsigned>(ymd.month())) - 1,
-      static_cast<int>(static_cast<unsigned>(ymd.day())),
-      static_cast<int>(hms.hours().count()),
-      static_cast<int>(hms.minutes().count()),
-      static_cast<int>(hms.seconds().count()),
+      .year = static_cast<int>(ymd.year()),
+      .month = static_cast<int>(static_cast<unsigned>(ymd.month())) - 1,
+      .day = static_cast<int>(static_cast<unsigned>(ymd.day())),
+      .hours = static_cast<int>(hms.hours().count()),
+      .minutes = static_cast<int>(hms.minutes().count()),
+      .seconds = static_cast<int>(hms.seconds().count()),
   };
 }
 
@@ -106,7 +109,7 @@ Fields breakDownLocal(system_clock::time_point tp) {
 
 DateTime::DateTime() : DateTime(std::chrono::system_clock::now()) {}
 
-#if defined(ADHAN_USE_CTIME_FALLBACK)
+#ifdef ADHAN_USE_CTIME_FALLBACK
 
 DateTime::DateTime(
     int year, int month, int day, int hours, int minutes, int seconds) {
@@ -211,43 +214,49 @@ long long DateTime::getTime() const {
   return duration_cast<milliseconds>(tp_.time_since_epoch()).count();
 }
 
-bool DateTime::isUsingFallback() {
+bool DateTime::isUsingFallback() const {
   return this->fallback;
 }
 
 bool operator==(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return false;
+  }
   return lhs.tp_ == rhs.tp_;
 }
 
 bool operator!=(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return true;
+  }
   return lhs.tp_ != rhs.tp_;
 }
 
 bool operator<(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return false;
+  }
   return lhs.tp_ < rhs.tp_;
 }
 
 bool operator<=(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return false;
+  }
   return lhs.tp_ <= rhs.tp_;
 }
 
 bool operator>(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return false;
+  }
   return lhs.tp_ > rhs.tp_;
 }
 
 bool operator>=(const DateTime &lhs, const DateTime &rhs) {
-  if (!lhs.valid_ || !rhs.valid_)
+  if (!lhs.valid_ || !rhs.valid_) {
     return false;
+  }
   return lhs.tp_ >= rhs.tp_;
 }
 

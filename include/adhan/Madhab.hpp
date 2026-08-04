@@ -1,12 +1,13 @@
 #ifndef MADHAB_HPP
 #define MADHAB_HPP
 
+#include <cstdint>
 #include <stdexcept>
 #include <string_view>
 
 namespace Adhan {
 
-enum class Madhab {
+enum class Madhab : std::int8_t {
   Shafi,
   Hanafi,
 };
@@ -25,10 +26,12 @@ constexpr std::string_view to_string(Madhab m) {
 
 constexpr Madhab from_string(std::string_view s) {
 
-  if (s == "Shafi")
+  if (s == "Shafi") {
     return Madhab::Shafi;
-  if (s == "Hanafi")
+  }
+  if (s == "Hanafi") {
     return Madhab::Hanafi;
+  }
 
   throw std::logic_error("Invalid madhab");
   return {};

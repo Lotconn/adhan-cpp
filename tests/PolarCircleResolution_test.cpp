@@ -160,7 +160,7 @@ TEST_CASE_FIXTURE(
   }
 }
 
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 
 TEST_CASE("Polar Night case: calculating times for the polar circle") {
   Coordinates coordinates(66.7222444, 17.7189);

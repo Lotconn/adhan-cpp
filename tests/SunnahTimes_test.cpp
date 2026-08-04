@@ -1,6 +1,6 @@
 
 /* Every test suite includes the `formatInZone` function */
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 #include "doctest.h"
 
 #include <MomentFormat.hpp>

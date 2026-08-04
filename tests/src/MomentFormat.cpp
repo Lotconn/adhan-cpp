@@ -19,7 +19,7 @@ std::string pad2(int v) {
 }
 } // namespace
 
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 
 std::string formatInZone(
     const DateTime &date, const std::string &tzName,
@@ -46,8 +46,9 @@ std::string formatInZone(
   int second = static_cast<int>(hms.seconds().count());
 
   int hour12 = hour24 % 12;
-  if (hour12 == 0)
+  if (hour12 == 0) {
     hour12 = 12;
+  }
   bool isPM = hour24 >= 12;
 
   std::string result;
@@ -64,7 +65,7 @@ std::string formatInZone(
       result += pad2(year % 100);
       i += 2;
     } else if (matches("MMMM", 4)) {
-      result += kMonthNames[month - 1];
+      result += kMonthNames.at(month - 1);
       i += 4;
     } else if (matches("DD", 2)) {
       result += pad2(day);

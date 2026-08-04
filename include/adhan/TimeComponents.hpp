@@ -7,14 +7,18 @@ namespace Adhan {
 
 class TimeComponents {
 public:
+  // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes)
   int hours;
   int minutes;
   int seconds;
+  // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 
   explicit TimeComponents(double num);
 
   DateTime utcDate(int year, int month, int date) const;
-  bool isValid() const { return valid_; } // <-- added
+  bool isValid() const {
+    return valid_;
+  } // <-- added
 
 private:
   bool valid_;

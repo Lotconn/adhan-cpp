@@ -4,8 +4,14 @@
 
 namespace Adhan {
 
-TimeComponents::TimeComponents(double num) {
-  valid_ = std::isfinite(num);
+/**
+ * Note:
+ * If validation rules increase in number, the `valid_` initialization
+ * should be put into the constructor body
+ */
+
+TimeComponents::TimeComponents(double num) : valid_(std::isfinite(num)) {
+
   if (!valid_) {
     hours = 0;
     minutes = 0;

@@ -1,6 +1,7 @@
 #ifndef SHAFAQ_HPP
 #define SHAFAQ_HPP
 
+#include <cstdint>
 #include <stdexcept>
 #include <string_view>
 
@@ -11,7 +12,7 @@ namespace Adhan {
  * appearance of twilight differently. These values are used by the
  * MoonsightingComittee method for the different ways to calculate Isha.
  */
-enum class Shafaq {
+enum class Shafaq : std::int8_t {
   /**
    * @brief General is a combination of Ahmer and Abyad.
    */
@@ -47,12 +48,15 @@ constexpr std::string_view to_string(Shafaq sfq) {
 }
 
 constexpr Shafaq from_string(std::string_view s) {
-  if (s == "general")
+  if (s == "general") {
     return Shafaq::General;
-  if (s == "ahmer")
+  }
+  if (s == "ahmer") {
     return Shafaq::Ahmer;
-  if (s == "abyad")
+  }
+  if (s == "abyad") {
     return Shafaq::Abyad;
+  }
 
   throw std::logic_error("Invalid shafaq");
   return {};

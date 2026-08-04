@@ -22,10 +22,12 @@ bool isValidSolarTime(const SolarTime &solarTime) {
  * -1, 0, or 1 (unlike std::copysign, which treats 0 as positive).
  */
 double jsSign(double x) {
-  if (x > 0)
+  if (x > 0) {
     return 1;
-  if (x < 0)
+  }
+  if (x < 0) {
     return -1;
+  }
   return 0;
 }
 
@@ -47,7 +49,11 @@ std::optional<PolarCircleResolver> aqrabYaumResolver(
   }
 
   return PolarCircleResolver{
-      date, tomorrow, coordinates, solarTime, tomorrowSolarTime,
+      .date = date,
+      .tomorrow = tomorrow,
+      .coordinates = coordinates,
+      .solarTime = solarTime,
+      .tomorrowSolarTime = tomorrowSolarTime,
   };
 }
 
@@ -68,11 +74,11 @@ std::optional<PolarCircleResolver> aqrabBaladResolver(
   }
 
   return PolarCircleResolver{
-      date,
-      tomorrow,
-      Coordinates(latitude, coordinates.longitude),
-      solarTime,
-      tomorrowSolarTime,
+      .date = date,
+      .tomorrow = tomorrow,
+      .coordinates = Coordinates(latitude, coordinates.longitude),
+      .solarTime = solarTime,
+      .tomorrowSolarTime = tomorrowSolarTime,
   };
 }
 
@@ -89,11 +95,11 @@ PolarCircleResolver polarCircleResolvedValues(
   auto makeDefault = [&]() {
     const DateTime tomorrow = dateByAddingDays(date, 1);
     return PolarCircleResolver{
-        date,
-        tomorrow,
-        coordinates,
-        SolarTime(date, coordinates),
-        SolarTime(tomorrow, coordinates),
+        .date = date,
+        .tomorrow = tomorrow,
+        .coordinates = coordinates,
+        .solarTime = SolarTime(date, coordinates),
+        .tomorrowSolarTime = SolarTime(tomorrow, coordinates),
     };
   };
 

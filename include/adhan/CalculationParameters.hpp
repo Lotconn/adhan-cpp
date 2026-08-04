@@ -11,14 +11,14 @@
 
 namespace Adhan {
 
-typedef struct ManualAdjustments {
+using ManualAdjustments = struct ManualAdjustments {
   int fajr = 0;
   int sunrise = 0;
   int dhuhr = 0;
   int asr = 0;
   int maghrib = 0;
   int isha = 0;
-} ManualAdjustments;
+};
 
 struct NightPortions {
   double fajr;
@@ -86,9 +86,9 @@ public:
    */
   double maghribAngle;
 
-  CalculationParameters(std::optional<std::string> method, double fajrAngle = 0,
-                        double ishaAngle = 0, double ishaInterval = 0,
-                        double maghribAngle = 0);
+  CalculationParameters(
+      const std::optional<std::string> &method, double fajrAngle = 0,
+      double ishaAngle = 0, double ishaInterval = 0, double maghribAngle = 0);
 
   NightPortions nightPortions() const;
 };

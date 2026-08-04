@@ -2,12 +2,13 @@
 #define HIGHLATITUDERULE_HPP
 
 #include "Coordinates.hpp"
+#include <cstdint>
 #include <stdexcept>
 #include <string_view>
 
 namespace Adhan {
 
-enum class HighLatitudeRule {
+enum class HighLatitudeRule : std::int8_t {
   MiddleOfTheNight,
   SeventhOfTheNight,
   TwilightAngle,
@@ -44,12 +45,15 @@ constexpr std::string_view to_string(HighLatitudeRule h) {
  * @return constexpr HighLatitudeRule
  */
 constexpr HighLatitudeRule from_string(std::string_view s) {
-  if (s == "middleofthenight")
+  if (s == "middleofthenight") {
     return HighLatitudeRule::MiddleOfTheNight;
-  if (s == "seventhofthenight")
+  }
+  if (s == "seventhofthenight") {
     return HighLatitudeRule::SeventhOfTheNight;
-  if (s == "twilightangle")
+  }
+  if (s == "twilightangle") {
     return HighLatitudeRule::TwilightAngle;
+  }
 
   throw std::logic_error("Invalid high latitude rule");
   return {};

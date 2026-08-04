@@ -41,9 +41,9 @@ struct ParsedDate {
 /* Parses a fixed-width "YYYY-MM-DD" string */
 ParsedDate parseDateStr(const std::string &s) {
   return {
-      std::stoi(s.substr(0, 4)),
-      std::stoi(s.substr(5, 2)),
-      std::stoi(s.substr(8, 2)),
+      .year = std::stoi(s.substr(0, 4)),
+      .month = std::stoi(s.substr(5, 2)),
+      .day = std::stoi(s.substr(8, 2)),
   };
 }
 
@@ -65,7 +65,7 @@ ParsedTime parseTimeOfDay(const std::string &s) {
   if (ampm == "PM") {
     hour24 += 12;
   }
-  return {hour24, minute};
+  return {.hour24 = hour24, .minute = minute};
 }
 
 /**
@@ -78,7 +78,7 @@ DateTime parseLocalDate(const std::string &dateStr) {
   return DateTime(d.year, d.month - 1, d.day);
 }
 
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 
 /**
  * Mirrors `moment.tz(dateStr + ' ' + timeStr, 'YYYY-MM-DD h:mm A',
@@ -114,7 +114,7 @@ bool withinRange(
     const DateTime &actual, const DateTime &expected, double varianceMinutes) {
   long long actualMs = actual.getTime();
   long long expectedMs = expected.getTime();
-  long long varianceMs = static_cast<long long>(varianceMinutes * 60 * 1000);
+  auto varianceMs = static_cast<long long>(varianceMinutes * 60 * 1000);
   return actualMs >= (expectedMs - varianceMs) &&
          actualMs <= (expectedMs + varianceMs);
 }
@@ -124,30 +124,42 @@ CalculationParameters parseParams(const json &data) {
   std::string method = data.value("method", std::string());
 
   CalculationParameters params = [&]() {
-    if (method == "MuslimWorldLeague")
+    if (method == "MuslimWorldLeague") {
       return CalculationMethod::MuslimWorldLeague();
-    if (method == "Egyptian")
+    }
+    if (method == "Egyptian") {
       return CalculationMethod::Egyptian();
-    if (method == "Karachi")
+    }
+    if (method == "Karachi") {
       return CalculationMethod::Karachi();
-    if (method == "UmmAlQura")
+    }
+    if (method == "UmmAlQura") {
       return CalculationMethod::UmmAlQura();
-    if (method == "Dubai")
+    }
+    if (method == "Dubai") {
       return CalculationMethod::Dubai();
-    if (method == "MoonsightingCommittee")
+    }
+    if (method == "MoonsightingCommittee") {
       return CalculationMethod::MoonsightingCommittee();
-    if (method == "NorthAmerica")
+    }
+    if (method == "NorthAmerica") {
       return CalculationMethod::NorthAmerica();
-    if (method == "Kuwait")
+    }
+    if (method == "Kuwait") {
       return CalculationMethod::Kuwait();
-    if (method == "Qatar")
+    }
+    if (method == "Qatar") {
       return CalculationMethod::Qatar();
-    if (method == "Singapore")
+    }
+    if (method == "Singapore") {
       return CalculationMethod::Singapore();
-    if (method == "Turkey")
+    }
+    if (method == "Turkey") {
       return CalculationMethod::Turkey();
-    if (method == "Tehran")
+    }
+    if (method == "Tehran") {
       return CalculationMethod::Tehran();
+    }
     return CalculationMethod::Other();
   }();
 
@@ -172,7 +184,7 @@ CalculationParameters parseParams(const json &data) {
 
 } // namespace
 
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 
 TEST_CASE("compare calculated times against the shared prayer time fixtures") {
   const std::string dir = "tests/Shared/Times";

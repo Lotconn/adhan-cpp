@@ -20,8 +20,8 @@ public:
 
   SolarTime(const DateTime &date, const Coordinates &coordinates);
 
-  double hourAngle(double angle, bool afterTransit);
-  double afternoon(double shadowLength);
+  double hourAngle(double angle, bool afterTransit) const;
+  double afternoon(double shadowLength) const;
 };
 } // namespace Adhan
 

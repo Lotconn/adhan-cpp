@@ -40,14 +40,14 @@ SolarTime::SolarTime(const DateTime &date, const Coordinates &coordinates)
       solar.declination, prevSolar.declination, nextSolar.declination);
 }
 
-double SolarTime::hourAngle(double angle, bool afterTransit) {
+double SolarTime::hourAngle(double angle, bool afterTransit) const {
   return Astronomical::correctedHourAngle(
       approxTransit, angle, observer, afterTransit, solar.apparentSiderealTime,
       solar.rightAscension, prevSolar.rightAscension, nextSolar.rightAscension,
       solar.declination, prevSolar.declination, nextSolar.declination);
 }
 
-double SolarTime::afternoon(double shadowLength) {
+double SolarTime::afternoon(double shadowLength) const {
   // (UPSTREAM) TODO source shadow angle calculation
   const double tangent = std::abs(observer.latitude - solar.declination);
   const double inverse = shadowLength + std::tan(degreesToRadians(tangent));

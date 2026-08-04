@@ -4,7 +4,10 @@
 #include "Coordinates.hpp"
 
 namespace Adhan {
+
 double qibla(const Coordinates &coordinates);
-}
+const Coordinates &makkah();
+
+} // namespace Adhan
 
 #endif /* QIBLA_HPP */

@@ -1,0 +1,35 @@
+# Only lint this project's own headers/sources. Vendored third-party code
+# (tests/vendor, examples/vendor) and system headers are excluded.
+
+# Only consider headers under include/, src/, or examples/, while excluding
+# anything contained in a "vendor" directory.
+HeaderFilterRegex: '^(include|src|examples)/(?!.*(?:^|/)vendor/).*'
+
+Checks: >
+  -*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-identifier-naming,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+
+  -bugprone-easily-swappable-parameters,
+  -readability-math-missing-parentheses,
+  -modernize-use-nodiscard
+
+WarningsAsErrors: ''
+FormatStyle: none
+
+CheckOptions:
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '1'

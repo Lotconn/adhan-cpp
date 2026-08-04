@@ -1,4 +1,5 @@
 #include <adhan/DateUtils.hpp>
+#include <array>
 #include <chrono>
 
 namespace Adhan {
@@ -12,9 +13,8 @@ DateTime dateByAddingDays(const DateTime &date, int days) {
    * Date(...)` does (e.g. day 32 rolls into next month), so we can just add
    * `days` directly to getDate() without any manual carry logic.
    */
-  return DateTime(
-      date.getFullYear(), date.getMonth(), date.getDate() + days,
-      date.getHours(), date.getMinutes(), date.getSeconds());
+  return {date.getFullYear(), date.getMonth(),   date.getDate() + days,
+          date.getHours(),    date.getMinutes(), date.getSeconds()};
 }
 
 DateTime dateByAddingMinutes(const DateTime &date, double minutes) {
@@ -60,11 +60,12 @@ bool isLeapYear(int year) {
 int dayOfYear(const DateTime &date) {
   int year = date.getFullYear();
   int feb = isLeapYear(year) ? 29 : 28;
-  int months[] = {31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  std::array<int, 12> months = {31, feb, 31, 30, 31, 30,
+                                31, 31,  30, 31, 30, 31};
 
   int result = 0;
   for (int i = 0; i < date.getMonth(); i++) {
-    result += months[i];
+    result += months.at(i);
   }
   result += date.getDate();
 

@@ -4,8 +4,8 @@
 namespace Adhan {
 
 CalculationParameters::CalculationParameters(
-    std::optional<std::string> method, double fajrAngle, double ishaAngle,
-    double ishaInterval, double maghribAngle)
+    const std::optional<std::string> &method, double fajrAngle,
+    double ishaAngle, double ishaInterval, double maghribAngle)
     : fajrAngle(fajrAngle), ishaAngle(ishaAngle), ishaInterval(ishaInterval),
       maghribAngle(maghribAngle) {
 
@@ -34,11 +34,11 @@ CalculationParameters::CalculationParameters(
 NightPortions CalculationParameters::nightPortions() const {
   switch (highLatitudeRule) {
   case HighLatitudeRule::MiddleOfTheNight:
-    return {1.0 / 2, 1.0 / 2};
+    return {.fajr = 1.0 / 2, .isha = 1.0 / 2};
   case HighLatitudeRule::SeventhOfTheNight:
-    return {1.0 / 7, 1.0 / 7};
+    return {.fajr = 1.0 / 7, .isha = 1.0 / 7};
   case HighLatitudeRule::TwilightAngle:
-    return {fajrAngle / 60, ishaAngle / 60};
+    return {.fajr = fajrAngle / 60, .isha = ishaAngle / 60};
   default:
     throw std::runtime_error(
         "Invalid high latitude rule found when attempting "

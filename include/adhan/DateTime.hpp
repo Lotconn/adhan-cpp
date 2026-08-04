@@ -20,8 +20,9 @@ public:
    * Components are interpreted as LOCAL time, exactly like JS, and overflow
    * is normalized the same way (e.g. day 32 rolls into the next month).
    */
-  DateTime(int year, int month, int day, int hours = 0, int minutes = 0,
-           int seconds = 0);
+  DateTime(
+      int year, int month, int day, int hours = 0, int minutes = 0,
+      int seconds = 0);
 
   static DateTime now();
 
@@ -33,7 +34,9 @@ public:
    */
   static DateTime invalid();
 
-  bool isValid() const { return valid_; }
+  bool isValid() const {
+    return valid_;
+  }
 
   int getFullYear() const;
   int getMonth() const;
@@ -56,7 +59,9 @@ public:
    */
   long long getTime() const;
 
-  std::chrono::system_clock::time_point raw() const { return tp_; }
+  std::chrono::system_clock::time_point raw() const {
+    return tp_;
+  }
 
   friend bool operator==(const DateTime &lhs, const DateTime &rhs);
   friend bool operator!=(const DateTime &lhs, const DateTime &rhs);
@@ -66,13 +71,13 @@ public:
   friend bool operator>=(const DateTime &lhs, const DateTime &rhs);
 
   /* Boolean getter to check if we are using a fallback or not */
-  bool isUsingFallback();
+  bool isUsingFallback() const;
 
 private:
-  std::chrono::system_clock::time_point tp_{};
+  std::chrono::system_clock::time_point tp_;
   bool valid_ = true;
 
-#if defined(ADHAN_USE_CTIME_FALLBACK)
+#ifdef ADHAN_USE_CTIME_FALLBACK
   bool fallback = true;
 #else
   bool fallback = false;

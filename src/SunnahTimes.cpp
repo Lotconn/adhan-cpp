@@ -10,7 +10,8 @@ SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
       prayerTimes.coordinates, nextDay, prayerTimes.calculationParameters);
 
   auto nightDuration =
-      (nextDayPrayerTimes.fajr.getTime() - prayerTimes.maghrib.getTime()) /
+      static_cast<double>(
+          nextDayPrayerTimes.fajr.getTime() - prayerTimes.maghrib.getTime()) /
       1000.0;
 
   this->middleOfTheNight = roundedMinute(

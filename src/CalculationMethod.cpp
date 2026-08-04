@@ -25,7 +25,7 @@ CalculationParameters CalculationMethod::Karachi() {
 
 // Umm al-Qura University, Makkah
 CalculationParameters CalculationMethod::UmmAlQura() {
-  return CalculationParameters("UmmAlQura", 18.5, 0, 90);
+  return {"UmmAlQura", 18.5, 0, 90};
 }
 
 // Dubai
@@ -56,12 +56,12 @@ CalculationParameters CalculationMethod::NorthAmerica() {
 
 // Kuwait
 CalculationParameters CalculationMethod::Kuwait() {
-  return CalculationParameters("Kuwait", 18, 17.5);
+  return {"Kuwait", 18, 17.5};
 }
 
 // Qatar
 CalculationParameters CalculationMethod::Qatar() {
-  return CalculationParameters("Qatar", 18, 0, 90);
+  return {"Qatar", 18, 0, 90};
 }
 
 // Singapore
@@ -90,6 +90,6 @@ CalculationParameters CalculationMethod::Turkey() {
 
 // Other
 CalculationParameters CalculationMethod::Other() {
-  return CalculationParameters("Other", 0, 0);
+  return {"Other", 0, 0};
 }
 } // namespace Adhan

@@ -1,12 +1,13 @@
 #ifndef ROUNDING_HPP
 #define ROUNDING_HPP
 
+#include <cstdint>
 #include <stdexcept>
 #include <string_view>
 
 namespace Adhan {
 
-enum class Rounding {
+enum class Rounding : std::int8_t {
   Nearest,
   Up,
   None,
@@ -41,10 +42,12 @@ constexpr std::string_view to_string(Rounding r) {
  * @return constexpr Rounding
  */
 constexpr Rounding from_string(std::string_view s) {
-  if (s == "nearest")
+  if (s == "nearest") {
     return Rounding::Nearest;
-  if (s == "up")
+  }
+  if (s == "up") {
     return Rounding::Up;
+  }
 
   return Rounding::None;
 }

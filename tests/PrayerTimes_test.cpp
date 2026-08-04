@@ -8,7 +8,7 @@
 #include <adhan/Madhab.hpp>
 #include <adhan/PrayerTimes.hpp>
 
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 #include <MomentFormat.hpp>
 #endif
 
@@ -17,7 +17,7 @@ using namespace Adhan;
 /* ! Feature not a part of our core library ! */
 /* All the test suites/cases that use `formatInZone` */
 /* Excluded for the fallback build - will fail in unsupported systems */
-#if not defined(ADHAN_USE_CTIME_FALLBACK)
+#ifndef ADHAN_USE_CTIME_FALLBACK
 TEST_CASE("calculating prayer times") {
   DateTime date(2015, 6, 12);
   CalculationParameters params = CalculationMethod::NorthAmerica();

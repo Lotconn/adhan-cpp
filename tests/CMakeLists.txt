@@ -16,7 +16,8 @@ target_include_directories(
   ${PROJECT_NAME} PUBLIC "../include/adhan" "../include" "vendor" "include"
 )
 
-target_compile_features("${PROJECT_NAME}" PUBLIC cxx_std_20)
+target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_20)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 
 # #################
 #  COMPILE OPTIONS

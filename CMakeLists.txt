@@ -55,7 +55,6 @@ target_include_directories(
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-
 # ####################
 #  BUILD TYPE DEFAULT
 # ####################
@@ -98,6 +97,15 @@ else()
     ${PROJECT_NAME} PRIVATE
     -Wall -Wextra -Wpedantic -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter
   )
+endif()
+
+# ############
+#  CLANG_TIDY
+# ############
+
+find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
+if(CLANG_TIDY_EXE)
+  set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
 endif()
 
 # ###############################

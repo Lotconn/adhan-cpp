@@ -1,11 +1,12 @@
 #ifndef PRAYER_HPP
 #define PRAYER_HPP
 
+#include <cstdint>
 #include <string_view>
 
 namespace Adhan {
 
-enum class Prayer {
+enum class Prayer : std::int8_t {
   Fajr,
   Sunrise,
   Dhuhr,
@@ -38,18 +39,24 @@ constexpr std::string_view to_string(Prayer prayer) {
 }
 
 constexpr Prayer from_string(std::string_view value) {
-  if (value == "fajr")
+  if (value == "fajr") {
     return Prayer::Fajr;
-  if (value == "sunrise")
+  }
+  if (value == "sunrise") {
     return Prayer::Sunrise;
-  if (value == "dhuhr")
+  }
+  if (value == "dhuhr") {
     return Prayer::Dhuhr;
-  if (value == "asr")
+  }
+  if (value == "asr") {
     return Prayer::Asr;
-  if (value == "maghrib")
+  }
+  if (value == "maghrib") {
     return Prayer::Maghrib;
-  if (value == "isha")
+  }
+  if (value == "isha") {
     return Prayer::Isha;
+  }
 
   /* Defaults to "none" */
   return Prayer::None;

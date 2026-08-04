@@ -6,9 +6,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace Adhan {
-
-namespace Astronomical {
+namespace Adhan::Astronomical {
 
 double meanSolarLongitude(double julianCentury) {
   const double T = julianCentury;
@@ -163,11 +161,11 @@ double approximateTransit(
   const double expectedTransit = normalizeToScale((12.0 - L / 15.0) / 24.0, 1);
   if (m0 - expectedTransit > 0.5) {
     return m0 - 1.0;
-  } else if (expectedTransit - m0 > 0.5) {
-    return m0 + 1.0;
-  } else {
-    return m0;
   }
+  if (expectedTransit - m0 > 0.5) {
+    return m0 + 1.0;
+  }
+  return m0;
 }
 
 double correctedTransit(
@@ -281,7 +279,7 @@ DateTime seasonAdjustedMorningTwilight(
   const double c = 75 + (32.74 / 55.0) * std::abs(latitude);
   const double d = 75 + (48.1 / 55.0) * std::abs(latitude);
 
-  double adjustment;
+  double adjustment{};
   const int dyy = daysSinceSolstice(dayOfYear, year, latitude);
   if (dyy < 91) {
     adjustment = a + ((b - a) / 91.0) * dyy;
@@ -303,7 +301,10 @@ DateTime seasonAdjustedMorningTwilight(
 DateTime seasonAdjustedEveningTwilight(
     double latitude, int dayOfYear, int year, const DateTime &sunset,
     Shafaq shafaq) {
-  double a, b, c, d;
+  double a{};
+  double b{};
+  double c{};
+  double d{};
   if (shafaq == Shafaq::Ahmer) {
     a = 62 + (17.4 / 55.0) * std::abs(latitude);
     b = 62 - (7.16 / 55.0) * std::abs(latitude);
@@ -321,7 +322,7 @@ DateTime seasonAdjustedEveningTwilight(
     d = 75 + (6.14 / 55.0) * std::abs(latitude);
   }
 
-  double adjustment;
+  double adjustment{};
   const int dyy = daysSinceSolstice(dayOfYear, year, latitude);
   if (dyy < 91) {
     adjustment = a + ((b - a) / 91.0) * dyy;
@@ -341,7 +342,7 @@ DateTime seasonAdjustedEveningTwilight(
 }
 
 int daysSinceSolstice(int dayOfYear, int year, double latitude) {
-  int daysSinceSolstice;
+  int daysSinceSolstice{};
   const int northernOffset = 10;
   const int southernOffset = isLeapYear(year) ? 173 : 172;
   const int daysInYear = isLeapYear(year) ? 366 : 365;
@@ -361,5 +362,4 @@ int daysSinceSolstice(int dayOfYear, int year, double latitude) {
   return daysSinceSolstice;
 }
 
-} // namespace Astronomical
-} // namespace Adhan
+} // namespace Adhan::Astronomical
