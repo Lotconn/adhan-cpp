@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project("adhan" VERSION 0.1.0 LANGUAGES CXX)
+project("adhan" VERSION 0.1.1)
 
 # #######################
 #  CMake Module Includes
@@ -44,6 +44,9 @@ else()
   # Make a static library
   add_library(${PROJECT_NAME} STATIC ${SOURCES})
 endif()
+
+# Namespacing so that its possible to link this library using `adhan::adhan`
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 20

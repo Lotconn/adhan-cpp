@@ -14,6 +14,7 @@ or to learn more about the astronomical formulas.
 
 - [Requirements](#requirements)
 - [Building the library](#building-the-library)
+  - [Timezone database fallback](#timezone-database-fallback)
 - [Usage](#usage)
   - [Coordinates](#coordinates)
   - [Date](#date)
