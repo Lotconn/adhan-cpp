@@ -46,19 +46,7 @@ This function needs an IANA time zone database (`tzdata`) on the platform.
 Some platforms and toolchains do not have this database.
 One example is Termux on Android.
 
-The build process does not check for this database at configure time.
-If the platform does not have the database, the normal build will not compile.
-The build will show errors about `zoned_time`, `current_zone`, or similar items.
-If this occurs, configure the build with the `ADHAN_USE_CTIME_FALLBACK` option.
-This option compiles the library with a `localtime_r`/`mktime` based function.
-This function replaces the `<chrono>` calendar and time zone function.
-
-```bash
-cmake -S . -B build -DADHAN_USE_CTIME_FALLBACK=ON
-```
-
-Go to the [Date](#date) section and the [Running the tests](#running-the-tests)
-section for more data about this option.
+See the build section for more details in case you are missing this database.
 
 ## Building the library
 
@@ -72,9 +60,29 @@ cmake --build build
 
 This procedure configures and builds `libadhan` in the `build` directory.
 By default, `libadhan` is a shared library. This also builds the test suite by default.
+
 Check [Running the tests](#running-the-tests) for more info.
 
-You can add these options at the configure step, with the `-D` flag:
+You can add these options at the configure step, with the `-D` flag.
+
+### Timezone database fallback
+
+The build process above does not check for the timezone database at configure time.
+
+If the platform does not have the database, the normal build will _not_ compile.
+The build will show errors about `zoned_time`, `current_zone`, or similar items.
+
+If this occurs, configure the build with the `ADHAN_USE_CTIME_FALLBACK` option.
+This option compiles the library with a `localtime_r`/`mktime` based function.
+This function replaces the `<chrono>` calendar and time zone function.
+
+```bash
+cmake -S . -B build -DADHAN_USE_CTIME_FALLBACK=ON
+cmake --build build
+```
+
+Go to the [Date](#date) section and the [Running the tests](#running-the-tests)
+section for more data about this option.
 
 ## CMake Options
 
