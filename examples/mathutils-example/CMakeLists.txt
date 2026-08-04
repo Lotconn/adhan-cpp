@@ -2,7 +2,7 @@
 #  [mathutils-example] Subdirectory level CMakeLists [START]
 # ###########################################################
 
-project("mathutils-example" VERSION 1.0.0)
+project("mathutils-example" VERSION 1.0.0 LANGUAGES CXX)
 
 # ###################################
 #  SOURCES + INCLUDES + CXX STANDARD

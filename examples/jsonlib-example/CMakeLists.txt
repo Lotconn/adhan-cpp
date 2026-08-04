@@ -2,7 +2,7 @@
 #  [jsonlib-example] Subdirectory level CMakeLists [START]
 # #########################################################
 
-project("jsonlib-example" VERSION 1.0.0)
+project("jsonlib-example" VERSION 1.0.0 LANGUAGES CXX)
 
 # ###################################
 #  SOURCES + INCLUDES + CXX STANDARD

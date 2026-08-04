@@ -2,7 +2,7 @@
 #  [adhan-cli] Subdirectory level CMakeLists [START]
 # ###################################################
 
-project("adhan-cli" VERSION 1.0.0)
+project("adhan-cli" VERSION 1.0.0 LANGUAGES CXX)
 
 # ###################################
 #  SOURCES + INCLUDES + CXX STANDARD
