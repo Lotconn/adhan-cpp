@@ -131,24 +131,24 @@ endif()
 # After we are done making the library, build the tests and run them
 # 
 option(
-  BUILD_TESTS
+  ADHAN_BUILD_TESTS
   "Build test binary and run test cases on build"
   ON
 )
 #
-if(${BUILD_TESTS})
+if(${ADHAN_BUILD_TESTS})
   add_subdirectory(tests)
 endif()
 
 # Build all the examples under the `examples` directory
 # 
 option(
-  BUILD_EXAMPLES
+  ADHAN_BUILD_EXAMPLES
   "Build examples (e.g. adhan-cli)"
   OFF
 )
 #
-if(${BUILD_EXAMPLES})
+if(${ADHAN_BUILD_EXAMPLES})
   add_subdirectory(examples)
 endif()
 

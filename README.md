@@ -94,10 +94,10 @@ section for more data about this option.
   Use the localtime_r/mktime fallback function from the Requirements
   section.
 
-- `-DBUILD_TESTS=OFF` (default: `ON`)
+- `-DADHAN_BUILD_TESTS=OFF` (default: `ON`)
   Do not build the test suite.
 
-- `-DBUILD_EXAMPLES=ON` (default: `OFF`)
+- `-DADHAN_BUILD_EXAMPLES=ON` (default: `OFF`)
   Build the examples in the examples directory. This includes
   adhan-cli.
 
@@ -115,7 +115,7 @@ section for more data about this option.
 You can combine these options, for example:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DADHAN_USE_CTIME_FALLBACK=ON -DBUILD_EXAMPLES=ON
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DADHAN_USE_CTIME_FALLBACK=ON -DADHAN_BUILD_EXAMPLES=ON
 cmake --build build
 ```
 
@@ -270,8 +270,8 @@ This procedure keeps the shipped library free of test code.
 Some fixture tests also use [nlohmann/json](https://github.com/nlohmann/json).
 This library is in the `tests/vendor` directory.
 
-The build process builds the tests by default. The `BUILD_TESTS` option has the
-default value `ON`. After you build the project, run one of these commands.
+The build process builds the tests by default. The `ADHAN_BUILD_TESTS` option
+has the default value `ON`. After you build the project, run one of these commands.
 
 ```bash
 cmake --build build --target test
@@ -316,10 +316,10 @@ This example also lets you check the output against the original library.
 See the [browser parity check](#browser-parity-check) section for more data.
 
 The build process does not build the examples by default.
-Configure the build with `-DBUILD_EXAMPLES=ON` to build the examples.
+Configure the build with `-DADHAN_BUILD_EXAMPLES=ON` to build the examples.
 
 ```bash
-cmake -S . -B build -DBUILD_EXAMPLES=ON
+cmake -S . -B build -DADHAN_BUILD_EXAMPLES=ON
 cmake --build build
 ```
 
