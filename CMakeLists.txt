@@ -2,7 +2,7 @@
 #  [adhan] Root level CMakeLists [START]
 # #######################################
 
-cmake_minimum_required(VERSION 4.3.0)
+cmake_minimum_required(VERSION 3.20)
 
 project("adhan" VERSION 1.0.0)
 

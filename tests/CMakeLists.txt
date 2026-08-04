@@ -2,7 +2,7 @@
 #  [run-tests] Subdirectory level CMakeLists [START]
 # ###################################################
 
-project("run-tests" VERSION 1.0.0)
+project("run-tests" VERSION 1.1.0)
 
 # ###################################
 #  SOURCES + INCLUDES + CXX STANDARD
