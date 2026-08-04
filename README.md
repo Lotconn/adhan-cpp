@@ -64,6 +64,7 @@ By default, `libadhan` is a shared library. This also builds the test suite by d
 Check [Running the tests](#running-the-tests) for more info.
 
 You can add these options at the configure step, with the `-D` flag.
+See [available options](#cmake-options).
 
 ### Timezone database fallback
 
