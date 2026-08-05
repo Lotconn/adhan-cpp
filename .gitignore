@@ -1,6 +1,9 @@
 # Target file
 libadhan.a
 
+# Configured files
+include/adhan/Adhan.hpp
+
 # Object files
 obj/
 

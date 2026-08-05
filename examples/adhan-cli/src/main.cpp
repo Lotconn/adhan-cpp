@@ -72,30 +72,42 @@ std::string formatUtc(const DateTime &date) {
  * ---------------------------------------------------------------------
  */
 CalculationParameters resolveMethod(const std::string &method) {
-  if (method == "MuslimWorldLeague")
+  if (method == "MuslimWorldLeague") {
     return CalculationMethod::MuslimWorldLeague();
-  if (method == "Egyptian")
+  }
+  if (method == "Egyptian") {
     return CalculationMethod::Egyptian();
-  if (method == "Karachi")
+  }
+  if (method == "Karachi") {
     return CalculationMethod::Karachi();
-  if (method == "UmmAlQura")
+  }
+  if (method == "UmmAlQura") {
     return CalculationMethod::UmmAlQura();
-  if (method == "Dubai")
+  }
+  if (method == "Dubai") {
     return CalculationMethod::Dubai();
-  if (method == "MoonsightingCommittee")
+  }
+  if (method == "MoonsightingCommittee") {
     return CalculationMethod::MoonsightingCommittee();
-  if (method == "NorthAmerica")
+  }
+  if (method == "NorthAmerica") {
     return CalculationMethod::NorthAmerica();
-  if (method == "Kuwait")
+  }
+  if (method == "Kuwait") {
     return CalculationMethod::Kuwait();
-  if (method == "Qatar")
+  }
+  if (method == "Qatar") {
     return CalculationMethod::Qatar();
-  if (method == "Singapore")
+  }
+  if (method == "Singapore") {
     return CalculationMethod::Singapore();
-  if (method == "Turkey")
+  }
+  if (method == "Turkey") {
     return CalculationMethod::Turkey();
-  if (method == "Tehran")
+  }
+  if (method == "Tehran") {
     return CalculationMethod::Tehran();
+  }
   return CalculationMethod::Other();
 }
 
@@ -104,34 +116,42 @@ Madhab resolveMadhab(const std::string &s) {
 }
 
 HighLatitudeRule resolveHighLatRule(const std::string &s) {
-  if (s == "SeventhOfTheNight")
+  if (s == "SeventhOfTheNight") {
     return HighLatitudeRule::SeventhOfTheNight;
-  if (s == "TwilightAngle")
+  }
+  if (s == "TwilightAngle") {
     return HighLatitudeRule::TwilightAngle;
+  }
   return HighLatitudeRule::MiddleOfTheNight;
 }
 
 Shafaq resolveShafaq(const std::string &s) {
-  if (s == "Ahmer")
+  if (s == "Ahmer") {
     return Shafaq::Ahmer;
-  if (s == "Abyad")
+  }
+  if (s == "Abyad") {
     return Shafaq::Abyad;
+  }
   return Shafaq::General;
 }
 
 Rounding resolveRounding(const std::string &s) {
-  if (s == "Up")
+  if (s == "Up") {
     return Rounding::Up;
-  if (s == "None")
+  }
+  if (s == "None") {
     return Rounding::None;
+  }
   return Rounding::Nearest;
 }
 
 PolarCircleResolution resolvePolar(const std::string &s) {
-  if (s == "AqrabBalad")
+  if (s == "AqrabBalad") {
     return PolarCircleResolution::AqrabBalad;
-  if (s == "AqrabYaum")
+  }
+  if (s == "AqrabYaum") {
     return PolarCircleResolution::AqrabYaum;
+  }
   return PolarCircleResolution::Unresolved;
 }
 
@@ -140,9 +160,7 @@ DateTime parseDateArg(const std::string &s) {
   int year = std::stoi(s.substr(0, 4));
   int month = std::stoi(s.substr(5, 2)); // 1-indexed as typed by the user
   int day = std::stoi(s.substr(8, 2));
-  return DateTime(
-      year, month - 1,
-      day); // DateTime's month is 0-indexed, like JS
+  return {year, month - 1, day}; // DateTime's month is 0-indexed, like JS
 }
 
 std::string prayerName(Prayer p) {
@@ -217,7 +235,7 @@ void printUsage(const char *progName) {
 
 } // namespace
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) { // NOLINT
   /**
    * Ensure floating-point values print with enough digits to round-trip
    * exactly, matching JS's default number-to-string behavior. Without this,
@@ -230,9 +248,9 @@ int main(int argc, char **argv) {
     // Optional, but we can use this to check if we are using the TZ fallback
     DateTime dummy;
     if (dummy.isUsingFallback()) {
-      std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << std::endl;
+      std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << '\n';
     } else {
-      std::cout << "[Note] Using <chrono> tzdb" << std::endl;
+      std::cout << "[Note] Using <chrono> tzdb" << '\n';
     }
     printUsage(argv[0]);
     return 1;
@@ -251,7 +269,8 @@ int main(int argc, char **argv) {
 
   auto requireValue = [&](int &i) -> std::string {
     if (++i >= argc) {
-      throw std::runtime_error(std::string("Missing value for ") + argv[i - 1]);
+      std::cout << std::string("Missing value for ") + argv[i - 1] << '\n';
+      return {};
     }
     return argv[i];
   };
@@ -262,7 +281,8 @@ int main(int argc, char **argv) {
     if (arg == "--help" || arg == "-h") {
       printUsage(argv[0]);
       return 0;
-    } else if (arg == "--latitude" || arg == "-a") {
+    }
+    if (arg == "--latitude" || arg == "-a") {
       latitude = std::stod(requireValue(i));
     } else if (arg == "--longitude" || arg == "-o") {
       longitude = std::stod(requireValue(i));
@@ -384,7 +404,7 @@ int main(int argc, char **argv) {
    * 5. Qibla direction
    * -----------------------------------------------------------------
    */
-  double qiblaDirection = qibla(coordinates);
+  double qiblaDirection = Qibla(coordinates);
   std::cout << "=== Qibla ===\n";
   std::cout << "Direction from North: " << qiblaDirection << " degrees\n\n";
 

@@ -5,7 +5,7 @@
 
 namespace Adhan {
 
-double qibla(const Coordinates &coordinates);
+double Qibla(const Coordinates &coordinates);
 const Coordinates &makkah();
 
 } // namespace Adhan

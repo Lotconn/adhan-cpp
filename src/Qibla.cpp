@@ -1,4 +1,4 @@
-#include "adhan/Coordinates.hpp"
+#include <adhan/Coordinates.hpp>
 #include <adhan/MathUtils.hpp>
 #include <adhan/Qibla.hpp>
 
@@ -9,7 +9,7 @@ const Coordinates &makkah() {
   return instance;
 }
 
-double qibla(const Coordinates &coordinates) {
+double Qibla(const Coordinates &coordinates) {
   /**
    *  The following Equation is from:
    *  "Spherical Trigonometry For the use of colleges and schools", page 50

@@ -1,0 +1,23 @@
+// clang-format off
+
+#ifndef ADHAN_HPP
+#define ADHAN_HPP
+
+#include <config.hpp>
+#include <cstdint>
+#include <string_view>
+
+namespace Adhan {
+
+static constexpr std::string_view project_name = "@PROJECT_NAME@";
+static constexpr std::string_view project_version = "@PROJECT_VERSION@";
+
+static constexpr std::int32_t project_major_version = @PROJECT_VERSION_MAJOR@;
+static constexpr std::int32_t project_minor_version = @PROJECT_VERSION_MINOR@;
+static constexpr std::int32_t project_patch_version = @PROJECT_VERSION_PATCH@;
+
+} // namespace Adhan
+
+#endif /* ADHAN_HPP */
+
+// clang-format on
