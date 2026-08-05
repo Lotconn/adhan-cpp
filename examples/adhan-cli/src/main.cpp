@@ -407,7 +407,7 @@ int main(int argc, char **argv) { // NOLINT
    * 5. Qibla direction
    * -----------------------------------------------------------------
    */
-  double qiblaDirection = Qibla(coordinates);
+  double qiblaDirection = qibla(coordinates);
   std::cout << "=== Qibla ===\n";
   std::cout << "Direction from North: " << qiblaDirection << " degrees\n\n";
 

@@ -9,7 +9,7 @@ const Coordinates &makkah() {
   return instance;
 }
 
-double Qibla(const Coordinates &coordinates) {
+double qibla(const Coordinates &coordinates) {
   /**
    *  The following Equation is from:
    *  "Spherical Trigonometry For the use of colleges and schools", page 50

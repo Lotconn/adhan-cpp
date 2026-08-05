@@ -255,7 +255,7 @@ Use a set of coordinates as the input.
 ```cpp
 #include <adhan/Qibla.hpp>
 
-double direction = Adhan::Qibla(coordinates);
+double direction = Adhan::qibla(coordinates);
 ```
 
 ## Running the tests
