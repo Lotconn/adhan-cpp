@@ -9,6 +9,7 @@
 set(EXAMPLES_TO_BUILD
   adhan-cli
   jsonlib-example
+  mathutils-example
 )
 
 # #####################################
@@ -22,28 +23,6 @@ foreach(example IN LISTS EXAMPLES_TO_BUILD)
   # ###################################
 
   add_subdirectory(${example})
-  target_include_directories(${example} PRIVATE vendor ${CMAKE_SOURCE_DIR}/include)
-  target_compile_features(${example} PRIVATE cxx_std_20)
-
-
-  # ###############################
-  #  LIBRARY LINKS (e.g. libadhan)
-  # ###############################
-
-  target_link_libraries(${example} PRIVATE adhan)
-
-  # #################
-  #  COMPILE OPTIONS
-  # #################
-
-  if(MSVC)
-    target_compile_options(${example} PRIVATE /W4 /wd4100 /wd4101 /wd4505)
-  else()
-    target_compile_options(
-      ${example} PRIVATE
-      -Wall -Wextra -Wpedantic -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter
-    )
-  endif()
 
 endforeach()
 

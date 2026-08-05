@@ -21,7 +21,6 @@ constexpr std::string_view to_string(Madhab m) {
     return "Hanafi";
   }
   throw std::logic_error("Invalid madhab");
-  return {};
 }
 
 constexpr Madhab from_string(std::string_view s) {
@@ -34,7 +33,6 @@ constexpr Madhab from_string(std::string_view s) {
   }
 
   throw std::logic_error("Invalid madhab");
-  return {};
 }
 
 } // namespace MadhabUtils
@@ -47,7 +45,6 @@ constexpr int shadow_length(Madhab madhab) {
     return 2;
   }
   throw std::logic_error("Invalid Madhab");
-  return {};
 }
 
 constexpr int shadow_length(std::string_view s) {

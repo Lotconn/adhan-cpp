@@ -105,6 +105,5 @@ std::string formatInZone(
     const std::string &formatStr) {
   throw std::logic_error(
       "`formatInZone` disabled for fallback builds, cannot proceed.");
-  return {};
 }
 #endif

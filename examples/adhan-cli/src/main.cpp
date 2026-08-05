@@ -206,14 +206,13 @@ void printUsage(const char *progName) {
       << "      Show this help message.\n\n"
 
       << "Example:\n"
-      << "  " << progName << " \\\n"
-      << "    --latitude 23.775787 \\\n"
-      << "    --longitude 90.368047 \\\n"
-      << "    --date 2026-07-24 \\\n"
-      << "    --method MuslimWorldLeague \\\n"
-      << "    --madhab Shafi \\\n"
-      << "    --high-latitude-rule TwilightAngle \\\n"
-      << "    --rounding Nearest\n";
+      << "  " << progName << " --latitude 23.775787"
+      << " --longitude 90.368047"
+      << " --date 2026-07-24"
+      << " --method MuslimWorldLeague"
+      << " --madhab Shafi"
+      << " --high-latitude-rule TwilightAngle"
+      << " --rounding Nearest\n";
 }
 
 } // namespace

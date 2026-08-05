@@ -44,7 +44,6 @@ constexpr std::string_view to_string(Shafaq sfq) {
     return "abyad";
   }
   throw std::logic_error("Invalid shafaq");
-  return {};
 }
 
 constexpr Shafaq from_string(std::string_view s) {
@@ -59,7 +58,6 @@ constexpr Shafaq from_string(std::string_view s) {
   }
 
   throw std::logic_error("Invalid shafaq");
-  return {};
 }
 
 } // namespace ShafaqUtils

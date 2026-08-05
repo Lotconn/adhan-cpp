@@ -24,12 +24,13 @@ public:
   DateTime date;
   CalculationParameters calculationParameters;
 
-  PrayerTimes(const Coordinates &coordinates, const DateTime &date,
-              const CalculationParameters &calculationParameters);
+  PrayerTimes(
+      const Coordinates &coordinates, const DateTime &date,
+      const CalculationParameters &calculationParameters);
 
   std::optional<DateTime> timeForPrayer(Prayer prayer) const;
-  Prayer currentPrayer(const DateTime &date = DateTime::now()) const;
-  Prayer nextPrayer(const DateTime &date = DateTime::now()) const;
+  Prayer currentPrayer(const DateTime &_date = DateTime::now()) const;
+  Prayer nextPrayer(const DateTime &_date = DateTime::now()) const;
 };
 } // namespace Adhan
 

@@ -210,45 +210,45 @@ std::optional<DateTime> PrayerTimes::timeForPrayer(Prayer prayer) const {
   return std::nullopt;
 }
 
-Prayer PrayerTimes::currentPrayer(const DateTime &date) const {
-  if (date >= isha) {
+Prayer PrayerTimes::currentPrayer(const DateTime &_date) const {
+  if (_date >= isha) {
     return Prayer::Isha;
   }
-  if (date >= maghrib) {
+  if (_date >= maghrib) {
     return Prayer::Maghrib;
   }
-  if (date >= asr) {
+  if (_date >= asr) {
     return Prayer::Asr;
   }
-  if (date >= dhuhr) {
+  if (_date >= dhuhr) {
     return Prayer::Dhuhr;
   }
-  if (date >= sunrise) {
+  if (_date >= sunrise) {
     return Prayer::Sunrise;
   }
-  if (date >= fajr) {
+  if (_date >= fajr) {
     return Prayer::Fajr;
   }
   return Prayer::None;
 }
 
-Prayer PrayerTimes::nextPrayer(const DateTime &date) const {
-  if (date >= isha) {
+Prayer PrayerTimes::nextPrayer(const DateTime &_date) const {
+  if (_date >= isha) {
     return Prayer::None;
   }
-  if (date >= maghrib) {
+  if (_date >= maghrib) {
     return Prayer::Isha;
   }
-  if (date >= asr) {
+  if (_date >= asr) {
     return Prayer::Maghrib;
   }
-  if (date >= dhuhr) {
+  if (_date >= dhuhr) {
     return Prayer::Asr;
   }
-  if (date >= sunrise) {
+  if (_date >= sunrise) {
     return Prayer::Dhuhr;
   }
-  if (date >= fajr) {
+  if (_date >= fajr) {
     return Prayer::Sunrise;
   }
   return Prayer::Fajr;

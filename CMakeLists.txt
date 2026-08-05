@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project("adhan" VERSION 0.1.1)
+project("adhan" VERSION 0.1.2)
 
 # #######################
 #  CMake Module Includes
@@ -39,6 +39,9 @@ if(BUILD_SHARED_LIBS)
     SOVERSION ${PROJECT_VERSION_MAJOR}
     # appends "-<SOVERSION>" to the DLL name on Windows
     DLL_NAME_WITH_SOVERSION ON
+    # Regardless of build-type, windows needs at
+    # least the symbols exported in a `.lib` file
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
   )
 else()
   # Make a static library

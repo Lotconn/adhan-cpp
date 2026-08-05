@@ -28,7 +28,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_compile_definitions(${PROJECT_NAME} PRIVATE ADHAN_TESTING)
 
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /wd4100 /wd4101 /wd4505)
+  # `/wd5285` is to suppress a warning only emitted by `doctest.h`
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /wd4100 /wd4101 /wd4505 /wd5285)
 else()
   target_compile_options(
     ${PROJECT_NAME} PRIVATE

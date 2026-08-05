@@ -34,7 +34,6 @@ constexpr std::string_view to_string(HighLatitudeRule h) {
   }
 
   throw std::logic_error("Invalid high latitude rule");
-  return {};
 }
 
 /**
@@ -56,7 +55,6 @@ constexpr HighLatitudeRule from_string(std::string_view s) {
   }
 
   throw std::logic_error("Invalid high latitude rule");
-  return {};
 }
 } // namespace HighLatitudeRuleUtils
 

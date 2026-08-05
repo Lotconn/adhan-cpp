@@ -31,7 +31,6 @@ constexpr std::string_view to_string(Rounding r) {
     return "none";
   }
   throw std::logic_error("Invalid rounding");
-  return {};
 }
 
 /**
