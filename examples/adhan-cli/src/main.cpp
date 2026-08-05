@@ -235,6 +235,20 @@ void printUsage(const char *progName) {
 
 } // namespace
 
+void printLibInfo() {
+  DateTime dummy;
+  if (dummy.isUsingFallback()) {
+    std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << '\n';
+  } else {
+    std::cout << "[Note] Using <chrono> tzdb" << '\n';
+  }
+#ifdef USING_SHARED_ADHAN_LIB
+  std::cout << "[Note] Using shared adhan library" << '\n';
+#else
+  std::cout << "[Note] Using static adhan library" << '\n';
+#endif
+}
+
 int main(int argc, char **argv) { // NOLINT
   /**
    * Ensure floating-point values print with enough digits to round-trip
@@ -246,12 +260,7 @@ int main(int argc, char **argv) { // NOLINT
 
   if (argc < 3) {
     // Optional, but we can use this to check if we are using the TZ fallback
-    DateTime dummy;
-    if (dummy.isUsingFallback()) {
-      std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << '\n';
-    } else {
-      std::cout << "[Note] Using <chrono> tzdb" << '\n';
-    }
+    printLibInfo();
     printUsage(argv[0]);
     return 1;
   }
@@ -309,13 +318,7 @@ int main(int argc, char **argv) { // NOLINT
 
   if (!latitude || !longitude) {
     std::cerr << "Both `--latitude` and `--longitude` are required.\n\n";
-
-    DateTime dummy;
-    std::cout << "[Note] Using "
-              << (dummy.isUsingFallback() ? "ctime fallback for <chrono> tzdb"
-                                          : "<chrono> tzdb")
-              << '\n';
-
+    printLibInfo();
     printUsage(argv[0]);
     return 1;
   }

@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project("adhan" VERSION 0.1.2)
+project("adhan" VERSION 0.1.3)
 
 # #######################
 #  CMake Module Includes
