@@ -33,19 +33,25 @@ if(BUILD_SHARED_LIBS)
   # Version naming with symlinks
   # e.g. (libadhan.so -> libadhan.so.1 -> libadhan.so.1.0.0)
   set_target_properties(${PROJECT_NAME} PROPERTIES
+
     # 1.0.0  --> libadhan.so.1.0.0
     VERSION ${PROJECT_VERSION}
+
     # 1      --> libadhan.so.1 
     SOVERSION ${PROJECT_VERSION_MAJOR}
+
     # appends "-<SOVERSION>" to the DLL name on Windows
     DLL_NAME_WITH_SOVERSION ON
+
     # Regardless of build-type, windows needs at
     # least the symbols exported in a `.lib` file
     WINDOWS_EXPORT_ALL_SYMBOLS ON
   )
 else()
+
   # Make a static library
   add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
 endif()
 
 # Namespacing so that its possible to link this library using `adhan::adhan`
@@ -56,7 +62,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
 )
+
+# Handles version info header population
 add_subdirectory(configured)
+
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
@@ -70,12 +79,18 @@ target_include_directories(
 
 set(default_build_type "Debug")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
-    STRING "Choose the type of build." FORCE)
+    STRING "Choose the type of build." FORCE
+  )
+
   # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
+  )
+
 endif()
 
 # #################
