@@ -10,6 +10,8 @@ did the work on the math and the design.
 You are encouraged to visit the adhan-js repository for the reference implementation
 or to learn more about the astronomical formulas.
 
+This Adhan C++ library is made to be minimal, cross-platform, and dependency-free.
+
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -28,6 +30,7 @@ or to learn more about the astronomical formulas.
   - [CLI](#cli)
   - [Browser parity check](#browser-parity-check)
 - [Installing](#installing)
+- [Importing into another project](#importing-into-another-project)
 - [License](#license)
 
 ## Requirements
@@ -56,7 +59,7 @@ or do it in-source. The documentation here will use the former.
 
 ```bash
 cmake -S . -B build
-cmake --build build
+cmake --build build --parallel
 ```
 
 This procedure configures and builds `libadhan` in the `build` directory.
@@ -80,7 +83,7 @@ This function replaces the `<chrono>` calendar and time zone function.
 
 ```bash
 cmake -S . -B build -DADHAN_USE_CTIME_FALLBACK=ON
-cmake --build build
+cmake --build build --parallel
 ```
 
 Go to the [Date](#date) section and the [Running the tests](#running-the-tests)
@@ -117,7 +120,7 @@ You can combine these options, for example:
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DADHAN_USE_CTIME_FALLBACK=ON -DADHAN_BUILD_EXAMPLES=ON
-cmake --build build
+cmake --build build --parallel
 ```
 
 To use different options later, do either one of the following:
@@ -275,13 +278,13 @@ The build process builds the tests by default. The `ADHAN_BUILD_TESTS` option
 has the default value `ON`. After you build the project, run one of these commands.
 
 ```bash
-cmake --build build --target test
+cmake --build build --target test --parallel
 ```
 
 Use this command to also print the assertions that pass.
 
 ```bash
-cmake --build build --target test-verbose
+cmake --build build --target test-verbose --parallel
 ```
 
 Both commands write output to a log file in the project root directory.
@@ -321,7 +324,7 @@ Configure the build with `-DADHAN_BUILD_EXAMPLES=ON` to build the examples.
 
 ```bash
 cmake -S . -B build -DADHAN_BUILD_EXAMPLES=ON
-cmake --build build
+cmake --build build --parallel
 ```
 
 ### CLI
@@ -333,7 +336,7 @@ and the Qibla direction. The program also shows some convenience functions.
 <!-- markdownlint-disable MD013 -->
 
 ```bash
-./build/examples/adhan-cli/adhan-cli 23.775787 90.368047 2026-07-24 MuslimWorldLeague Shafi MiddleOfTheNight General Up
+./build/examples/adhan-cli/adhan-cli --latitude 23.775787 --longitude 90.368047 --date 2026-07-24 --method MuslimWorldLeague --madhab Shafi --high-latitude-rule TwilightAngle --rounding Nearest
 ```
 
 <!-- markdownlint-enable MD013 -->
@@ -360,6 +363,48 @@ based on your platform and your build options. This command also installs the he
 from the `include/adhan` directory.
 After this command, other projects can use this library.
 These projects do not need the build directory of this repository.
+
+## Importing into another project
+
+You can bring this library into another CMake project any way you want.
+CMake supports several methods for this, such as `FetchContent`, `find_package`
+after an install, git submodules, or a package manager.
+
+The example below uses `FetchContent`. This is only one example method, not the
+only supported one. Pick whichever method fits your own project.
+
+```cmake
+# Fetch `adhan` in your current CMake project
+#
+include(FetchContent)
+FetchContent_Declare(
+  adhan
+  GIT_REPOSITORY https://<this-repo-url>  # placeholder used, populate as needed
+  GIT_TAG <tag-or-commit>                 # use the latest/desired tag (e.g. `v0.1.3`)
+  GIT_SHALLOW TRUE                        # project has no dependencies
+)
+FetchContent_MakeAvailable(adhan)
+#
+# (Or just build + install)
+
+# Link the `adhan` library to your project
+#
+target_link_libraries(${TARGET_NAME} PUBLIC
+  adhan::adhan
+)
+
+# Use
+#
+#include <adhan/Adhan.hpp>
+
+std::cout << "ADHANLIB:\t\t";
+std::cout << Adhan::project_version << std::endl;
+```
+
+The `GIT_REPOSITORY` and `GIT_TAG` values above are placeholders on purpose.
+Put in the actual URL and tag or commit you want yourself, instead of copying
+the lines as they are. This also matters if you work from a fork: an unfilled
+placeholder stops you from fetching the upstream repository by accident.
 
 ## License
 
