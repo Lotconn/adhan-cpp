@@ -2,25 +2,26 @@
  * Adhan C++ CLI Demo
  *
  * Exercises the full public API of the adhan library: prayer time
- * calculation, Sunnah times, Qibla direction, date utilities, and math
- * utilities. Modeled on the usage patterns shown in the adhan-js README.
+ * calculation, Sunnah times, Qibla direction, and the enum helpers.
+ * Modeled on the usage patterns shown in the adhan-js README.
+ *
+ * Everything here is UTC. The library takes a plain calendar date and
+ * hands back UTC instants, so it never touches a time zone database.
+ * Working out which day a user is currently in, or printing a local wall
+ * clock time, is left to whoever embeds the library. Keeping this demo on
+ * UTC means it builds and runs the same way on every platform.
  *
  * Usage:
- *   adhan_cli <latitude> <longitude> [date=YYYY-MM-DD] [method] [madhab]
- *             [highLatitudeRule] [shafaq] [rounding] [polarCircleResolution]
+ *   adhan-cli --latitude <deg> --longitude <deg> [options]
  *
  * Example:
- *   adhan_cli 35.78056 -78.6389 2026-01-01 NorthAmerica Hanafi \
- *             TwilightAngle General Nearest Unresolved
- *
- * All arguments after latitude/longitude are optional and take sensible
- * defaults matching the library's own defaults.
+ *   adhan-cli -a 35.78056 -o -78.6389 -d 2026-01-01 -m NorthAmerica -M Hanafi
  */
 
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/CalculationParameters.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
 #include <adhan/HighLatitudeRule.hpp>
 #include <adhan/Madhab.hpp>
 #include <adhan/PolarCircleResolution.hpp>
@@ -31,235 +32,218 @@
 #include <adhan/Shafaq.hpp>
 #include <adhan/SunnahTimes.hpp>
 
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+#include <string_view>
+#include <utility>
 
 using namespace Adhan;
 
 namespace {
 
 /**
- * ---------------------------------------------------------------------
- * Small formatting helpers (production-safe: UTC only, no named zones.
- * Named-zone formatting is test-only infrastructure, not shipped).
- * ---------------------------------------------------------------------
+ * @brief Renders an instant as "YYYY-MM-DD HH:MM:SS UTC".
+ *
+ * An absent time means the sun never reached the needed angle, which
+ * happens near the poles unless a resolution strategy is picked.
  */
-std::string pad2(int v) {
-  std::ostringstream oss;
-  oss << std::setw(2) << std::setfill('0') << v;
-  return oss.str();
-}
-
-std::string formatUtc(const DateTime &date) {
-  if (!date.isValid()) {
-    return "(invalid — likely a polar location/date needing resolution)";
+std::string formatUtc(const OptInstant &time) {
+  if (!time) {
+    return "(none: polar location or date, try --polar-circle-resolution)";
   }
+
+  const auto day = std::chrono::floor<std::chrono::days>(*time);
+  const auto timeOfDay = std::chrono::floor<std::chrono::seconds>(*time - day);
+
   std::ostringstream oss;
-  oss << date.getUTCFullYear() << "-" << pad2(date.getUTCMonth() + 1) << "-"
-      << pad2(date.getUTCDate()) << " " << pad2(date.getUTCHours()) << ":"
-      << pad2(date.getUTCMinutes()) << ":" << pad2(date.getUTCSeconds())
-      << " UTC";
+  oss << std::chrono::year_month_day{day} << " "
+      << std::chrono::hh_mm_ss{timeOfDay} << " UTC";
   return oss.str();
 }
 
 /**
- * ---------------------------------------------------------------------
- * Argument -> enum/parameter mapping, mirroring the CalculationMethod
- * dispatch shown in the library's own test suite.
- * ---------------------------------------------------------------------
+ * @brief Lowercases a string so option values can be typed in any casing.
  */
-CalculationParameters resolveMethod(const std::string &method) {
-  if (method == "MuslimWorldLeague") {
-    return CalculationMethod::MuslimWorldLeague();
-  }
-  if (method == "Egyptian") {
-    return CalculationMethod::Egyptian();
-  }
-  if (method == "Karachi") {
-    return CalculationMethod::Karachi();
-  }
-  if (method == "UmmAlQura") {
-    return CalculationMethod::UmmAlQura();
-  }
-  if (method == "Dubai") {
-    return CalculationMethod::Dubai();
-  }
-  if (method == "MoonsightingCommittee") {
-    return CalculationMethod::MoonsightingCommittee();
-  }
-  if (method == "NorthAmerica") {
-    return CalculationMethod::NorthAmerica();
-  }
-  if (method == "Kuwait") {
-    return CalculationMethod::Kuwait();
-  }
-  if (method == "Qatar") {
-    return CalculationMethod::Qatar();
-  }
-  if (method == "Singapore") {
-    return CalculationMethod::Singapore();
-  }
-  if (method == "Turkey") {
-    return CalculationMethod::Turkey();
-  }
-  if (method == "Tehran") {
-    return CalculationMethod::Tehran();
-  }
-  return CalculationMethod::Other();
+std::string toLower(std::string s) {
+  std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  return s;
 }
 
-Madhab resolveMadhab(const std::string &s) {
-  return s == "Hanafi" ? Madhab::Hanafi : Madhab::Shafi;
+/**
+ * Option values are matched against these tables rather than the library's
+ * own from_string helpers. Those helpers disagree with each other on
+ * casing, and the one for Rounding returns Rounding::None for anything it
+ * does not recognise instead of complaining, so a typo would pass silently.
+ */
+using MethodFactory = CalculationParameters (*)();
+
+constexpr std::array<std::pair<std::string_view, MethodFactory>, 13> METHODS{{
+    {"muslimworldleague", CalculationMethod::MuslimWorldLeague},
+    {"egyptian", CalculationMethod::Egyptian},
+    {"karachi", CalculationMethod::Karachi},
+    {"ummalqura", CalculationMethod::UmmAlQura},
+    {"dubai", CalculationMethod::Dubai},
+    {"moonsightingcommittee", CalculationMethod::MoonsightingCommittee},
+    {"northamerica", CalculationMethod::NorthAmerica},
+    {"kuwait", CalculationMethod::Kuwait},
+    {"qatar", CalculationMethod::Qatar},
+    {"singapore", CalculationMethod::Singapore},
+    {"turkey", CalculationMethod::Turkey},
+    {"tehran", CalculationMethod::Tehran},
+    {"other", CalculationMethod::Other},
+}};
+
+constexpr std::array<std::pair<std::string_view, Madhab>, 2> MADHABS{{
+    {"shafi", Madhab::Shafi},
+    {"hanafi", Madhab::Hanafi},
+}};
+
+constexpr std::array<std::pair<std::string_view, HighLatitudeRule>, 3>
+    HIGH_LATITUDE_RULES{{
+        {"middleofthenight", HighLatitudeRule::MiddleOfTheNight},
+        {"seventhofthenight", HighLatitudeRule::SeventhOfTheNight},
+        {"twilightangle", HighLatitudeRule::TwilightAngle},
+    }};
+
+constexpr std::array<std::pair<std::string_view, Shafaq>, 3> SHAFAQS{{
+    {"general", Shafaq::General},
+    {"ahmer", Shafaq::Ahmer},
+    {"abyad", Shafaq::Abyad},
+}};
+
+constexpr std::array<std::pair<std::string_view, Rounding>, 3> ROUNDINGS{{
+    {"nearest", Rounding::Nearest},
+    {"up", Rounding::Up},
+    {"none", Rounding::None},
+}};
+
+constexpr std::array<std::pair<std::string_view, PolarCircleResolution>, 3>
+    POLAR_RESOLUTIONS{{
+        {"unresolved", PolarCircleResolution::Unresolved},
+        {"aqrabbalad", PolarCircleResolution::AqrabBalad},
+        {"aqrabyaum", PolarCircleResolution::AqrabYaum},
+    }};
+
+/**
+ * @brief Looks a value up in one of the tables above.
+ * @throws std::invalid_argument if the key is not present.
+ */
+template <typename Table>
+auto lookup(const Table &table, const std::string &key, const char *what) {
+  const auto folded = toLower(key);
+  const auto it =
+      std::find_if(table.begin(), table.end(), [&](const auto &entry) {
+        return entry.first == folded;
+      });
+
+  if (it == table.end()) {
+    throw std::invalid_argument("Unknown " + std::string(what) + ": " + key);
+  }
+  return it->second;
 }
 
-HighLatitudeRule resolveHighLatRule(const std::string &s) {
-  if (s == "SeventhOfTheNight") {
-    return HighLatitudeRule::SeventhOfTheNight;
+/**
+ * @brief Reads a "YYYY-MM-DD" argument.
+ *
+ * The result is not checked for being a real date here. main() does that
+ * with year_month_day::ok(), which catches things like 2026-02-30.
+ */
+std::chrono::year_month_day parseDate(const std::string &s) {
+  if (s.size() != 10 || s[4] != '-' || s[7] != '-') {
+    throw std::invalid_argument("Date must look like YYYY-MM-DD, got: " + s);
   }
-  if (s == "TwilightAngle") {
-    return HighLatitudeRule::TwilightAngle;
-  }
-  return HighLatitudeRule::MiddleOfTheNight;
+
+  return std::chrono::year_month_day{
+      std::chrono::year{std::stoi(s.substr(0, 4))},
+      std::chrono::month{static_cast<unsigned>(std::stoi(s.substr(5, 2)))},
+      std::chrono::day{static_cast<unsigned>(std::stoi(s.substr(8, 2)))}};
 }
 
-Shafaq resolveShafaq(const std::string &s) {
-  if (s == "Ahmer") {
-    return Shafaq::Ahmer;
-  }
-  if (s == "Abyad") {
-    return Shafaq::Abyad;
-  }
-  return Shafaq::General;
+/**
+ * @brief Today's date in UTC.
+ *
+ * A caller who wants the user's local day instead would convert the
+ * current instant through std::chrono::zoned_time first. That needs a
+ * time zone database, which is why this demo does not do it.
+ */
+std::chrono::year_month_day today() {
+  return std::chrono::year_month_day{
+      std::chrono::floor<std::chrono::days>(now())};
 }
 
-Rounding resolveRounding(const std::string &s) {
-  if (s == "Up") {
-    return Rounding::Up;
-  }
-  if (s == "None") {
-    return Rounding::None;
-  }
-  return Rounding::Nearest;
-}
-
-PolarCircleResolution resolvePolar(const std::string &s) {
-  if (s == "AqrabBalad") {
-    return PolarCircleResolution::AqrabBalad;
-  }
-  if (s == "AqrabYaum") {
-    return PolarCircleResolution::AqrabYaum;
-  }
-  return PolarCircleResolution::Unresolved;
-}
-
-DateTime parseDateArg(const std::string &s) {
-  // Expects "YYYY-MM-DD"
-  int year = std::stoi(s.substr(0, 4));
-  int month = std::stoi(s.substr(5, 2)); // 1-indexed as typed by the user
-  int day = std::stoi(s.substr(8, 2));
-  return {year, month - 1, day}; // DateTime's month is 0-indexed, like JS
-}
-
-std::string prayerName(Prayer p) {
-  return std::string(PrayerUtils::to_string(p));
+void printLibInfo() {
+#ifdef USING_SHARED_ADHAN_LIB
+  std::cout << "[Note] Using shared adhan library\n";
+#else
+  std::cout << "[Note] Using static adhan library\n";
+#endif
 }
 
 void printUsage(const char *progName) {
-  std::cout
-      << "Adhan C++ CLI\n\n"
+  std::cout << "Adhan C++ CLI\n\nUsage:\n  " << progName << " [OPTIONS]\n\n"
+            << R"(Values are case insensitive.
 
-      << "Usage:\n"
-      << "  " << progName << " [OPTIONS]\n\n"
+Required:
+  -a, --latitude <degrees>      Latitude in decimal degrees.
+  -o, --longitude <degrees>     Longitude in decimal degrees.
 
-      << "Required:\n"
-      << "  -a, --latitude <degrees>\n"
-      << "      Latitude in decimal degrees.\n\n"
+Options:
+  -d, --date <YYYY-MM-DD>       Day to calculate, read as a UTC day.
+                                Default: today in UTC.
 
-      << "  -o, --longitude <degrees>\n"
-      << "      Longitude in decimal degrees.\n\n"
+  -m, --method <method>         Default: MuslimWorldLeague
+                                {MuslimWorldLeague | Egyptian | Karachi |
+                                 UmmAlQura | Dubai | MoonsightingCommittee |
+                                 NorthAmerica | Kuwait | Qatar | Singapore |
+                                 Turkey | Tehran | Other}
 
-      << "Options:\n"
-      << "  -d, --date <YYYY-MM-DD>\n"
-      << "      Date to calculate prayer times for.\n"
-      << "      Default: current date.\n\n"
+  -M, --madhab <madhab>         Default: Shafi
+                                {Shafi | Hanafi}
 
-      << "  -m, --method <method>\n"
-      << "      Prayer time calculation method.\n"
-      << "      Default: MuslimWorldLeague\n"
-      << "      Values: {MuslimWorldLeague | Egyptian | Karachi | UmmAlQura |\n"
-      << "               Dubai | MoonsightingCommittee | NorthAmerica |\n"
-      << "               Kuwait | Qatar | Singapore | Turkey | Tehran |\n"
-      << "               Other}\n\n"
+  -H, --high-latitude-rule <r>  Default: MiddleOfTheNight
+                                {MiddleOfTheNight | SeventhOfTheNight |
+                                 TwilightAngle}
 
-      << "  -M, --madhab <madhab>\n"
-      << "      School of thought.\n"
-      << "      Default: Shafi\n"
-      << "      Values: {Shafi | Hanafi}\n\n"
+  -s, --shafaq <shafaq>         Default: General
+                                {General | Ahmer | Abyad}
 
-      << "  -H, --high-latitude-rule <rule>\n"
-      << "      High latitude adjustment rule.\n"
-      << "      Default: MiddleOfTheNight\n"
-      << "      Values: {MiddleOfTheNight | SeventhOfTheNight | "
-         "TwilightAngle}\n\n"
+  -r, --rounding <rounding>     Default: Nearest
+                                {Nearest | Up | None}
 
-      << "  -s, --shafaq <shafaq>\n"
-      << "      Shafaq variant.\n"
-      << "      Default: General\n"
-      << "      Values: {General | Ahmer | Abyad}\n\n"
+  -p, --polar-circle-resolution <resolution>
+                                Default: Unresolved
+                                {Unresolved | AqrabBalad | AqrabYaum}
 
-      << "  -r, --rounding <rounding>\n"
-      << "      Prayer time rounding mode.\n"
-      << "      Default: Nearest\n"
-      << "      Values: {Nearest | Up | None}\n\n"
+  -h, --help                    Show this message.
 
-      << "  -p, --polar-circle-resolution <resolution>\n"
-      << "      Polar circle resolution strategy.\n"
-      << "      Default: Unresolved\n"
-      << "      Values: {Unresolved | AqrabBalad | AqrabYaum}\n\n"
-
-      << "  -h, --help\n"
-      << "      Show this help message.\n\n"
-
-      << "Example:\n"
-      << "  " << progName << " --latitude 23.775787"
-      << " --longitude 90.368047"
-      << " --date 2026-07-24"
-      << " --method MuslimWorldLeague"
-      << " --madhab Shafi"
-      << " --high-latitude-rule TwilightAngle"
-      << " --rounding Nearest\n";
+Example:
+  )" << progName
+            << " -a 23.775787 -o 90.368047 -d 2026-07-24 -m MuslimWorldLeague"
+               " -M Shafi -H TwilightAngle -r Nearest\n";
 }
 
 } // namespace
 
-void printLibInfo() {
-  DateTime dummy;
-  if (dummy.isUsingFallback()) {
-    std::cout << "[Note] Using ctime fallback for <chrono> tzdb" << '\n';
-  } else {
-    std::cout << "[Note] Using <chrono> tzdb" << '\n';
-  }
-#ifdef USING_SHARED_ADHAN_LIB
-  std::cout << "[Note] Using shared adhan library" << '\n';
-#else
-  std::cout << "[Note] Using static adhan library" << '\n';
-#endif
-}
-
 int main(int argc, char **argv) { // NOLINT
   /**
-   * Ensure floating-point values print with enough digits to round-trip
-   * exactly, matching JS's default number-to-string behavior. Without this,
-   * std::cout's default precision (6 significant digits) silently truncates
-   * values like coordinates.latitude or the Qibla direction.
+   * Print enough digits that doubles round-trip exactly, matching what JS
+   * does by default. Without this, std::cout's 6 significant digits would
+   * quietly truncate the coordinates and the Qibla direction.
    */
   std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
 
   if (argc < 3) {
-    // Optional, but we can use this to check if we are using the TZ fallback
     printLibInfo();
     printUsage(argv[0]);
     return 1;
@@ -268,52 +252,57 @@ int main(int argc, char **argv) { // NOLINT
   std::optional<double> latitude;
   std::optional<double> longitude;
 
-  DateTime date = DateTime::now();
-  std::string method = "MuslimWorldLeague";
-  std::string madhab = "Shafi";
-  std::string highLatRule = "MiddleOfTheNight";
-  std::string shafaq = "General";
-  std::string rounding = "Nearest";
-  std::string polar = "Unresolved";
+  auto date = today();
+  CalculationParameters params = CalculationMethod::MuslimWorldLeague();
 
-  auto requireValue = [&](int &i) -> std::string {
-    if (++i >= argc) {
-      std::cout << std::string("Missing value for ") + argv[i - 1] << '\n';
-      return {};
-    }
-    return argv[i];
-  };
+  try {
+    /**
+     * Reads the value that follows the flag at position i, moving i past
+     * it so the loop lands on the next flag.
+     */
+    auto value = [&](int &i) -> std::string {
+      if (i + 1 >= argc) {
+        throw std::invalid_argument(
+            std::string("Missing value for ") + argv[i]);
+      }
+      return argv[++i];
+    };
 
-  for (int i = 1; i < argc; ++i) {
-    std::string arg = argv[i];
+    for (int i = 1; i < argc; ++i) {
+      const std::string arg = argv[i];
 
-    if (arg == "--help" || arg == "-h") {
-      printUsage(argv[0]);
-      return 0;
+      if (arg == "--help" || arg == "-h") {
+        printUsage(argv[0]);
+        return 0;
+      }
+      if (arg == "--latitude" || arg == "-a") {
+        latitude = std::stod(value(i));
+      } else if (arg == "--longitude" || arg == "-o") {
+        longitude = std::stod(value(i));
+      } else if (arg == "--date" || arg == "-d") {
+        date = parseDate(value(i));
+      } else if (arg == "--method" || arg == "-m") {
+        params = lookup(METHODS, value(i), "method")();
+      } else if (arg == "--madhab" || arg == "-M") {
+        params.madhab = lookup(MADHABS, value(i), "madhab");
+      } else if (arg == "--high-latitude-rule" || arg == "-H") {
+        params.highLatitudeRule =
+            lookup(HIGH_LATITUDE_RULES, value(i), "high latitude rule");
+      } else if (arg == "--shafaq" || arg == "-s") {
+        params.shafaq = lookup(SHAFAQS, value(i), "shafaq");
+      } else if (arg == "--rounding" || arg == "-r") {
+        params.rounding = lookup(ROUNDINGS, value(i), "rounding");
+      } else if (arg == "--polar-circle-resolution" || arg == "-p") {
+        params.polarCircleResolution =
+            lookup(POLAR_RESOLUTIONS, value(i), "polar circle resolution");
+      } else {
+        throw std::invalid_argument("Unknown option: " + arg);
+      }
     }
-    if (arg == "--latitude" || arg == "-a") {
-      latitude = std::stod(requireValue(i));
-    } else if (arg == "--longitude" || arg == "-o") {
-      longitude = std::stod(requireValue(i));
-    } else if (arg == "--date" || arg == "-d") {
-      date = parseDateArg(requireValue(i));
-    } else if (arg == "--method" || arg == "-m") {
-      method = requireValue(i);
-    } else if (arg == "--madhab" || arg == "-M") {
-      madhab = requireValue(i);
-    } else if (arg == "--high-latitude-rule" || arg == "-H") {
-      highLatRule = requireValue(i);
-    } else if (arg == "--shafaq" || arg == "-s") {
-      shafaq = requireValue(i);
-    } else if (arg == "--rounding" || arg == "-r") {
-      rounding = requireValue(i);
-    } else if (arg == "--polar-circle-resolution" || arg == "-p") {
-      polar = requireValue(i);
-    } else {
-      std::cerr << "Unknown option: " << arg << '\n';
-      printUsage(argv[0]);
-      return 1;
-    }
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << "\n\n";
+    printUsage(argv[0]);
+    return 1;
   }
 
   if (!latitude || !longitude) {
@@ -324,27 +313,32 @@ int main(int argc, char **argv) { // NOLINT
   }
 
   /**
+   * year_month_day accepts anything you build it from, so a typo like
+   * 2026-02-30 only shows up on this check.
+   */
+  if (!date.ok()) {
+    std::cerr << "Not a real date: " << date << "\n";
+    return 1;
+  }
+
+  /**
    * -----------------------------------------------------------------
    * 1. Coordinates + CalculationParameters
    * -----------------------------------------------------------------
    */
-  Coordinates coordinates(latitude.value(), longitude.value());
-
-  CalculationParameters params = resolveMethod(method);
-  params.madhab = resolveMadhab(madhab);
-  params.highLatitudeRule = resolveHighLatRule(highLatRule);
-  params.shafaq = resolveShafaq(shafaq);
-  params.rounding = resolveRounding(rounding);
-  params.polarCircleResolution = resolvePolar(polar);
+  const Coordinates coordinates(latitude.value(), longitude.value());
 
   std::cout << "=== Inputs ===\n";
   std::cout << std::setprecision(8);
   std::cout << "Coordinates:      (" << coordinates.latitude << ", "
             << coordinates.longitude << ")\n";
   std::cout << std::setprecision(std::numeric_limits<double>::max_digits10);
-  std::cout << "Date:             " << formatUtc(date) << "\n";
-  std::cout << "Method:           " << method << "\n";
+  std::cout << "Date (UTC day):   " << date << "\n";
+  std::cout << "Method:           " << params.method << "\n";
   std::cout << "Madhab:           " << MadhabUtils::to_string(params.madhab)
+            << "\n";
+  std::cout << "High latitude:    "
+            << HighLatitudeRuleUtils::to_string(params.highLatitudeRule)
             << "\n";
   std::cout << "Rounding:         " << RoundingUtils::to_string(params.rounding)
             << "\n";
@@ -356,7 +350,7 @@ int main(int argc, char **argv) { // NOLINT
    * 2. PrayerTimes
    * -----------------------------------------------------------------
    */
-  PrayerTimes prayerTimes(coordinates, date, params);
+  const PrayerTimes prayerTimes(coordinates, date, params);
 
   std::cout << "=== Prayer Times (UTC) ===\n";
   std::cout << "Fajr:             " << formatUtc(prayerTimes.fajr) << "\n";
@@ -372,21 +366,33 @@ int main(int argc, char **argv) { // NOLINT
    * -----------------------------------------------------------------
    */
   std::cout << "=== Convenience Utilities ===\n";
-  for (Prayer p : {Prayer::Fajr, Prayer::Sunrise, Prayer::Dhuhr, Prayer::Asr,
-                   Prayer::Maghrib, Prayer::Isha}) {
-    auto t = prayerTimes.timeForPrayer(p);
-    std::cout << "timeForPrayer(" << prayerName(p) << "):  "
-              << (t.has_value() ? formatUtc(*t) : std::string("(none)"))
-              << "\n";
+  std::cout << std::left;
+  for (const Prayer p : {Prayer::Fajr, Prayer::Sunrise, Prayer::Dhuhr,
+                         Prayer::Asr, Prayer::Maghrib, Prayer::Isha}) {
+    const std::string label =
+        "timeForPrayer(" + std::string(PrayerUtils::to_string(p)) + "):";
+    std::cout << std::setw(24) << label
+              << formatUtc(prayerTimes.timeForPrayer(p)) << "\n";
   }
+  std::cout << std::right;
 
-  Prayer current = prayerTimes.currentPrayer();
-  Prayer next = prayerTimes.nextPrayer();
-  std::cout << "currentPrayer():  " << prayerName(current) << "\n";
-  std::cout << "nextPrayer():     " << prayerName(next) << "\n";
-  auto nextTime = prayerTimes.timeForPrayer(next);
-  if (nextTime.has_value()) {
-    std::cout << "Time of next:     " << formatUtc(*nextTime) << "\n";
+  /**
+   * currentPrayer and nextPrayer default to the current instant, so the
+   * answers only mean something when the requested day is today.
+   */
+  const Prayer next = prayerTimes.nextPrayer();
+  std::cout << "currentPrayer():  "
+            << PrayerUtils::to_string(prayerTimes.currentPrayer()) << "\n";
+  std::cout << "nextPrayer():     " << PrayerUtils::to_string(next) << "\n";
+
+  /**
+   * Prayer::None means Isha has already gone, so there is no time to look
+   * up. Asking anyway would report it as missing, which reads like a polar
+   * failure rather than the end of the day.
+   */
+  if (next != Prayer::None) {
+    std::cout << "Time of next:     "
+              << formatUtc(prayerTimes.timeForPrayer(next)) << "\n";
   }
   std::cout << "\n";
 
@@ -395,9 +401,9 @@ int main(int argc, char **argv) { // NOLINT
    * 4. Sunnah Times
    * -----------------------------------------------------------------
    */
-  SunnahTimes sunnahTimes(prayerTimes);
+  const SunnahTimes sunnahTimes(prayerTimes);
   std::cout << "=== Sunnah Times (UTC) ===\n";
-  std::cout << "Middle of the night:    "
+  std::cout << "Middle of the night:     "
             << formatUtc(sunnahTimes.middleOfTheNight) << "\n";
   std::cout << "Last third of the night: "
             << formatUtc(sunnahTimes.lastThirdOfTheNight) << "\n\n";
@@ -407,30 +413,18 @@ int main(int argc, char **argv) { // NOLINT
    * 5. Qibla direction
    * -----------------------------------------------------------------
    */
-  double qiblaDirection = qibla(coordinates);
   std::cout << "=== Qibla ===\n";
-  std::cout << "Direction from North: " << qiblaDirection << " degrees\n\n";
+  std::cout << "Direction from North: " << qibla(coordinates) << " degrees\n\n";
 
   /**
    * -----------------------------------------------------------------
-   * 6. HighLatitudeRule::recommended — suggests a rule based on latitude
+   * 6. recommended() suggests a high latitude rule based on latitude
    * -----------------------------------------------------------------
    */
-  HighLatitudeRule recommended_rule = recommended(coordinates);
   std::cout << "=== Recommendations ===\n";
-  std::cout << "Recommended high latitude rule for this location: ";
-  switch (recommended_rule) {
-  case HighLatitudeRule::MiddleOfTheNight:
-    std::cout << "MiddleOfTheNight";
-    break;
-  case HighLatitudeRule::SeventhOfTheNight:
-    std::cout << "SeventhOfTheNight";
-    break;
-  case HighLatitudeRule::TwilightAngle:
-    std::cout << "TwilightAngle";
-    break;
-  }
-  std::cout << "\n";
+  std::cout << "Recommended high latitude rule for this location: "
+            << HighLatitudeRuleUtils::to_string(recommended(coordinates))
+            << "\n";
 
   return 0;
 }

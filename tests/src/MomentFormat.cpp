@@ -19,20 +19,17 @@ std::string pad2(int v) {
 }
 } // namespace
 
-#ifndef ADHAN_USE_CTIME_FALLBACK
-
 std::string formatInZone(
-    const DateTime &date, const std::string &tzName,
+    const OptInstant &time, const std::string &tzName,
     const std::string &formatStr) {
   using namespace std::chrono;
 
-  if (!date.isValid()) {
-    throw std::runtime_error("formatInZone: cannot format an invalid DateTime");
+  if (!time) {
+    throw std::runtime_error("formatInZone: cannot format an absent time");
   }
 
   const time_zone *zone = locate_zone(tzName);
-  zoned_time<system_clock::duration> zt{zone, date.raw()};
-  auto local = zt.get_local_time();
+  auto local = zoned_time{zone, *time}.get_local_time();
 
   auto dp = floor<days>(local);
   year_month_day ymd{dp};
@@ -98,12 +95,3 @@ std::string formatInZone(
   }
   return result;
 }
-#else
-/* The fallback build tests should never use this */
-std::string formatInZone(
-    const DateTime &date, const std::string &tzName,
-    const std::string &formatStr) {
-  throw std::logic_error(
-      "`formatInZone` disabled for fallback builds, cannot proceed.");
-}
-#endif

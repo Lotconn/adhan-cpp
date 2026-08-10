@@ -1,70 +1,57 @@
-
-/* Every test suite includes the `formatInZone` function */
-#ifndef ADHAN_USE_CTIME_FALLBACK
 #include "doctest.h"
 
-#include <MomentFormat.hpp>
+#include <UtcTime.hpp>
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/DateTime.hpp>
 #include <adhan/HighLatitudeRule.hpp>
 #include <adhan/PrayerTimes.hpp>
 #include <adhan/SunnahTimes.hpp>
 
+#include <chrono>
+
 using namespace Adhan;
+using namespace std::chrono;
 
 TEST_CASE("getting sunnah times for the New York timezone") {
   Coordinates coords(35.775, -78.6336);
   CalculationParameters params = CalculationMethod::NorthAmerica();
 
-  DateTime date1(2015, 6, 12);
+  const year_month_day date1{2015y/July/12d};
   PrayerTimes p1(coords, date1, params);
-  CHECK(
-      formatInZone(p1.maghrib, "America/New_York", "M/D/YY, h:mm A") ==
-      "7/12/15, 8:32 PM");
+  /* 2015-07-12 20:32 America/New_York  =  2015-07-13 00:32Z */
+  CHECK(isUtc(p1.maghrib, 2015y/July/13d, 0h + 32min));
 
-  DateTime date2(2015, 6, 13);
+  const year_month_day date2{2015y/July/13d};
   PrayerTimes p2(coords, date2, params);
-  CHECK(
-      formatInZone(p2.fajr, "America/New_York", "M/D/YY, h:mm A") ==
-      "7/13/15, 4:43 AM");
+  /* 2015-07-13 04:43 America/New_York  =  2015-07-13 08:43Z */
+  CHECK(isUtc(p2.fajr, 2015y/July/13d, 8h + 43min));
 
   SunnahTimes sunnah(p1);
-  CHECK(
-      formatInZone(
-          sunnah.middleOfTheNight, "America/New_York", "M/D/YY, h:mm A") ==
-      "7/13/15, 12:38 AM");
-  CHECK(
-      formatInZone(
-          sunnah.lastThirdOfTheNight, "America/New_York", "M/D/YY, h:mm A") ==
-      "7/13/15, 1:59 AM");
+  /* 2015-07-13 00:38 America/New_York  =  2015-07-13 04:38Z */
+  CHECK(isUtc(sunnah.middleOfTheNight, 2015y/July/13d, 4h + 38min));
+  /* 2015-07-13 01:59 America/New_York  =  2015-07-13 05:59Z */
+  CHECK(isUtc(sunnah.lastThirdOfTheNight, 2015y/July/13d, 5h + 59min));
 }
 
 TEST_CASE("getting sunnah times for the London timezone") {
   Coordinates coords(51.5074, -0.1278);
   CalculationParameters params = CalculationMethod::MoonsightingCommittee();
 
-  DateTime date1(2016, 11, 31);
+  const year_month_day date1{2016y/December/31d};
   PrayerTimes p1(coords, date1, params);
-  CHECK(
-      formatInZone(p1.maghrib, "Europe/London", "M/D/YY, h:mm A") ==
-      "12/31/16, 4:04 PM");
+  /* 2016-12-31 16:04 Europe/London  =  2016-12-31 16:04Z */
+  CHECK(isUtc(p1.maghrib, 2016y/December/31d, 16h + 4min));
 
-  DateTime date2(2017, 0, 1);
+  const year_month_day date2{2017y/January/1d};
   PrayerTimes p2(coords, date2, params);
-  CHECK(
-      formatInZone(p2.fajr, "Europe/London", "M/D/YY, h:mm A") ==
-      "1/1/17, 6:25 AM");
+  /* 2017-01-01 06:25 Europe/London  =  2017-01-01 06:25Z */
+  CHECK(isUtc(p2.fajr, 2017y/January/1d, 6h + 25min));
 
   SunnahTimes sunnah(p1);
-  CHECK(
-      formatInZone(
-          sunnah.middleOfTheNight, "Europe/London", "M/D/YY, h:mm A") ==
-      "12/31/16, 11:15 PM");
-  CHECK(
-      formatInZone(
-          sunnah.lastThirdOfTheNight, "Europe/London", "M/D/YY, h:mm A") ==
-      "1/1/17, 1:38 AM");
+  /* 2016-12-31 23:15 Europe/London  =  2016-12-31 23:15Z */
+  CHECK(isUtc(sunnah.middleOfTheNight, 2016y/December/31d, 23h + 15min));
+  /* 2017-01-01 01:38 Europe/London  =  2017-01-01 01:38Z */
+  CHECK(isUtc(sunnah.lastThirdOfTheNight, 2017y/January/1d, 1h + 38min));
 }
 
 TEST_CASE("getting sunnah times for the Oslo timezone") {
@@ -72,92 +59,77 @@ TEST_CASE("getting sunnah times for the Oslo timezone") {
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.highLatitudeRule = HighLatitudeRule::MiddleOfTheNight;
 
-  DateTime date1(2016, 6, 1);
+  const year_month_day date1{2016y/July/1d};
   PrayerTimes p1(coords, date1, params);
-  CHECK(
-      formatInZone(p1.maghrib, "Europe/Oslo", "M/D/YY, h:mm A") ==
-      "7/1/16, 10:41 PM");
+  /* 2016-07-01 22:41 Europe/Oslo  =  2016-07-01 20:41Z */
+  CHECK(isUtc(p1.maghrib, 2016y/July/1d, 20h + 41min));
 
-  DateTime date2(2016, 6, 2);
+  const year_month_day date2{2016y/July/2d};
   PrayerTimes p2(coords, date2, params);
-  CHECK(
-      formatInZone(p2.fajr, "Europe/Oslo", "M/D/YY, h:mm A") ==
-      "7/2/16, 1:20 AM");
+  /* 2016-07-02 01:20 Europe/Oslo  =  2016-07-01 23:20Z */
+  CHECK(isUtc(p2.fajr, 2016y/July/1d, 23h + 20min));
 
   SunnahTimes sunnah(p1);
-  CHECK(
-      formatInZone(sunnah.middleOfTheNight, "Europe/Oslo", "M/D/YY, h:mm A") ==
-      "7/2/16, 12:01 AM");
-  CHECK(
-      formatInZone(
-          sunnah.lastThirdOfTheNight, "Europe/Oslo", "M/D/YY, h:mm A") ==
-      "7/2/16, 12:27 AM");
+  /* 2016-07-02 00:01 Europe/Oslo  =  2016-07-01 22:01Z */
+  CHECK(isUtc(sunnah.middleOfTheNight, 2016y/July/1d, 22h + 1min));
+  /* 2016-07-02 00:27 Europe/Oslo  =  2016-07-01 22:27Z */
+  CHECK(isUtc(sunnah.lastThirdOfTheNight, 2016y/July/1d, 22h + 27min));
 }
 
-TEST_CASE("getting sunnah times for US DST change") {
+/**
+ * This pair used to sit on a daylight saving boundary on purpose. Back then
+ * dateByAddingDays rebuilt a date from its local wall clock fields, so a
+ * transition could move the result by an hour. That path is gone, the
+ * library reads no time zone at all now, so what is left is simply two more
+ * locations worth of expected values.
+ */
+TEST_CASE("getting sunnah times for the San Francisco timezone") {
   Coordinates coords(37.7749, -122.4194);
   CalculationParameters params = CalculationMethod::NorthAmerica();
 
-  DateTime date1(2017, 2, 11);
+  const year_month_day date1{2017y/March/11d};
   PrayerTimes p1(coords, date1, params);
-  CHECK(
-      formatInZone(p1.fajr, "America/Los_Angeles", "M/D/YY, h:mm A") ==
-      "3/11/17, 5:14 AM");
-  CHECK(
-      formatInZone(p1.maghrib, "America/Los_Angeles", "M/D/YY, h:mm A") ==
-      "3/11/17, 6:13 PM");
+  /* 2017-03-11 05:14 America/Los_Angeles  =  2017-03-11 13:14Z */
+  CHECK(isUtc(p1.fajr, 2017y/March/11d, 13h + 14min));
+  /* 2017-03-11 18:13 America/Los_Angeles  =  2017-03-12 02:13Z */
+  CHECK(isUtc(p1.maghrib, 2017y/March/12d, 2h + 13min));
 
-  DateTime date2(2017, 2, 12);
+  const year_month_day date2{2017y/March/12d};
   PrayerTimes p2(coords, date2, params);
-  CHECK(
-      formatInZone(p2.fajr, "America/Los_Angeles", "M/D/YY, h:mm A") ==
-      "3/12/17, 6:13 AM");
-  CHECK(
-      formatInZone(p2.maghrib, "America/Los_Angeles", "M/D/YY, h:mm A") ==
-      "3/12/17, 7:14 PM");
+  /* 2017-03-12 06:13 America/Los_Angeles  =  2017-03-12 13:13Z */
+  CHECK(isUtc(p2.fajr, 2017y/March/12d, 13h + 13min));
+  /* 2017-03-12 19:14 America/Los_Angeles  =  2017-03-13 02:14Z */
+  CHECK(isUtc(p2.maghrib, 2017y/March/13d, 2h + 14min));
 
   SunnahTimes sunnah(p1);
-  CHECK(
-      formatInZone(
-          sunnah.middleOfTheNight, "America/Los_Angeles", "M/D/YY, h:mm A") ==
-      "3/11/17, 11:43 PM");
-  CHECK(
-      formatInZone(
-          sunnah.lastThirdOfTheNight, "America/Los_Angeles",
-          "M/D/YY, h:mm A") == "3/12/17, 1:33 AM");
+  /* 2017-03-11 23:43 America/Los_Angeles  =  2017-03-12 07:43Z */
+  CHECK(isUtc(sunnah.middleOfTheNight, 2017y/March/12d, 7h + 43min));
+  /* 2017-03-12 01:33 America/Los_Angeles  =  2017-03-12 09:33Z */
+  CHECK(isUtc(sunnah.lastThirdOfTheNight, 2017y/March/12d, 9h + 33min));
 }
 
-TEST_CASE("getting sunnah times for Europe DST change") {
+TEST_CASE("getting sunnah times for the Paris timezone") {
   Coordinates coords(48.8566, 2.3522);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.highLatitudeRule = HighLatitudeRule::SeventhOfTheNight;
 
-  DateTime date1(2015, 9, 24);
+  const year_month_day date1{2015y/October/24d};
   PrayerTimes p1(coords, date1, params);
-  CHECK(
-      formatInZone(p1.fajr, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/24/15, 6:38 AM");
-  CHECK(
-      formatInZone(p1.maghrib, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/24/15, 6:45 PM");
+  /* 2015-10-24 06:38 Europe/Paris  =  2015-10-24 04:38Z */
+  CHECK(isUtc(p1.fajr, 2015y/October/24d, 4h + 38min));
+  /* 2015-10-24 18:45 Europe/Paris  =  2015-10-24 16:45Z */
+  CHECK(isUtc(p1.maghrib, 2015y/October/24d, 16h + 45min));
 
-  DateTime date2(2015, 9, 25);
+  const year_month_day date2{2015y/October/25d};
   PrayerTimes p2(coords, date2, params);
-  CHECK(
-      formatInZone(p2.fajr, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/25/15, 5:40 AM");
-  CHECK(
-      formatInZone(p2.maghrib, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/25/15, 5:43 PM");
+  /* 2015-10-25 05:40 Europe/Paris  =  2015-10-25 04:40Z */
+  CHECK(isUtc(p2.fajr, 2015y/October/25d, 4h + 40min));
+  /* 2015-10-25 17:43 Europe/Paris  =  2015-10-25 16:43Z */
+  CHECK(isUtc(p2.maghrib, 2015y/October/25d, 16h + 43min));
 
   SunnahTimes sunnah(p1);
-  CHECK(
-      formatInZone(sunnah.middleOfTheNight, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/25/15, 12:43 AM");
-  CHECK(
-      formatInZone(
-          sunnah.lastThirdOfTheNight, "Europe/Paris", "M/D/YY, h:mm A") ==
-      "10/25/15, 2:42 AM");
+  /* 2015-10-25 00:43 Europe/Paris  =  2015-10-24 22:43Z */
+  CHECK(isUtc(sunnah.middleOfTheNight, 2015y/October/24d, 22h + 43min));
+  /* 2015-10-25 02:42 Europe/Paris  =  2015-10-25 00:42Z */
+  CHECK(isUtc(sunnah.lastThirdOfTheNight, 2015y/October/25d, 0h + 42min));
 }
-
-#endif

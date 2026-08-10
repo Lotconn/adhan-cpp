@@ -2,8 +2,9 @@
 #define SOLARTIME_HPP
 
 #include "Coordinates.hpp"
-#include "DateTime.hpp"
 #include "SolarCoordinates.hpp"
+
+#include <chrono>
 
 namespace Adhan {
 
@@ -18,7 +19,13 @@ public:
   double sunrise;
   double sunset;
 
-  SolarTime(const DateTime &date, const Coordinates &coordinates);
+  /**
+   * @param date Calendar day the solar figures are worked out for.
+   * @param coordinates Observer position.
+   */
+  SolarTime(
+      const std::chrono::year_month_day &date,
+      const Coordinates &coordinates);
 
   double hourAngle(double angle, bool afterTransit) const;
   double afternoon(double shadowLength) const;

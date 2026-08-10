@@ -272,8 +272,8 @@ double julianCentury(double julianDay) {
   return (julianDay - 2451545.0) / 36525;
 }
 
-DateTime seasonAdjustedMorningTwilight(
-    double latitude, int dayOfYear, int year, const DateTime &sunrise) {
+OptInstant seasonAdjustedMorningTwilight(
+    double latitude, int dayOfYear, int year, const OptInstant &sunrise) {
   const double a = 75 + (28.65 / 55.0) * std::abs(latitude);
   const double b = 75 + (19.44 / 55.0) * std::abs(latitude);
   const double c = 75 + (32.74 / 55.0) * std::abs(latitude);
@@ -298,8 +298,8 @@ DateTime seasonAdjustedMorningTwilight(
   return dateByAddingSeconds(sunrise, std::round(adjustment * -60.0));
 }
 
-DateTime seasonAdjustedEveningTwilight(
-    double latitude, int dayOfYear, int year, const DateTime &sunset,
+OptInstant seasonAdjustedEveningTwilight(
+    double latitude, int dayOfYear, int year, const OptInstant &sunset,
     Shafaq shafaq) {
   double a{};
   double b{};

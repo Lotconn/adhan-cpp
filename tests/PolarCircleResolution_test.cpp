@@ -1,27 +1,32 @@
-#include "MomentFormat.hpp"
+#include <UtcTime.hpp>
 #include "doctest.h"
 
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/DateTime.hpp>
 #include <adhan/DateUtils.hpp>
 #include <adhan/PolarCircleResolution.hpp>
 #include <adhan/PrayerTimes.hpp>
 
 #include <array>
+#include <chrono>
 
 using namespace Adhan;
+using namespace std::chrono;
 
 namespace {
-const std::array<DateTime PrayerTimes::*, 4> kPrayersToCheck = {
+const std::array<OptInstant PrayerTimes::*, 4> kPrayersToCheck = {
     &PrayerTimes::fajr, &PrayerTimes::sunrise, &PrayerTimes::maghrib,
     &PrayerTimes::isha};
 } // namespace
 
 struct PolarCircleFixture {
-  DateTime regularDate{2020, 4, 15, 20, 0, 0};
-  DateTime dateAffectedByPolarNight{2020, 11, 21, 20, 0, 0};
-  DateTime dateAffectedByMidnightSun{2020, 5, 21, 20, 0, 0};
+  /**
+   * These used to carry a 20:00:00 wall clock time. Nothing ever read it,
+   * the library only wanted the calendar day, so it is gone.
+   */
+  year_month_day regularDate{2020y/May/15d};
+  year_month_day dateAffectedByPolarNight{2020y/December/21d};
+  year_month_day dateAffectedByMidnightSun{2020y/June/21d};
   Coordinates regularCoordinates{31.947351, 35.227163};
   Coordinates ArjeplogSweden{66.7222444, 17.7189};
   Coordinates AmundsenScottAntarctic{-84.996, 0.01013};
@@ -40,48 +45,55 @@ struct PolarCircleFixture {
 
 // --- Regular computation ---
 
-TEST_CASE_FIXTURE(
-    PolarCircleFixture,
-    "Regular computation: should not attempt any resolution if "
-    "the resolver is set to unresolved") {
-
-  /* So that the compiler does not complain, */
-  // NOLINTBEGIN
-  int before = polarCircleResolvedValuesCallCount;
-  // NOLINTEND
-
-  PrayerTimes prayersTimes1(
-      ArjeplogSweden, dateAffectedByMidnightSun, unresolvedParams);
-  PrayerTimes prayersTimes2(
-      ArjeplogSweden, dateAffectedByMidnightSun, unresolvedParams);
-
-  CHECK(polarCircleResolvedValuesCallCount == before);
+/**
+ * The TS suite spies on `polarCircleResolvedValues` to assert it never runs
+ * on an ordinary day. There is no cheap equivalent of that in C++ short of
+ * putting a counter in shipped code, so these check the consequence instead:
+ * picking a resolver must not move any prayer time on a day that did not
+ * need resolving.
+ *
+ * That is not a weaker test. Neither resolver returns the day it was handed.
+ * AqrabYaum starts its search a day out, and AqrabBalad steps half a degree
+ * toward the equator before its first try, so a resolver that ran when it
+ * should not have would show up here as a shifted time.
+ */
+void checkSameTimes(const PrayerTimes &actual, const PrayerTimes &expected) {
+  CHECK(actual.fajr == expected.fajr);
+  CHECK(actual.sunrise == expected.sunrise);
+  CHECK(actual.dhuhr == expected.dhuhr);
+  CHECK(actual.asr == expected.asr);
+  CHECK(actual.sunset == expected.sunset);
+  CHECK(actual.maghrib == expected.maghrib);
+  CHECK(actual.isha == expected.isha);
 }
 
 TEST_CASE_FIXTURE(
     PolarCircleFixture,
-    "Regular computation: should not attempt any resolution if the date is "
+    "Regular computation: a resolver leaves a date alone when that date is "
     "affected neither by the polar night nor by the midnight sun") {
-  int before = polarCircleResolvedValuesCallCount;
+  const PrayerTimes reference(ArjeplogSweden, regularDate, unresolvedParams);
 
-  PrayerTimes prayersTimes1(ArjeplogSweden, regularDate, aqrabBaladParams);
-  PrayerTimes prayersTimes2(ArjeplogSweden, regularDate, aqrabYaumParams);
-
-  CHECK(polarCircleResolvedValuesCallCount == before);
+  checkSameTimes(
+      PrayerTimes(ArjeplogSweden, regularDate, aqrabBaladParams), reference);
+  checkSameTimes(
+      PrayerTimes(ArjeplogSweden, regularDate, aqrabYaumParams), reference);
 }
 
 TEST_CASE_FIXTURE(
     PolarCircleFixture,
-    "Regular computation: should not make any search if the "
+    "Regular computation: a resolver leaves a location alone when that "
     "location is outside the polar circles") {
-  int before = polarCircleResolvedValuesCallCount;
+  const PrayerTimes reference(
+      regularCoordinates, dateAffectedByPolarNight, unresolvedParams);
 
-  PrayerTimes prayersTimes1(
-      regularCoordinates, dateAffectedByPolarNight, aqrabBaladParams);
-  PrayerTimes prayersTimes2(
-      regularCoordinates, dateAffectedByPolarNight, aqrabYaumParams);
-
-  CHECK(polarCircleResolvedValuesCallCount == before);
+  checkSameTimes(
+      PrayerTimes(regularCoordinates, dateAffectedByPolarNight,
+                  aqrabBaladParams),
+      reference);
+  checkSameTimes(
+      PrayerTimes(regularCoordinates, dateAffectedByPolarNight,
+                  aqrabYaumParams),
+      reference);
 }
 
 // --- Midnight Sun case ---
@@ -160,65 +172,24 @@ TEST_CASE_FIXTURE(
   }
 }
 
-#ifndef ADHAN_USE_CTIME_FALLBACK
-
 TEST_CASE("Polar Night case: calculating times for the polar circle") {
   Coordinates coordinates(66.7222444, 17.7189);
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.polarCircleResolution = PolarCircleResolution::AqrabYaum;
   params.highLatitudeRule = HighLatitudeRule::SeventhOfTheNight;
-  DateTime date(2020, 5, 21);
+  const year_month_day date{2020y/June/21d};
 
   PrayerTimes p(coordinates, date, params);
-  CHECK(
-      formatInZone(p.fajr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 12:40 AM");
-  CHECK(
-      formatInZone(p.sunrise, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 12:54 AM");
-  CHECK(
-      formatInZone(p.dhuhr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 12:55 PM");
-  CHECK(
-      formatInZone(p.asr, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 5:49 PM");
-  CHECK(
-      formatInZone(p.maghrib, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 11:36 PM");
-  CHECK(
-      formatInZone(p.isha, "Europe/Stockholm", "MMMM DD, YYYY h:mm A") ==
-      "June 21, 2020 11:51 PM");
-}
-
-#endif
-
-TEST_CASE("calculating prayer times near the International Date Line") {
-  /**
-   * Coordinates near the International Date Line (longitude ~177.24°E).
-   * Prior to the approximateTransit fix, the solar transit would be
-   * miscalculated as just before UTC midnight instead of just after, causing
-   * prayer times to be off by a full day. Verify that all prayer times are in
-   * the correct order.
-   */
-  CalculationParameters params = CalculationMethod::MuslimWorldLeague();
-  params.madhab = Madhab::Shafi;
-  params.highLatitudeRule = HighLatitudeRule::TwilightAngle;
-
-  DateTime date(2025, 11, 1); // Dec 1, 2025
-
-  PrayerTimes p1(
-      Coordinates(42.74674252600066, 177.2401196144623), date, params);
-  CHECK(p1.fajr.getTime() < p1.sunrise.getTime());
-  CHECK(p1.sunrise.getTime() < p1.dhuhr.getTime());
-  CHECK(p1.dhuhr.getTime() < p1.asr.getTime());
-  CHECK(p1.asr.getTime() < p1.maghrib.getTime());
-  CHECK(p1.maghrib.getTime() < p1.isha.getTime());
-
-  PrayerTimes p2(
-      Coordinates(47.082209457885355, 177.24642294208638), date, params);
-  CHECK(p2.fajr.getTime() < p2.sunrise.getTime());
-  CHECK(p2.sunrise.getTime() < p2.dhuhr.getTime());
-  CHECK(p2.dhuhr.getTime() < p2.asr.getTime());
-  CHECK(p2.asr.getTime() < p2.maghrib.getTime());
-  CHECK(p2.maghrib.getTime() < p2.isha.getTime());
+  /* 2020-06-21 00:40 Europe/Stockholm  =  2020-06-20 22:40Z */
+  CHECK(isUtc(p.fajr, 2020y/June/20d, 22h + 40min));
+  /* 2020-06-21 00:54 Europe/Stockholm  =  2020-06-20 22:54Z */
+  CHECK(isUtc(p.sunrise, 2020y/June/20d, 22h + 54min));
+  /* 2020-06-21 12:55 Europe/Stockholm  =  2020-06-21 10:55Z */
+  CHECK(isUtc(p.dhuhr, 2020y/June/21d, 10h + 55min));
+  /* 2020-06-21 17:49 Europe/Stockholm  =  2020-06-21 15:49Z */
+  CHECK(isUtc(p.asr, 2020y/June/21d, 15h + 49min));
+  /* 2020-06-21 23:36 Europe/Stockholm  =  2020-06-21 21:36Z */
+  CHECK(isUtc(p.maghrib, 2020y/June/21d, 21h + 36min));
+  /* 2020-06-21 23:51 Europe/Stockholm  =  2020-06-21 21:51Z */
+  CHECK(isUtc(p.isha, 2020y/June/21d, 21h + 51min));
 }

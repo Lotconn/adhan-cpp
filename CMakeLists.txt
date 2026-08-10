@@ -136,20 +136,6 @@ endif()
 #  OPTIONS + COMPILE DEFINITIONS
 # ###############################
 
-# Fallback to use `<ctime>` functions instead of `<chrono>`'s `tzdb` for compatibility
-# Needed for unconventional systems that do not have `tzdb` as part of the stdlib,
-# e.g. for Termux on AndroidOS
-# 
-option(
-  ADHAN_USE_CTIME_FALLBACK
-  "Use localtime_r/mktime fallback instead of <chrono> tzdb"
-  OFF
-)
-# 
-if(${ADHAN_USE_CTIME_FALLBACK})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ADHAN_USE_CTIME_FALLBACK)
-endif()
-
 # After we are done making the library, build the tests and run them
 # 
 option(

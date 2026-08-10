@@ -4,15 +4,16 @@
 namespace Adhan {
 
 SunnahTimes::SunnahTimes(const PrayerTimes &prayerTimes) {
-  auto date = prayerTimes.date;
-  auto nextDay = dateByAddingDays(date, 1);
-  auto nextDayPrayerTimes = PrayerTimes(
+  const auto nextDay = dateByAddingDays(prayerTimes.date, 1);
+  const auto nextDayPrayerTimes = PrayerTimes(
       prayerTimes.coordinates, nextDay, prayerTimes.calculationParameters);
 
-  auto nightDuration =
-      static_cast<double>(
-          nextDayPrayerTimes.fajr.getTime() - prayerTimes.maghrib.getTime()) /
-      1000.0;
+  /**
+   * A missing Maghrib or Fajr makes this NaN, which then travels through
+   * dateByAddingSeconds and comes back out as an absent time.
+   */
+  const double nightDuration =
+      secondsBetween(nextDayPrayerTimes.fajr, prayerTimes.maghrib);
 
   this->middleOfTheNight = roundedMinute(
       dateByAddingSeconds(prayerTimes.maghrib, nightDuration / 2.0));

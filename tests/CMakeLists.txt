@@ -25,8 +25,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 #  COMPILE OPTIONS
 # #################
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE ADHAN_TESTING)
-
 if(MSVC)
   # `/wd5285` is to suppress a warning only emitted by `doctest.h`
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /wd4100 /wd4101 /wd4505 /wd5285)
@@ -35,16 +33,6 @@ else()
     ${PROJECT_NAME} PRIVATE
     -Wall -Wextra -Wpedantic -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter
   )
-endif()
-
-# ###############################
-#  OPTIONS + COMPILE DEFINITIONS
-# ###############################
-
-# We need a separate block here, as we are NOT linking `libadhan` in the tests
-# But rather, we are using the `adhan` sources directly to make the tests
-if(${ADHAN_USE_CTIME_FALLBACK})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ADHAN_USE_CTIME_FALLBACK)
 endif()
 
 # ###################################
