@@ -11,7 +11,7 @@ sides. Run it once after generating and you should not need it again,
 since the source fixtures have not moved since June 2021.
 
 Usage:
-    python3 tools/verify_utc_fixtures.py
+    python3 tools/fixtures/verify_utc_fixtures.py
 """
 
 from __future__ import annotations
@@ -22,11 +22,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_DIR = REPO_ROOT / "tests" / "Shared" / "Times"
 OUTPUT_DIR = SOURCE_DIR / "UTC"
 
 TIME_KEYS = ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")
+
 
 def utc_name(source: Path) -> Path:
     """Where a source fixture's converted twin lives, e.g. Doha-Qatar_UTC.json."""
@@ -50,7 +51,7 @@ def main() -> int:
     values = 0
 
     for source in sources:
-        target = OUTPUT_DIR / source.name
+        target = utc_name(source)
         if not target.is_file():
             problems.append("%s has no generated counterpart" % source.name)
             continue

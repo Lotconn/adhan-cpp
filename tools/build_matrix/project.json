@@ -1,0 +1,92 @@
+{
+  "package_name": "adhan",
+  "link_target": "adhan::adhan",
+  "shared_libs_var": "BUILD_SHARED_LIBS",
+  "build_type_var": "CMAKE_BUILD_TYPE",
+  "cmake_minimum_version": "3.20",
+  "test_target": "test",
+  "examples_subdirectory": "examples",
+  "tests_option": "build_tests",
+  "examples_option": "build_examples",
+  "example_timeout_seconds": 120,
+  "options": [
+    {
+      "id": "build_tests",
+      "cmake_var": "ADHAN_BUILD_TESTS"
+    },
+    {
+      "id": "build_examples",
+      "cmake_var": "ADHAN_BUILD_EXAMPLES"
+    }
+  ],
+  "examples": [
+    {
+      "name": "adhan-cli",
+      "runs": [
+        {
+          "name": "With args",
+          "args": [
+            "--latitude",
+            "23.775787",
+            "--longitude",
+            "90.368047",
+            "--date",
+            "2026-07-24",
+            "--method",
+            "MuslimWorldLeague",
+            "--madhab",
+            "Shafi",
+            "--high-latitude-rule",
+            "TwilightAngle",
+            "--rounding",
+            "Nearest"
+          ],
+          "expected_exit_code": 0,
+          "expect_stdout_contains": [
+            "=== Prayer Times (UTC) ===",
+            "=== Sunnah Times (UTC) ===",
+            "=== Qibla ==="
+          ]
+        },
+        {
+          "name": "No args",
+          "args": [],
+          "expected_exit_code": 1,
+          "expect_stdout_contains": [
+            "Usage:"
+          ]
+        },
+        {
+          "name": "Help (argc<3 guard: see tools/build_matrix/README.md)",
+          "args": [
+            "--help"
+          ],
+          "expected_exit_code": 1,
+          "expect_stdout_contains": [
+            "Usage:"
+          ]
+        },
+        {
+          "name": "Unknown option",
+          "args": [
+            "--not-a-real-flag"
+          ],
+          "expected_exit_code": 1
+        }
+      ]
+    },
+    {
+      "name": "mathutils-example",
+      "runs": [
+        {
+          "name": "Default",
+          "args": [],
+          "expected_exit_code": 0,
+          "expect_stdout_contains": [
+            "180 degrees to radians"
+          ]
+        }
+      ]
+    }
+  ]
+}

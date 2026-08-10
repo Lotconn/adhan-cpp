@@ -1,5 +1,5 @@
 {
-  "generatedBy": "tools/generate_utc_fixtures.py",
+  "generatedBy": "tools/fixtures/generate_utc_fixtures.py",
   "source": "Tehran-Tehran.json",
   "sourceTimezone": "Asia/Tehran",
   "tzdataVersion": "unknown",

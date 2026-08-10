@@ -16,10 +16,11 @@ This Adhan C++ library is made to be minimal, cross-platform, and dependency-fre
 
 - [Requirements](#requirements)
 - [Building the library](#building-the-library)
-  - [Timezone database fallback](#timezone-database-fallback)
+- [CMake Options](#cmake-options)
 - [Usage](#usage)
   - [Coordinates](#coordinates)
   - [Date](#date)
+  - [Time zones](#time-zones)
   - [Calculation parameters](#calculation-parameters)
   - [Prayer times](#prayer-times)
   - [Convenience utilities](#convenience-utilities)
@@ -35,22 +36,25 @@ This Adhan C++ library is made to be minimal, cross-platform, and dependency-fre
 
 ## Requirements
 
-- You must use CMake 4.3 or a later version.
+- You must use CMake 3.20 or a later version.
 
-- You must use a C++20 compiler.
-  Use GCC 13 or a later version.
-  Or use a Clang build that has full C++20 `<chrono>` calendar support.
+- You must use a C++20 compiler with `<chrono>` calendar support.
+  `Suggested:` GCC 13 or later, or Clang 17 or later.
+  GCC 12 builds the library itself, but not the tests or the examples,
+  which stream `<chrono>` types to an ostream.
 
 - The library has no dependency on other software at run time.
-  The [tests](#running-the-tests) section describes two dependencies that
-  apply only to the tests.
+  The [tests](#running-the-tests) section describes one dependency that
+  applies only to the tests.
 
-`DateTime` reads local time through the `<chrono>` time zone database.
-This function needs an IANA time zone database (`tzdata`) on the platform.
-Some platforms and toolchains do not have this database.
-One example is Termux on Android.
+- The library does **not** need an IANA time zone database (`tzdata`).
+  It takes a plain calendar date and returns instants in UTC.
+  This matters on platforms where the `<chrono>` time zone database is missing
+  or incomplete, such as libc++ before version 19, macOS, and Termux on Android.
+  The library builds and runs the same way on all of them.
 
-See the build section for more details in case you are missing this database.
+  Read the [Time zones](#time-zones) section for the reasoning and for what to
+  do when you want a local wall clock reading.
 
 ## Building the library
 
@@ -70,33 +74,10 @@ Check [Running the tests](#running-the-tests) for more info.
 You can add these options at the configure step, with the `-D` flag.
 See [available options](#cmake-options).
 
-### Timezone database fallback
-
-The build process above does not check for the timezone database at configure time.
-
-If the platform does not have the database, the normal build will _not_ compile.
-The build will show errors about `zoned_time`, `current_zone`, or similar items.
-
-If this occurs, configure the build with the `ADHAN_USE_CTIME_FALLBACK` option.
-This option compiles the library with a `localtime_r`/`mktime` based function.
-This function replaces the `<chrono>` calendar and time zone function.
-
-```bash
-cmake -S . -B build -DADHAN_USE_CTIME_FALLBACK=ON
-cmake --build build --parallel
-```
-
-Go to the [Date](#date) section and the [Running the tests](#running-the-tests)
-section for more data about this option.
-
 ## CMake Options
 
 - `-DBUILD_SHARED_LIBS=OFF` (default: `ON`)
   Build `libadhan` as a static library instead of a shared library.
-
-- `-DADHAN_USE_CTIME_FALLBACK=ON` (default: `OFF`)
-  Use the localtime_r/mktime fallback function from the Requirements
-  section.
 
 - `-DADHAN_BUILD_TESTS=OFF` (default: `ON`)
   Do not build the test suite.
@@ -107,10 +88,9 @@ section for more data about this option.
 
 - `-DCMAKE_BUILD_TYPE=Release`
   Use this option for an optimized build. This option uses the `-O2`
-  flag and defines `NDEBUG`. This disables internal `assert()` checks,
-  for example the check in `DateTime::getTime()`. If you do not set
-  `CMAKE_BUILD_TYPE`, CMake does not add optimization flags. Its
-  recommended to set this option.
+  flag and defines `NDEBUG`. If you do not set `CMAKE_BUILD_TYPE`,
+  CMake does not add optimization flags. Its recommended to set this
+  option.
 
 - `-DCMAKE_BUILD_TYPE=Debug`
   Use this option for a build with no optimization. This option keeps
@@ -119,7 +99,7 @@ section for more data about this option.
 You can combine these options, for example:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DADHAN_USE_CTIME_FALLBACK=ON -DADHAN_BUILD_EXAMPLES=ON
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DADHAN_BUILD_EXAMPLES=ON
 cmake --build build --parallel
 ```
 
@@ -127,25 +107,31 @@ To use different options later, do either one of the following:
 
 - Run the same `cmake -S . -B build <...>` command again, with the new `-D` flags.
 - Remove the `build` directory. Then configure the build again. Use this procedure
-  if an option like `ADHAN_USE_CTIME_FALLBACK` gives unexpected results.
+  if an option gives unexpected results.
 
 ## Usage
 
 The headers are in the `include/adhan` directory. All items are in the `Adhan` namespace.
 
 ```cpp
-#include <adhan/Coordinates.hpp>
 #include <adhan/CalculationMethod.hpp>
+#include <adhan/Coordinates.hpp>
+#include <adhan/DateUtils.hpp>
 #include <adhan/PrayerTimes.hpp>
-#include <adhan/DateTime.hpp>
+
+#include <chrono>
 
 int main() {
+  using namespace std::chrono;
+
   Adhan::Coordinates coordinates(35.789751, -78.691249);
   Adhan::CalculationParameters params = Adhan::CalculationMethod::NorthAmerica();
-  Adhan::PrayerTimes prayerTimes(coordinates, Adhan::DateTime::now(), params);
+  year_month_day date{2026y / January / 1d};
+
+  Adhan::PrayerTimes prayerTimes(coordinates, date, params);
 
   // prayerTimes.fajr, .sunrise, .dhuhr, .asr, .sunset, .maghrib, .isha
-  // are each a DateTime representing that prayer time in UTC.
+  // are each an Adhan::OptInstant holding that prayer time in UTC.
 }
 ```
 
@@ -159,49 +145,111 @@ Adhan::Coordinates coordinates(35.78056, -78.6389);
 
 ### Date
 
-`DateTime` is the date type of this library. `DateTime` gives you the parts of the
-JavaScript `Date` type that this library needs. You can construct a date from a year,
-a month, and a day. The month uses the same zero-based numbers as JavaScript.
-You can read local values or UTC values from a `DateTime` object.
-It is possible to also get the current date and time.
+The library uses `<chrono>` types directly. There is no date class of its own.
+
+The date you pass in is a `std::chrono::year_month_day`. It is a calendar date
+and nothing else. It carries no time of day and belongs to no time zone.
+Months are named or one-based, not zero-based like the JavaScript original.
 
 ```cpp
-Adhan::DateTime specific(2026, 0, 1);               // January 1, 2026
-Adhan::DateTime date = Adhan::DateTime::now();      // current date and time
+using namespace std::chrono;
+
+year_month_day date{2026y / January / 1d};
 ```
 
-The prayer time calculation uses only the year, the month, and the day.
-The calculation ignores the time of day. Internally, `DateTime` reads local time
-through the `<chrono>` [time zone database](https://en.wikipedia.org/wiki/Tz_database).
-Because of this, the system needs a usable time zone database.
-This lets local time values give correct results.
+The times you get back are instants in UTC. Two aliases in `DateUtils.hpp`
+name them:
 
-### The Timezone Database Fallback
+```cpp
+using Instant = std::chrono::sys_time<std::chrono::milliseconds>;
+using OptInstant = std::optional<Instant>;
+```
 
-If the platform does not have the database mentioned in the section above, configure
-the build with `-DADHAN_USE_CTIME_FALLBACK=ON`. See the [Requirements](#requirements)
-section. This option compiles `DateTime` with `localtime_r`/`mktime` functions instead.
+`Instant` is at millisecond resolution because a JavaScript `Date` is, so the
+ported arithmetic rounds off in the same place the original does.
 
-Local time values still give correct results with this option. These functions use
-the time zone data from the operating system. This is useful data if you read the
-code of `DateTime` and see two sets of functions. These two sets of functions use
-the `ADHAN_USE_CTIME_FALLBACK` definition to select between them.
+`OptInstant` is an `Instant` that may be absent. The original returns an
+Invalid Date when a time cannot be worked out, which mostly happens near the
+poles. An empty `std::optional` says the same thing, and the compiler makes
+you handle it.
 
-This option is not set as the default in order to adhere to modern C++ standards.
-
-> **IMPORTANT**:
+> **NOTE**
 >
-> This is not a full port of the JavaScript `Date` class! This port has only the
-> parts that this library needs. If your C++ code needs more date functions, for
-> example date parsing, use a library that has more datetime utilities. One example
-> is the highly regarded [date library](https://github.com/HowardHinnant/date)
-> from Howard Hinnant.
->
-> --- OR ---
->
-> Use a date library from your framework of choice. Two examples are Qt's
-> [QDate](https://doc.qt.io/qt-6/qdate.html)
-> and Boost's [DateTime](https://www.boost.org/library/latest/date_time/).
+> Take care when comparing an `OptInstant`. `std::optional` treats an empty
+> one as smaller than any value, whereas any comparison against an Invalid
+> Date in JavaScript is false. Check `has_value()` first and compare the
+> contents, rather than comparing two optionals directly.
+
+For today's date in UTC:
+
+```cpp
+auto now = Adhan::now();
+auto today = std::chrono::year_month_day{
+              std::chrono::floor<std::chrono::days>(now)
+            };
+```
+
+Cheatsheet:
+
+```cpp
+/* UTC midnight that begins the day now falls in */
+const auto todayStart = std::chrono::floor<std::chrono::days>(now);
+
+/* That same day as a plain calendar date, no time attached */
+const auto today = std::chrono::year_month_day{todayStart};
+
+/* How far past that midnight now is, as whole hours, minutes and seconds */
+const auto time = std::chrono::hh_mm_ss{
+    std::chrono::floor<std::chrono::seconds>(now - todayStart)};
+
+const int year = int(today.year()); // Note the signed int for `year`
+const unsigned month = unsigned(today.month());
+const unsigned day = unsigned(today.day());
+
+const auto hour = time.hours().count();
+const auto minute = time.minutes().count();
+const auto second = time.seconds().count();
+```
+
+### Time zones
+
+The library never reads a time zone database. That is deliberate, and it is
+why the library builds on platforms where `<chrono>`'s tzdb is unavailable.
+
+Only two things ever needed a time zone, and both sit at the edges rather than
+in the calculation:
+
+- Deciding which calendar day a person is currently in.
+- Showing a result on a local wall clock.
+
+Both are yours to do, at whichever boundary suits your program. If you already
+know the date you want, the first one does not come up at all.
+
+```cpp
+using namespace std::chrono;
+
+// The calendar day it is right now in a named zone
+auto localNow = zoned_time{locate_zone("America/New_York"),
+                           system_clock::now()}.get_local_time();
+year_month_day today{floor<days>(localNow)};
+
+Adhan::PrayerTimes prayerTimes(coordinates, today, params);
+
+// One of the results, read on that same local wall clock
+if (prayerTimes.maghrib) {
+  zoned_time shown{locate_zone("America/New_York"), *prayerTimes.maghrib};
+  std::cout << shown.get_local_time() << '\n';
+}
+```
+
+Note that a prayer time for a local day often falls on a different UTC day.
+Fajr on 1 January in Singapore is on 31 December in UTC. Both readings name
+the same instant.
+
+If your platform has no usable tzdb, you can supply a fixed offset yourself,
+read one from your framework, or use the
+[date library](https://github.com/HowardHinnant/date) from Howard Hinnant.
+None of that touches the library.
 
 ### Calculation parameters
 
@@ -227,16 +275,27 @@ Adhan::PrayerTimes prayerTimes(coordinates, date, params);
 ```
 
 This object gives you these values: `fajr`, `sunrise`, `dhuhr`, `asr`, `sunset`,
-`maghrib`, and `isha`. Each value is a `DateTime` object in UTC. You can refer
+`maghrib`, and `isha`. Each value is an `Adhan::OptInstant` in UTC. You can refer
 to the `examples/adhan-cli` for information on how to use this properly.
+
+```cpp
+if (prayerTimes.fajr) {
+  Adhan::Instant fajr = *prayerTimes.fajr;
+}
+```
 
 ### Convenience utilities
 
 ```cpp
 Adhan::Prayer current = prayerTimes.currentPrayer();
 Adhan::Prayer next = prayerTimes.nextPrayer();
-auto nextTime = prayerTimes.timeForPrayer(next); // std::optional<Adhan::DateTime>
+Adhan::OptInstant nextTime = prayerTimes.timeForPrayer(next);
 ```
+
+`currentPrayer` and `nextPrayer` take an `Adhan::Instant` and default to the
+current time. The answers only mean something when the object holds today's
+times. `timeForPrayer` returns an empty optional for `Prayer::None` and for any
+prayer whose time could not be worked out.
 
 ### Sunnah times
 
@@ -248,6 +307,9 @@ Adhan::SunnahTimes sunnahTimes(prayerTimes);
 // sunnahTimes.middleOfTheNight
 // sunnahTimes.lastThirdOfTheNight
 ```
+
+Both values are an `Adhan::OptInstant`. They are absent when either end of the
+night is missing.
 
 ### Qibla direction
 
@@ -267,10 +329,6 @@ The tests use [doctest](https://github.com/doctest/doctest).
 The tests are in the `tests` directory.
 The build process compiles the test executable from the source files of the library.
 The test executable does not link to `libadhan`.
-The build process compiles the tests with the `ADHAN_TESTING` definition.
-Some tests need this definition, for example
-the tests that count calls to the polar circle resolver.
-This procedure keeps the shipped library free of test code.
 Some fixture tests also use [nlohmann/json](https://github.com/nlohmann/json).
 This library is in the `tests/vendor` directory.
 
@@ -290,23 +348,16 @@ cmake --build build --target test-verbose --parallel
 Both commands write output to a log file in the project root directory.
 The files are `test.log` and `test-verbose.log`. Both commands also print
 output to the terminal. Go to the `tests` directory for the test files.
-Each file corresponds to one file in the adhan-js test suite. Use these files
+Most files correspond to one file in the adhan-js test suite. Use these files
 to check the behavior of this port against the original implementation.
 
-Some tests need to format prayer times in a named time zone. See `formatInZone`
-in the `tests/src` directory. These tests compare the result against fixed
-values from the adhan-js test suite. This function is only for tests.
-The function is not part of the shipped library. The function needs the same
-`<chrono>` time zone database from the [Requirements](#requirements) section.
-
-If you build with the `ADHAN_USE_CTIME_FALLBACK` option, this test function cannot
-find a named time zone. Because of this, the build process removes these specific
-tests. The build process does not run these tests with wrong results.
-Because of this, a fallback build has fewer tests than a build with full time
-zone database support. This does not change the correctness of the fallback build
-for prayer time calculation.
-
-At this time, we do not plan to add another date library just to close this gap only.
+The tests need no time zone database either. The expected times come from the
+adhan-js test suite, which records them as local wall clock readings. Those
+readings are converted to UTC ahead of time, not while the tests run. Fixture
+data is converted by the scripts in `tools/fixtures`, and the times written by
+hand in the test files are stored as UTC with the local reading kept in a
+comment beside them. This means the whole suite builds and runs everywhere the
+library does.
 
 ## Examples
 
@@ -332,6 +383,9 @@ cmake --build build --parallel
 `examples/adhan-cli` is a small command line program. This program uses the full
 public interface of the library. The program calculates prayer times, Sunnah times,
 and the Qibla direction. The program also shows some convenience functions.
+
+The program works in UTC throughout. It takes a UTC calendar day and prints UTC
+times, so it needs no time zone database of its own.
 
 <!-- markdownlint-disable MD013 -->
 
@@ -380,7 +434,7 @@ include(FetchContent)
 FetchContent_Declare(
   adhan
   GIT_REPOSITORY https://<this-repo-url>  # placeholder used, populate as needed
-  GIT_TAG <tag-or-commit>                 # use the latest/desired tag (e.g. `v0.1.3`)
+  GIT_TAG <tag-or-commit>                 # use the latest/desired tag
   GIT_SHALLOW TRUE                        # project has no dependencies
 )
 FetchContent_MakeAvailable(adhan)

@@ -17,9 +17,9 @@ so the offsets are settled history. The tzdata version used is written into
 each generated file for the record.
 
 Usage:
-    python3 tools/generate_utc_fixtures.py            # write the UTC fixtures
-    python3 tools/generate_utc_fixtures.py --check    # verify they are current
-    python3 tools/generate_utc_fixtures.py --convert "Europe/Oslo" \\
+    python3 tools/fixtures/generate_utc_fixtures.py            # write the UTC fixtures
+    python3 tools/fixtures/generate_utc_fixtures.py --check    # verify they are current
+    python3 tools/fixtures/generate_utc_fixtures.py --convert "Europe/Oslo" \\
         "2020-06-15 01:14"                            # one off, for new tests
 
 The --convert mode is there for when someone adds a test case and needs the
@@ -63,11 +63,12 @@ def tzdata_version() -> str:
     return "unknown"
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_DIR = REPO_ROOT / "tests" / "Shared" / "Times"
-OUTPUT_DIR = SOURCE_DIR / "UTC"
+OUTPUT_DIR = REPO_ROOT / "tests" / "generated" / "Times"
 
 TIME_KEYS = ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")
+
 
 def utc_name(source: Path) -> Path:
     """Where a source fixture's converted twin lives, e.g. Doha-Qatar_UTC.json."""
@@ -104,7 +105,7 @@ def convert_file(path: Path) -> dict:
         times.append(converted)
 
     result = {
-        "generatedBy": "tools/generate_utc_fixtures.py",
+        "generatedBy": "tools/fixtures/generate_utc_fixtures.py",
         "source": path.name,
         "sourceTimezone": zone_name,
         "tzdataVersion": tzdata_version(),
@@ -149,7 +150,7 @@ def main() -> int:
     if args.check:
         stale = []
         for source in sources:
-            target = OUTPUT_DIR / source.name
+            target = utc_name(source)
             if not target.exists() or target.read_text() != render(
                     convert_file(source)):
                 stale.append(source.name)
@@ -167,9 +168,7 @@ def main() -> int:
     # Drop anything left over from an earlier naming scheme. The tests read
     # every json file in this directory, so a stale one would be counted as
     # an extra fixture rather than ignored.
-
     expected = {utc_name(source) for source in sources}
-
     for leftover in sorted(set(OUTPUT_DIR.glob("*.json")) - expected):
         leftover.unlink()
         print("%-40s removed (stale)" % leftover.name)

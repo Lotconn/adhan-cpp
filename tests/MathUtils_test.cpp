@@ -16,13 +16,15 @@ namespace {
 /** Minutes past the hour of a UTC instant. */
 int utcMinute(const OptInstant &t) {
   const auto day = floor<days>(t.value());
-  return static_cast<int>(hh_mm_ss{floor<seconds>(t.value() - day)}.minutes().count());
+  return static_cast<int>(
+      hh_mm_ss{floor<seconds>(t.value() - day)}.minutes().count());
 }
 
 /** Seconds past the minute of a UTC instant. */
 int utcSecond(const OptInstant &t) {
   const auto day = floor<days>(t.value());
-  return static_cast<int>(hh_mm_ss{floor<seconds>(t.value() - day)}.seconds().count());
+  return static_cast<int>(
+      hh_mm_ss{floor<seconds>(t.value() - day)}.seconds().count());
 }
 
 } // namespace
@@ -97,8 +99,8 @@ TEST_CASE(
 }
 
 TEST_CASE("rounding a date to the closest minute") {
-  const Instant at29{sys_days{2015y/January/1d} + 10h + 2min + 29s};
-  const Instant at31{sys_days{2015y/January/1d} + 10h + 2min + 31s};
+  const Instant at29{sys_days{2015y / January / 1d} + 10h + 2min + 29s};
+  const Instant at31{sys_days{2015y / January / 1d} + 10h + 2min + 31s};
 
   const OptInstant date1 = roundedMinute(at29);
   CHECK(utcMinute(date1) == 2);
@@ -124,7 +126,7 @@ TEST_CASE("rounding a date to the closest minute") {
 }
 
 TEST_CASE("adding days to date") {
-  const year_month_day date1{2015y/November/1d};
+  const year_month_day date1{2015y / November / 1d};
   CHECK(date1.day() == 1d);
 
   const year_month_day date2 = dateByAddingDays(date1, 1);
@@ -132,11 +134,11 @@ TEST_CASE("adding days to date") {
 
   /* Rolling past the end of a month carries into the next one. */
   const year_month_day date3 = dateByAddingDays(date1, 30);
-  CHECK(date3 == 2015y/December/1d);
+  CHECK(date3 == 2015y / December / 1d);
 
   /* And a negative count walks backwards across a year boundary. */
-  const year_month_day date4 = dateByAddingDays(2016y/January/1d, -1);
-  CHECK(date4 == 2015y/December/31d);
+  const year_month_day date4 = dateByAddingDays(2016y / January / 1d, -1);
+  CHECK(date4 == 2015y / December / 31d);
 }
 
 TEST_CASE("determine if a year is a leap year") {

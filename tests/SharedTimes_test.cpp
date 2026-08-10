@@ -14,13 +14,6 @@
 #include <fstream>
 #include <string>
 
-/**
- * TODO: If similar JSON reading is needed elsewhere, we can consider
- * refactoring the `ParsedDate` and similar JSON date parsing logic
- * into a different module for easier re-use. But for now, this is fine,
- * as this JSON date parsing logic does not bleed into another test.
- */
-
 using json = nlohmann::json;
 
 using namespace Adhan;
@@ -33,7 +26,7 @@ namespace {
  * The fixtures under Shared/Times record local wall clock readings and name
  * an IANA zone. The ones under Shared/Times/UTC are those same readings
  * already converted, which is why nothing here has to resolve a zone. See
- * tools/generate_utc_fixtures.py.
+ * tools/fixtures/generate_utc_fixtures.py.
  */
 Instant parseUtc(const std::string &stamp) {
   const int year = std::stoi(stamp.substr(0, 4));
@@ -59,8 +52,7 @@ std::chrono::year_month_day parseFixtureDate(const std::string &dateStr) {
       std::chrono::year{std::stoi(dateStr.substr(0, 4))},
       std::chrono::month{
           static_cast<unsigned>(std::stoi(dateStr.substr(5, 2)))},
-      std::chrono::day{
-          static_cast<unsigned>(std::stoi(dateStr.substr(8, 2)))}};
+      std::chrono::day{static_cast<unsigned>(std::stoi(dateStr.substr(8, 2)))}};
 }
 
 /**
@@ -69,8 +61,7 @@ std::chrono::year_month_day parseFixtureDate(const std::string &dateStr) {
  * An absent time never passes.
  */
 bool withinRange(
-    const OptInstant &actual, const Instant &expected,
-    double varianceMinutes) {
+    const OptInstant &actual, const Instant &expected, double varianceMinutes) {
   if (!actual) {
     return false;
   }
@@ -173,12 +164,10 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
         PrayerTimes p(coordinates, parseFixtureDate(dateStr), params);
 
         Instant testFajr = parseUtc(timeEntry["fajr"].get<std::string>());
-        Instant testSunrise =
-            parseUtc(timeEntry["sunrise"].get<std::string>());
+        Instant testSunrise = parseUtc(timeEntry["sunrise"].get<std::string>());
         Instant testDhuhr = parseUtc(timeEntry["dhuhr"].get<std::string>());
         Instant testAsr = parseUtc(timeEntry["asr"].get<std::string>());
-        Instant testMaghrib =
-            parseUtc(timeEntry["maghrib"].get<std::string>());
+        Instant testMaghrib = parseUtc(timeEntry["maghrib"].get<std::string>());
         Instant testIsha = parseUtc(timeEntry["isha"].get<std::string>());
 
         CHECK(withinRange(p.fajr, testFajr, variance));

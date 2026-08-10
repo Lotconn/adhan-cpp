@@ -51,10 +51,10 @@ TEST_SUITE("LanguagePortQuirks") {
    * word, and we hand the caller a date that says it is not a real day.
    */
   TEST_CASE("year_month_day reports impossible calendar dates") {
-    CHECK_FALSE((2026y/February/30d).ok());
-    CHECK_FALSE((2025y/February/29d).ok());
-    CHECK((2024y/February/29d).ok());
-    CHECK((2026y/January/31d).ok());
+    CHECK_FALSE((2026y / February / 30d).ok());
+    CHECK_FALSE((2025y / February / 29d).ok());
+    CHECK((2024y / February / 29d).ok());
+    CHECK((2026y / January / 31d).ok());
   }
 
   TEST_CASE("CalculationParameters rejects out-of-range fajrAngle") {
@@ -202,15 +202,15 @@ TEST_SUITE("LanguagePortQuirks") {
      * mistakes, they mean the time falls on the day either side, and the
      * duration arithmetic in utcDate carries them over on its own.
      */
-    const year_month_day date{2015y/July/12d};
+    const year_month_day date{2015y / July / 12d};
 
     const auto rolledBack = TimeComponents(-1.5).utcDate(date);
     REQUIRE(rolledBack.has_value());
-    CHECK(*rolledBack == sys_days{2015y/July/11d} + 22h + 30min);
+    CHECK(*rolledBack == sys_days{2015y / July / 11d} + 22h + 30min);
 
     const auto rolledForward = TimeComponents(25.25).utcDate(date);
     REQUIRE(rolledForward.has_value());
-    CHECK(*rolledForward == sys_days{2015y/July/13d} + 1h + 15min);
+    CHECK(*rolledForward == sys_days{2015y / July / 13d} + 1h + 15min);
 
     CHECK_FALSE(TimeComponents(std::numeric_limits<double>::quiet_NaN())
                     .utcDate(date)

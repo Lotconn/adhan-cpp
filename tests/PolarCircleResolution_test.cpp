@@ -1,5 +1,5 @@
-#include <UtcTime.hpp>
 #include "doctest.h"
+#include <UtcTime.hpp>
 
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/Coordinates.hpp>
@@ -24,9 +24,9 @@ struct PolarCircleFixture {
    * These used to carry a 20:00:00 wall clock time. Nothing ever read it,
    * the library only wanted the calendar day, so it is gone.
    */
-  year_month_day regularDate{2020y/May/15d};
-  year_month_day dateAffectedByPolarNight{2020y/December/21d};
-  year_month_day dateAffectedByMidnightSun{2020y/June/21d};
+  year_month_day regularDate{2020y / May / 15d};
+  year_month_day dateAffectedByPolarNight{2020y / December / 21d};
+  year_month_day dateAffectedByMidnightSun{2020y / June / 21d};
   Coordinates regularCoordinates{31.947351, 35.227163};
   Coordinates ArjeplogSweden{66.7222444, 17.7189};
   Coordinates AmundsenScottAntarctic{-84.996, 0.01013};
@@ -87,12 +87,12 @@ TEST_CASE_FIXTURE(
       regularCoordinates, dateAffectedByPolarNight, unresolvedParams);
 
   checkSameTimes(
-      PrayerTimes(regularCoordinates, dateAffectedByPolarNight,
-                  aqrabBaladParams),
+      PrayerTimes(
+          regularCoordinates, dateAffectedByPolarNight, aqrabBaladParams),
       reference);
   checkSameTimes(
-      PrayerTimes(regularCoordinates, dateAffectedByPolarNight,
-                  aqrabYaumParams),
+      PrayerTimes(
+          regularCoordinates, dateAffectedByPolarNight, aqrabYaumParams),
       reference);
 }
 
@@ -177,19 +177,19 @@ TEST_CASE("Polar Night case: calculating times for the polar circle") {
   CalculationParameters params = CalculationMethod::MuslimWorldLeague();
   params.polarCircleResolution = PolarCircleResolution::AqrabYaum;
   params.highLatitudeRule = HighLatitudeRule::SeventhOfTheNight;
-  const year_month_day date{2020y/June/21d};
+  const year_month_day date{2020y / June / 21d};
 
   PrayerTimes p(coordinates, date, params);
   /* 2020-06-21 00:40 Europe/Stockholm  =  2020-06-20 22:40Z */
-  CHECK(isUtc(p.fajr, 2020y/June/20d, 22h + 40min));
+  CHECK(isUtc(p.fajr, 2020y / June / 20d, 22h + 40min));
   /* 2020-06-21 00:54 Europe/Stockholm  =  2020-06-20 22:54Z */
-  CHECK(isUtc(p.sunrise, 2020y/June/20d, 22h + 54min));
+  CHECK(isUtc(p.sunrise, 2020y / June / 20d, 22h + 54min));
   /* 2020-06-21 12:55 Europe/Stockholm  =  2020-06-21 10:55Z */
-  CHECK(isUtc(p.dhuhr, 2020y/June/21d, 10h + 55min));
+  CHECK(isUtc(p.dhuhr, 2020y / June / 21d, 10h + 55min));
   /* 2020-06-21 17:49 Europe/Stockholm  =  2020-06-21 15:49Z */
-  CHECK(isUtc(p.asr, 2020y/June/21d, 15h + 49min));
+  CHECK(isUtc(p.asr, 2020y / June / 21d, 15h + 49min));
   /* 2020-06-21 23:36 Europe/Stockholm  =  2020-06-21 21:36Z */
-  CHECK(isUtc(p.maghrib, 2020y/June/21d, 21h + 36min));
+  CHECK(isUtc(p.maghrib, 2020y / June / 21d, 21h + 36min));
   /* 2020-06-21 23:51 Europe/Stockholm  =  2020-06-21 21:51Z */
-  CHECK(isUtc(p.isha, 2020y/June/21d, 21h + 51min));
+  CHECK(isUtc(p.isha, 2020y / June / 21d, 21h + 51min));
 }

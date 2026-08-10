@@ -136,7 +136,7 @@ TEST_CASE("calculate Solar Time values") {
   // Comparison values generated from
   // http://aa.usno.navy.mil/rstt/onedaytable?form=1&ID=AA&year=2015&month=7&day=12&state=NC&place=raleigh
   Coordinates coordinates(35 + 47.0 / 60, -78 - 39.0 / 60);
-  SolarTime solar(2015y/July/12d, coordinates);
+  SolarTime solar(2015y / July / 12d, coordinates);
 
   double transit = solar.transit;
   double sunrise = solar.sunrise;
@@ -156,7 +156,8 @@ TEST_CASE("verify Right Ascension Edge Case") {
   Coordinates coordinates(35 + 47.0 / 60, -78 - 39.0 / 60);
   std::vector<SolarTime> solar;
   for (int i = 0; i <= 365; i++) {
-    solar.emplace_back(dateByAddingDays(2016y/January/1d, i - 1), coordinates);
+    solar.emplace_back(
+        dateByAddingDays(2016y / January / 1d, i - 1), coordinates);
   }
 
   for (size_t i = 1; i < solar.size(); i++) {
@@ -172,8 +173,8 @@ TEST_CASE("verify the correct calendar date is being used for calculations") {
   // generated from http://aa.usno.navy.mil/data/docs/RS_OneYear.php for
   // KUKUIHAELE, HAWAII
   Coordinates coordinates(20 + 7.0 / 60, -155 - 34.0 / 60);
-  SolarTime day1solar(2015y/April/2d, coordinates);
-  SolarTime day2solar(2015y/April/3d, coordinates);
+  SolarTime day1solar(2015y / April / 2d, coordinates);
+  SolarTime day2solar(2015y / April / 3d, coordinates);
 
   double day1 = day1solar.sunrise;
   double day2 = day2solar.sunrise;
@@ -227,10 +228,10 @@ TEST_CASE("calculate the Julian day for a given Gregorian date") {
 }
 
 TEST_CASE("get the day of the year for a date") {
-  CHECK(dayOfYear(2015y/January/1d) == 1);
-  CHECK(dayOfYear(2015y/December/31d) == 365);
-  CHECK(dayOfYear(2016y/December/31d) == 366);
-  CHECK(dayOfYear(2015y/February/1d) == 32);
+  CHECK(dayOfYear(2015y / January / 1d) == 1);
+  CHECK(dayOfYear(2015y / December / 31d) == 365);
+  CHECK(dayOfYear(2016y / December / 31d) == 366);
+  CHECK(dayOfYear(2015y / February / 1d) == 32);
 }
 
 TEST_CASE("verify approximateTransit near the International Date Line") {
@@ -261,7 +262,7 @@ TEST_CASE("verify Right Ascension Edge Case near the International Date Line") {
   Coordinates coordinates(42.74674252600066, 177.2401196144623);
   std::vector<SolarTime> solar;
   // Iterate over a full year starting Nov 1, 2025
-  const year_month_day base{2025y/November/1d};
+  const year_month_day base{2025y / November / 1d};
   for (int i = 0; i <= 365; i++) {
     solar.emplace_back(dateByAddingDays(base, i), coordinates);
   }
@@ -278,42 +279,42 @@ TEST_CASE("verify Right Ascension Edge Case near the International Date Line") {
 TEST_CASE("calculate the days since the winter or summer solstice") {
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/January/1d), 2016, 1) == 11);
+          dayOfYear(2016y / January / 1d), 2016, 1) == 11);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2015y/December/31d), 2015, 1) == 10);
+          dayOfYear(2015y / December / 31d), 2015, 1) == 10);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/December/31d), 2016, 1) == 10);
+          dayOfYear(2016y / December / 31d), 2016, 1) == 10);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/December/21d), 2016, 1) == 0);
+          dayOfYear(2016y / December / 21d), 2016, 1) == 0);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/December/22d), 2016, 1) == 1);
+          dayOfYear(2016y / December / 22d), 2016, 1) == 1);
+  CHECK(
+      Astronomical::daysSinceSolstice(dayOfYear(2016y / March / 1d), 2016, 1) ==
+      71);
+  CHECK(
+      Astronomical::daysSinceSolstice(dayOfYear(2015y / March / 1d), 2015, 1) ==
+      70);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/March/1d), 2016, 1) == 71);
+          dayOfYear(2016y / December / 20d), 2016, 1) == 365);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2015y/March/1d), 2015, 1) == 70);
-  CHECK(
-      Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/December/20d), 2016, 1) == 365);
-  CHECK(
-      Astronomical::daysSinceSolstice(
-          dayOfYear(2015y/December/20d), 2015, 1) == 364);
+          dayOfYear(2015y / December / 20d), 2015, 1) == 364);
 
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2015y/June/21d), 2015, -1) == 0);
+          dayOfYear(2015y / June / 21d), 2015, -1) == 0);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/June/21d), 2016, -1) == 0);
+          dayOfYear(2016y / June / 21d), 2016, -1) == 0);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2015y/June/20d), 2015, -1) == 364);
+          dayOfYear(2015y / June / 20d), 2015, -1) == 364);
   CHECK(
       Astronomical::daysSinceSolstice(
-          dayOfYear(2016y/June/20d), 2016, -1) == 365);
+          dayOfYear(2016y / June / 20d), 2016, -1) == 365);
 }

@@ -1,0 +1,57 @@
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+pre {
+  tab-size: 4;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  font-weight: 600;
+}
+
+td,
+th {
+  vertical-align: top;
+}
+
+button {
+  transition:
+    background-color 150ms,
+    color 150ms,
+    border-color 150ms;
+}
+
+input:focus,
+button:focus {
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

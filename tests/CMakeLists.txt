@@ -40,7 +40,7 @@ endif()
 # ###################################
 
 # Copy the JSON test data to the test build directory
-file(COPY Shared DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY generated DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests)
 
 # Invoke using `cmake --build . --target test`
 add_custom_target(test

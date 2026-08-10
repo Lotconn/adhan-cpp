@@ -24,31 +24,33 @@ namespace RoundingUtils {
 constexpr std::string_view to_string(Rounding r) {
   switch (r) {
   case Rounding::Nearest:
-    return "nearest";
+    return "Nearest";
   case Rounding::Up:
-    return "up";
+    return "Up";
   case Rounding::None:
-    return "none";
+    return "None";
   }
   throw std::logic_error("Invalid rounding");
 }
 
 /**
  * @brief Given a string (e.g.: "nearest"), returns a `Rounding`
- * If no match is found, returns `Rounding::None` by default
  *
  * @param s
  * @return constexpr Rounding
+ * @throws std::logic_error if the string names no rounding mode.
  */
 constexpr Rounding from_string(std::string_view s) {
-  if (s == "nearest") {
+  if (s == "Nearest") {
     return Rounding::Nearest;
   }
-  if (s == "up") {
+  if (s == "Up") {
     return Rounding::Up;
   }
-
-  return Rounding::None;
+  if (s == "None") {
+    return Rounding::None;
+  }
+  throw std::logic_error("Invalid rounding");
 }
 
 } // namespace RoundingUtils
