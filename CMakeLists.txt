@@ -127,44 +127,17 @@ endif()
 #  OPTIONS + COMPILE DEFINITIONS
 # ###############################
 
-# After we are done making the library, build the tests and run them
-# 
-option(
-  ADHAN_BUILD_TESTS
-  "Build test binary and run test cases on build"
-  ON
-)
-#
-if(${ADHAN_BUILD_TESTS})
-  enable_testing()
-  add_subdirectory(tests)
-endif()
-
-# Build all the examples under the `examples` directory
-# 
-option(
-  ADHAN_BUILD_EXAMPLES
-  "Build examples (e.g. adhan-cli)"
-  OFF
-)
-#
-if(${ADHAN_BUILD_EXAMPLES})
-  add_subdirectory(examples)
-endif()
-
 # Enable Clang Tidy if project is top level
 option(
   ADHAN_ENABLE_CLANG_TIDY
   "Run clang-tidy during build"
   ${PROJECT_IS_TOP_LEVEL}
 )
-
-# ############
-#  CLANG_TIDY
-# ############
+#
 if(ADHAN_ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
   if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy was found")
     set(ADHAN_TIDY_CMD "${CLANG_TIDY_EXE}")
     if(MSVC)
       list(APPEND ADHAN_TIDY_CMD "--extra-arg=/EHsc")
@@ -178,6 +151,34 @@ if(ADHAN_ENABLE_CLANG_TIDY)
     message(WARNING "ADHAN_ENABLE_CLANG_TIDY is ON but clang-tidy was not found")
   endif()
 endif()
+
+# After we are done making the library, build the tests and run them
+# 
+option(
+  ADHAN_BUILD_TESTS
+  "Build test binary and run test cases on build"
+  ON
+)
+#
+if(ADHAN_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
+# Build all the examples under the `examples` directory
+# 
+option(
+  ADHAN_BUILD_EXAMPLES
+  "Build examples (e.g. adhan-cli)"
+  OFF
+)
+#
+if(ADHAN_BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
+
+
 
 # ##############
 #  INSTALLATION
