@@ -2,7 +2,7 @@
 #  [adhan] Root level CMakeLists [START]
 # #######################################
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
 project("adhan" VERSION 0.2.0)
 
@@ -123,15 +123,6 @@ else()
   )
 endif()
 
-# ############
-#  CLANG_TIDY
-# ############
-
-find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
-if(CLANG_TIDY_EXE)
-  set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
-endif()
-
 # ###############################
 #  OPTIONS + COMPILE DEFINITIONS
 # ###############################
@@ -159,6 +150,28 @@ option(
 #
 if(${ADHAN_BUILD_EXAMPLES})
   add_subdirectory(examples)
+endif()
+
+# Enable Clang Tidy if project is top level
+option(
+  ADHAN_ENABLE_CLANG_TIDY
+  "Run clang-tidy during build"
+  ${PROJECT_IS_TOP_LEVEL}
+)
+
+# ############
+#  CLANG_TIDY
+# ############
+if(ADHAN_ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
+  if(CLANG_TIDY_EXE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    if(MSVC)
+      set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--extra-arg=/EHsc;--extra-arg=-fexceptions")
+    else()
+      set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    endif()
+  endif()
 endif()
 
 # ##############
