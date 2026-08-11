@@ -8,12 +8,16 @@ project("run-tests" VERSION 1.1.0 LANGUAGES CXX)
 #  SOURCES + INCLUDES + CXX STANDARD
 # ###################################
 
-file(GLOB TEST_SOURCES ${SOURCES} "src/*.cpp" "*.cpp")
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC "../include/adhan" "../include" "vendor" "include"
+  ${PROJECT_NAME} PRIVATE "vendor" "include"
+)
+
+target_link_libraries(
+  ${PROJECT_NAME} PRIVATE adhan::adhan
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -38,6 +42,19 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   ADHAN_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/generated/Times"
 )
+
+# ############
+#  POST BUILD 
+# ############
+
+if(MSVC AND BUILD_SHARED_LIBS)
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS
+  )
+endif()
 
 
 # ###################################

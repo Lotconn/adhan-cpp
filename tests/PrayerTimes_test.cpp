@@ -1,10 +1,10 @@
-#include "DateUtils.hpp"
-#include "HighLatitudeRule.hpp"
 #include "doctest.h"
 
 #include <UtcTime.hpp>
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/Coordinates.hpp>
+#include <adhan/DateUtils.hpp>
+#include <adhan/HighLatitudeRule.hpp>
 #include <adhan/Madhab.hpp>
 #include <adhan/PrayerTimes.hpp>
 
