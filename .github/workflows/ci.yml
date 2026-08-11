@@ -1,4 +1,4 @@
-name: Windows CI
+name: Adhan CI
 
 on:
   push:
@@ -6,10 +6,15 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast:  false
+      matrix:
+        os:   [ubuntu-latest, windows-latest, macos-latest]
+    runs-on:  ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: ilammy/msvc-dev-cmd@v1.13.0
+        if:   runner.os == 'Windows'
       - name: configure
         run:  >
           cmake -S ${{ github.workspace }} -B build
