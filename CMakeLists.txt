@@ -165,12 +165,17 @@ option(
 if(ADHAN_ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
   if(CLANG_TIDY_EXE)
-    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    set(ADHAN_TIDY_CMD "${CLANG_TIDY_EXE}")
     if(MSVC)
-      set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--extra-arg=/EHsc;--extra-arg=-fexceptions")
-    else()
-      set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+      list(APPEND ADHAN_TIDY_CMD "--extra-arg=/EHsc")
     endif()
+    set_target_properties(
+      ${PROJECT_NAME}
+      PROPERTIES CXX_CLANG_TIDY
+      ${ADHAN_TIDY_CMD}
+    )
+  else()
+    message(WARNING "ADHAN_ENABLE_CLANG_TIDY is ON but clang-tidy was not found")
   endif()
 endif()
 
