@@ -89,12 +89,13 @@ See [available options](#cmake-options).
 - `-DCMAKE_BUILD_TYPE=Release`
   Use this option for an optimized build. This option uses the `-O2`
   flag and defines `NDEBUG`. If you do not set `CMAKE_BUILD_TYPE`,
-  CMake does not add optimization flags. Its recommended to set this
-  option.
+  CMake does not add optimization flags.
 
 - `-DCMAKE_BUILD_TYPE=Debug`
   Use this option for a build with no optimization. This option keeps
   debug symbols and `assert()` checks active.
+
+> Note: `Release` is the default option for this project's `CMAKE_BUILD_TYPE`
 
 You can combine these options, for example:
 

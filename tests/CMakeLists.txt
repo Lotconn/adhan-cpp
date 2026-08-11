@@ -47,7 +47,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 #  POST BUILD 
 # ############
 
-if(MSVC AND BUILD_SHARED_LIBS)
+# Not MSVC, as WIN32 will also include mingw, which also needs the .dll copy
+# 
+if(WIN32)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>

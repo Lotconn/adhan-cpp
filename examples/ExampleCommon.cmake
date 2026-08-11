@@ -26,8 +26,9 @@ function(configure_example target)
   # For Windows, the shared libraries are copied to the example build directory
   # This is not good practice, as ideally one should "install" the library
   # But for the needs of our experiment, this is good enough
-  #
-  if(MSVC AND BUILD_SHARED_LIBS)
+  # Not MSVC, as WIN32 will also include mingw, which also needs the .dll copy
+  # 
+  if(WIN32)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       $<TARGET_RUNTIME_DLLS:${target}>

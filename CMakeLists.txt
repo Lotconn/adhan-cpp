@@ -77,7 +77,7 @@ target_include_directories(
 #  BUILD TYPE DEFAULT
 # ####################
 
-set(default_build_type "Debug")
+set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
@@ -177,9 +177,6 @@ if(ADHAN_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
-
-
-
 # ##############
 #  INSTALLATION
 # ##############
@@ -188,6 +185,9 @@ endif()
 #
 install(TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}Targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 # The Headers (all *.hpp files should be contained in an `adhan` directory)
