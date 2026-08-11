@@ -21,7 +21,7 @@ function(configure_example target)
   #  LIBRARY LINKS (e.g. libadhan)
   # ###############################
 
-  target_link_libraries(${target} PRIVATE adhan)
+  target_link_libraries(${target} PRIVATE adhan::adhan)
 
   # For Windows, the shared libraries are copied to the example build directory
   # This is not good practice, as ideally one should "install" the library

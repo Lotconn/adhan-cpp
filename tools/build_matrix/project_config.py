@@ -2,7 +2,24 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
+
+
+# These two enums describe the fixed axes of the matrix: every project has
+# a shared/static choice and a set of CMake build types. They live here,
+# in the config layer, so that project.json can be validated against them
+# without matrix.py and project_config.py importing each other.
+class LibraryType(Enum):
+    SHARED = "shared"
+    STATIC = "static"
+
+
+class BuildType(Enum):
+    DEBUG = "Debug"
+    RELEASE = "Release"
+    RELWITHDEBINFO = "RelWithDebInfo"
+    MINSIZEREL = "MinSizeRel"
 
 
 # The tool ships with a default project.json (next to this file) so it works
@@ -77,7 +94,24 @@ class ProjectConfig:
 
     shared_libs_var: str = "BUILD_SHARED_LIBS"
     build_type_var: str = "CMAKE_BUILD_TYPE"
-    cmake_minimum_version: str = "3.20"
+    cmake_minimum_version: str = "3.21"
+
+    # Which CMake build types the sweep covers. Defaults to all of them;
+    # narrow it in project.json to trade coverage for wall-clock time.
+    # Debug and Release are the two that differ semantically (NDEBUG on
+    # or off); RelWithDebInfo and MinSizeRel only vary the optimisation
+    # level, so they rarely surface a bug the other two miss.
+    build_types: list[BuildType] = field(
+        default_factory=lambda: list(BuildType)
+    )
+
+    # Whether the sweep covers installing, not installing, or both.
+    # Defaults to both. Pinning to [True] halves the case count at
+    # almost no cost: an install-off case builds a strict subset of what
+    # an install-on case builds before it installs.
+    install_choices: list[bool] = field(
+        default_factory=lambda: [False, True]
+    )
 
     test_target: str = "test"
     examples_subdirectory: str = "examples"
@@ -129,6 +163,97 @@ class ProjectConfig:
             return True
 
         return options.get(self.examples_option, False)
+
+
+def _parse_build_types(value: object) -> list[BuildType]:
+    """
+    Resolve the 'build_types' field to enum members.
+
+    Anything unrecognised is an error rather than a silent skip: a typo
+    like "Realease" would otherwise quietly shrink the sweep, and a run
+    that covered less than you thought is indistinguishable from one
+    that covered everything and passed.
+    """
+
+    valid = ", ".join(build_type.value for build_type in BuildType)
+
+    if not isinstance(value, list) or not value:
+        raise ValueError(
+            f"'build_types' must be a non-empty list of CMake build type "
+            f"names. Omit the field entirely to sweep all of: {valid}."
+        )
+
+    by_name = {
+        build_type.value.lower(): build_type
+        for build_type in BuildType
+    }
+
+    resolved: list[BuildType] = []
+
+    for entry in value:
+
+        if not isinstance(entry, str):
+            raise ValueError(
+                f"'build_types': expected a string, got "
+                f"{type(entry).__name__}. Valid values are: {valid}."
+            )
+
+        build_type = by_name.get(entry.strip().lower())
+
+        if build_type is None:
+            raise ValueError(
+                f"'build_types': unknown build type '{entry}'. "
+                f"Valid values are: {valid}."
+            )
+
+        if build_type in resolved:
+            raise ValueError(
+                f"'build_types': duplicate entry '{entry}'."
+            )
+
+        resolved.append(build_type)
+
+    return resolved
+
+
+def _parse_install(value: object) -> list[bool]:
+    """
+    Resolve the 'install' field to the set of values that axis takes.
+
+    Accepts a single boolean to pin the axis, or a two-element list to
+    sweep both. Anything else is an error, for the same reason as
+    'build_types': a config that quietly covers less than intended is
+    worse than one that refuses to load.
+    """
+
+    if isinstance(value, bool):
+        return [value]
+
+    if isinstance(value, list) and value:
+
+        resolved: list[bool] = []
+
+        for entry in value:
+
+            if not isinstance(entry, bool):
+                raise ValueError(
+                    f"'install': expected true or false, got "
+                    f"{type(entry).__name__}."
+                )
+
+            if entry in resolved:
+                raise ValueError(
+                    f"'install': duplicate entry {str(entry).lower()}."
+                )
+
+            resolved.append(entry)
+
+        return resolved
+
+    raise ValueError(
+        "'install' must be true, false, or a non-empty list of booleans. "
+        "Omit the field entirely to sweep both."
+    )
 
 
 def _parse_exit_codes(value: object, where: str) -> tuple[int, ...]:
@@ -295,6 +420,20 @@ def load_project_config(
 
     defaults = ProjectConfig()
 
+    # A missing key means "sweep everything"; a present key is validated
+    # strictly. Absence and a typo must not lead to the same place.
+    build_types = (
+        defaults.build_types
+        if "build_types" not in data
+        else _parse_build_types(data["build_types"])
+    )
+
+    install_choices = (
+        defaults.install_choices
+        if "install" not in data
+        else _parse_install(data["install"])
+    )
+
     return ProjectConfig(
         package_name=data.get("package_name", defaults.package_name),
         link_target=data.get("link_target", defaults.link_target),
@@ -303,6 +442,8 @@ def load_project_config(
         cmake_minimum_version=data.get(
             "cmake_minimum_version", defaults.cmake_minimum_version
         ),
+        build_types=build_types,
+        install_choices=install_choices,
         test_target=data.get("test_target", defaults.test_target),
         examples_subdirectory=data.get(
             "examples_subdirectory", defaults.examples_subdirectory

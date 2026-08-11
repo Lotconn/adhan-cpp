@@ -3,7 +3,12 @@
   "link_target": "adhan::adhan",
   "shared_libs_var": "BUILD_SHARED_LIBS",
   "build_type_var": "CMAKE_BUILD_TYPE",
-  "cmake_minimum_version": "3.20",
+  "cmake_minimum_version": "3.21",
+  "build_types": [
+    "Debug",
+    "Release"
+  ],
+  "install": true,
   "test_target": "test",
   "examples_subdirectory": "examples",
   "tests_option": "build_tests",

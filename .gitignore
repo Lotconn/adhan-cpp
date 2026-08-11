@@ -21,8 +21,9 @@ Testing/
 compile_commands.json
 compile_commands.events.json
 
-# CMAKE build dir
+# CMAKE build dir and build matrix default dir
 build/
+build*/
 
 # Personal/dev tools
 TODO.md

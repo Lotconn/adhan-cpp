@@ -1,22 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
 from itertools import product
 
-from project_config import ProjectConfig
+# LibraryType and BuildType now live in project_config so that project.json
+# can be validated against them. They are re-exported here because runner.py
+# and any external caller still import LibraryType from this module.
+from project_config import BuildType, LibraryType, ProjectConfig
 
-
-class LibraryType(Enum):
-    SHARED = "shared"
-    STATIC = "static"
-
-
-class BuildType(Enum):
-    DEBUG = "Debug"
-    RELEASE = "Release"
-    RELWITHDEBINFO = "RelWithDebInfo"
-    MINSIZEREL = "MinSizeRel"
+__all__ = [
+    "BuildType",
+    "LibraryType",
+    "BuildCase",
+    "generate_build_matrix",
+]
 
 
 @dataclass(slots=True)
@@ -99,8 +96,8 @@ def generate_build_matrix(
         *option_values,
     ) in product(
         LibraryType,
-        BuildType,
-        (False, True),
+        project.build_types,
+        project.install_choices,
         *option_choices,
     ):
 

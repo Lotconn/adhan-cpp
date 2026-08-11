@@ -70,6 +70,7 @@ target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -199,6 +200,12 @@ install(TARGETS ${PROJECT_NAME}
 #
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+# Install any configured files we want to export
+#
+install(
+  DIRECTORY "${CMAKE_BINARY_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 # Install the target file under `<LIBDIR>/cmake/adhan/`
 #
