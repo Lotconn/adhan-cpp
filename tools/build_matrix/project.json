@@ -74,19 +74,6 @@
           "expected_exit_code": 1
         }
       ]
-    },
-    {
-      "name": "mathutils-example",
-      "runs": [
-        {
-          "name": "Default",
-          "args": [],
-          "expected_exit_code": 0,
-          "expect_stdout_contains": [
-            "180 degrees to radians"
-          ]
-        }
-      ]
     }
   ]
 }

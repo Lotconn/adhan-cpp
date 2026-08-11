@@ -137,7 +137,7 @@ CalculationParameters parseParams(const json &data) {
 } // namespace
 
 TEST_CASE("compare calculated times against the shared prayer time fixtures") {
-  const std::string dir = "tests/Shared/Times/UTC";
+  const std::string dir = ADHAN_FIXTURE_DIR;
 
   for (const auto &entry : std::filesystem::directory_iterator(dir)) {
     if (!entry.is_regular_file() || entry.path().extension() != ".json") {

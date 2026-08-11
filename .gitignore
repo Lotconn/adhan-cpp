@@ -13,8 +13,9 @@ obj/
 # Logs
 *.log
 
-# Test executables
+# Test
 run_tests
+Testing/
 
 # compile commands JSON
 compile_commands.json

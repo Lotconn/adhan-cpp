@@ -35,28 +35,39 @@ else()
   )
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  ADHAN_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/generated/Times"
+)
+
+
 # ###################################
 #  TEST DATA COPY + TEST INVOCATIONS
 # ###################################
 
-# Copy the JSON test data to the test build directory
-file(COPY generated DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests)
+# # Copy the JSON test data to the test build directory
+# file(COPY generated DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Invoke using `cmake --build . --target test`
-add_custom_target(test
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME} | tee ${CMAKE_SOURCE_DIR}/test.log
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+add_custom_target(libtest
+  COMMAND ${PROJECT_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS ${PROJECT_NAME}
   USES_TERMINAL
+)
+
+add_test(
+  NAME libtest
+  COMMAND ${PROJECT_NAME}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Invoke using `cmake --build . --target test-verbose`
-add_custom_target(test-verbose
-  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME} -s | tee ${CMAKE_SOURCE_DIR}/test-verbose.log
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  DEPENDS ${PROJECT_NAME}
-  USES_TERMINAL
-)
+# add_custom_target(test-verbose
+#   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME} -s
+#   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#   DEPENDS ${PROJECT_NAME}
+#   USES_TERMINAL
+# )
 
 # #################################################
 #  [run-tests] Subdirectory level CMakeLists [END]
