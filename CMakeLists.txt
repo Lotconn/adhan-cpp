@@ -172,7 +172,7 @@ if(ADHAN_ENABLE_CLANG_TIDY)
     set_target_properties(
       ${PROJECT_NAME}
       PROPERTIES CXX_CLANG_TIDY
-      ${ADHAN_TIDY_CMD}
+      "${ADHAN_TIDY_CMD}"
     )
   else()
     message(WARNING "ADHAN_ENABLE_CLANG_TIDY is ON but clang-tidy was not found")
