@@ -1,0 +1,26 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [v1.0.0]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
+      - name: configure
+        run:  >
+          cmake -S ${{ github.workspace }} -B build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DADHAN_BUILD_TESTS=ON
+      - name: build
+        run: |
+          cmake --build build --parallel
+      - name: test
+        run: >
+          ctest --test-dir build
+          --output-on-failure
+          --no-tests=error
