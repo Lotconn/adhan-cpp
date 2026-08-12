@@ -423,6 +423,9 @@ from the `include/adhan` directory.
 After this command, other projects can use this library.
 These projects do not need the build directory of this repository.
 
+> Note: On Windows, a `Debug` build of your project needs
+> a `Debug` build of this library, and the same applies for `Release`.
+
 ## Importing into another project
 
 You can bring this library into another CMake project any way you want.

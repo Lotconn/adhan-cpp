@@ -1,9 +1,10 @@
 name: Build matrix sweep
 
-# TODO: Make this into a nightly cron after finalizing
 on:
+  schedule:
+    - cron: '0 18 * * *'
   push:
-    branches: [v1.0.0]
+    branches: [master]
 
 
 jobs:
