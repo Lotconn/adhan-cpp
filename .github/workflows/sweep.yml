@@ -1,0 +1,85 @@
+name: Build matrix sweep
+
+on:
+  schedule:
+    - cron: '0 18 * * *'
+  push:
+    branches: [master]
+
+
+jobs:
+  # Run build matrix, then upload the report
+  sweep:
+    strategy:
+      # If one platform build fails, others should continue
+      fail-fast: false
+      matrix:
+        os:   [ubuntu-latest, windows-latest, macos-latest]
+    
+    runs-on:  ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
+        if:   runner.os == 'Windows'
+      - name: Generate build matrix
+        id:   generate-build-matrix
+        run:  >
+          python3 ./tools/build_matrix/build_matrix.py
+          --output report-${{ matrix.os }}
+          --workers 4
+      - name: Upload build matrix report
+        id:   upload-report-artifact
+        if:   ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: report-${{ matrix.os }}
+          path: report-${{ matrix.os }}
+  
+  # Deploy the root-level webpage that links to the platform-specific reports
+  deploy:
+    needs:  sweep
+    if:     ${{ !cancelled() }}
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url:  ${{ steps.deployment.outputs.page_url }}
+    runs-on:  ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: build-reports
+
+      - name: Make report index
+        id:   make-report-index
+        run:  |
+          python3 ./tools/ci-specific/make_index.py build-reports \
+            --project-name adhan \
+            --commit ${{ github.sha }} \
+            --ref ${{ github.ref_name }} \
+            --expect macos-latest \
+            --expect ubuntu-latest \
+            --expect windows-latest \
+            && status=0 || status=$?
+          if [ "$status" -eq 1 ]; then exit 1; fi
+        
+
+        # 
+        # the last run line above means "also accept exit code 2 as a success"
+        # exit code 1 => nothing was written (i.e. no index / input error)
+        # exit code 2 => index written, but cases failed / reports missed
+        # we only want exit code 1 to halt the job and stop uploading
+
+      - name: Upload report index
+        id:   upload-report-index
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build-reports
+
+      - name: Deploy to Github Pages
+        id:   deployment
+        uses:  actions/deploy-pages@v5
+
+

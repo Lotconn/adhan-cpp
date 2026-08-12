@@ -6,19 +6,25 @@
 
 namespace Adhan {
 
-SolarTime::SolarTime(const DateTime &date, const Coordinates &coordinates)
-    : observer(coordinates),
-      solar(
-          Astronomical::julianDay(
-              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0)),
-      prevSolar(
-          Astronomical::julianDay(
-              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0) -
-          1),
-      nextSolar(
-          Astronomical::julianDay(
-              date.getFullYear(), date.getMonth() + 1, date.getDate(), 0) +
-          1) {
+namespace {
+
+/**
+ * year_month_day already counts months from 1, so nothing is shifted here.
+ * The upstream code adds 1 because a JS Date counts them from 0.
+ */
+double julianDayOf(const std::chrono::year_month_day &date) {
+  return Astronomical::julianDay(
+      static_cast<int>(date.year()),
+      static_cast<int>(static_cast<unsigned>(date.month())),
+      static_cast<int>(static_cast<unsigned>(date.day())), 0);
+}
+
+} // namespace
+
+SolarTime::SolarTime(
+    const std::chrono::year_month_day &date, const Coordinates &coordinates)
+    : observer(coordinates), solar(julianDayOf(date)),
+      prevSolar(julianDayOf(date) - 1), nextSolar(julianDayOf(date) + 1) {
   const double m0 = Astronomical::approximateTransit(
       coordinates.longitude, solar.apparentSiderealTime, solar.rightAscension);
   const double solarAltitude = -50.0 / 60.0;

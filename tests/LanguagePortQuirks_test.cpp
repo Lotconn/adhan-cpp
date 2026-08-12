@@ -14,15 +14,18 @@
 #include <adhan/Astronomical.hpp>
 #include <adhan/CalculationParameters.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
 #include <adhan/SolarCoordinates.hpp>
 #include <adhan/TimeComponents.hpp>
 
+#include <chrono>
+#include <cmath>
 #include <limits>
 #include <optional>
 #include <stdexcept>
 
 using namespace Adhan;
+using namespace std::chrono;
 
 TEST_SUITE("LanguagePortQuirks") {
 
@@ -40,12 +43,18 @@ TEST_SUITE("LanguagePortQuirks") {
     CHECK_NOTHROW(Coordinates(0.0, -180.0));
   }
 
-  TEST_CASE("DateTime rejects a year outside the representable range") {
-    // std::chrono::year is only guaranteed valid in [-32767, 32767].
-    CHECK_THROWS_AS(DateTime(32768, 0, 1), std::invalid_argument);
-    CHECK_THROWS_AS(DateTime(-32768, 0, 1), std::invalid_argument);
-    CHECK_NOTHROW(DateTime(32767, 0, 1));
-    CHECK_NOTHROW(DateTime(-32767, 0, 1));
+  /**
+   * Documents a contract rather than guarding our own code. year_month_day
+   * is the standard library's, and it is not going to change under us. It
+   * earns a place here because it records where the port stopped behaving
+   * like the original: JS rolls February 30th over to March 2nd without a
+   * word, and we hand the caller a date that says it is not a real day.
+   */
+  TEST_CASE("year_month_day reports impossible calendar dates") {
+    CHECK_FALSE((2026y / February / 30d).ok());
+    CHECK_FALSE((2025y / February / 29d).ok());
+    CHECK((2024y / February / 29d).ok());
+    CHECK((2026y / January / 31d).ok());
   }
 
   TEST_CASE("CalculationParameters rejects out-of-range fajrAngle") {
@@ -123,6 +132,60 @@ TEST_SUITE("LanguagePortQuirks") {
     CHECK(rolled == doctest::Approx(base + 2));
   }
 
+  TEST_CASE("dateByAddingSeconds refuses a non-finite shift") {
+    /**
+     * The polar paths can hand this function a NaN, because the night
+     * length is NaN whenever sunset or the next sunrise is missing.
+     * Casting that to an integer would be undefined behaviour, so it comes
+     * back absent instead. JS just builds an Invalid Date.
+     */
+    const double qNaN = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+    const Instant epoch{milliseconds{0}};
+
+    CHECK_FALSE(dateByAddingSeconds(epoch, qNaN).has_value());
+    CHECK_FALSE(dateByAddingSeconds(epoch, inf).has_value());
+    CHECK_FALSE(dateByAddingSeconds(epoch, -inf).has_value());
+    CHECK(dateByAddingSeconds(epoch, 60).has_value());
+  }
+
+  TEST_CASE("dateByAddingSeconds refuses a shift that leaves the range") {
+    /**
+     * 8.64e15 milliseconds either side of 1970 is as far as a JS Date
+     * goes, and it is also the last point a double still counts whole
+     * milliseconds exactly. Past it the answer would be quietly wrong.
+     */
+    const Instant epoch{milliseconds{0}};
+
+    CHECK(dateByAddingSeconds(epoch, 8.64e12).has_value());
+    CHECK_FALSE(dateByAddingSeconds(epoch, 8.64e12 + 1).has_value());
+    CHECK_FALSE(dateByAddingSeconds(epoch, -(8.64e12 + 1)).has_value());
+  }
+
+  TEST_CASE("an absent time spreads instead of being treated as the earliest") {
+    /**
+     * This is the trap the port has to keep clear of. Comparing an Invalid
+     * Date in JS is false whichever way round you ask. std::optional says
+     * nullopt is smaller than any value, so leaning on its operators would
+     * pick the wrong branch. The library never compares optionals directly,
+     * and neither should anything built on it.
+     */
+    const OptInstant absent = std::nullopt;
+    const OptInstant present = Instant{milliseconds{0}};
+
+    /**
+     * Not our behaviour to fix, this is what std::optional promises. It is
+     * written down so the next person reads it before reaching for `>` on a
+     * pair of these.
+     */
+    CHECK(absent < present);
+    CHECK_FALSE(dateByAddingSeconds(absent, 60).has_value());
+    CHECK_FALSE(roundedMinute(absent).has_value());
+    CHECK(std::isnan(secondsBetween(absent, present)));
+    CHECK(std::isnan(secondsBetween(present, absent)));
+    CHECK(secondsBetween(present, present) == 0.0);
+  }
+
   TEST_CASE("TimeComponents treats non-finite input as invalid") {
     CHECK_FALSE(
         TimeComponents(std::numeric_limits<double>::quiet_NaN()).isValid());
@@ -131,6 +194,27 @@ TEST_SUITE("LanguagePortQuirks") {
     CHECK_FALSE(
         TimeComponents(-std::numeric_limits<double>::infinity()).isValid());
     CHECK(TimeComponents(13.5).isValid()); // 13:30:00
+  }
+
+  TEST_CASE("TimeComponents accepts hours outside a single day") {
+    /**
+     * hourAngle can return something below 0 or above 24. Those are not
+     * mistakes, they mean the time falls on the day either side, and the
+     * duration arithmetic in utcDate carries them over on its own.
+     */
+    const year_month_day date{2015y / July / 12d};
+
+    const auto rolledBack = TimeComponents(-1.5).utcDate(date);
+    REQUIRE(rolledBack.has_value());
+    CHECK(*rolledBack == sys_days{2015y / July / 11d} + 22h + 30min);
+
+    const auto rolledForward = TimeComponents(25.25).utcDate(date);
+    REQUIRE(rolledForward.has_value());
+    CHECK(*rolledForward == sys_days{2015y / July / 13d} + 1h + 15min);
+
+    CHECK_FALSE(TimeComponents(std::numeric_limits<double>::quiet_NaN())
+                    .utcDate(date)
+                    .has_value());
   }
 
 } // TEST_SUITE("LanguagePortQuirks")

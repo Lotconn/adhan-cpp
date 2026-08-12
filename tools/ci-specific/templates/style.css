@@ -1,0 +1,27 @@
+/*
+ * Base styles only. Layout and colour come from Tailwind, exactly as in
+ * the per-platform report, so the landing page and the reports it links
+ * to look like one site rather than two.
+ */
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}

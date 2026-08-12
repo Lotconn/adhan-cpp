@@ -1,41 +1,74 @@
 #include <adhan/DateUtils.hpp>
+
 #include <array>
-#include <chrono>
+#include <cmath>
+#include <limits>
 
 namespace Adhan {
 
-DateTime dateByAddingDays(const DateTime &date, int days) {
-  if (!date.isValid()) {
-    return DateTime::invalid();
-  }
-  /**
-   * DateTime's constructor normalizes overflow the same way JS's `new
-   * Date(...)` does (e.g. day 32 rolls into next month), so we can just add
-   * `days` directly to getDate() without any manual carry logic.
-   */
-  return {date.getFullYear(), date.getMonth(),   date.getDate() + days,
-          date.getHours(),    date.getMinutes(), date.getSeconds()};
+namespace {
+
+/**
+ * Largest epoch value, in milliseconds either side of 1970, that a
+ * JavaScript Date will accept. Anything past this is an Invalid Date
+ * upstream, so it is nullopt here. The limit also keeps the value inside
+ * the range a double represents exactly, which is why it was picked.
+ */
+constexpr double MAX_TIME_VALUE = 8.64e15;
+
+} // namespace
+
+Instant now() {
+  return std::chrono::floor<std::chrono::milliseconds>(
+      std::chrono::system_clock::now());
 }
 
-DateTime dateByAddingMinutes(const DateTime &date, double minutes) {
+std::chrono::year_month_day
+dateByAddingDays(const std::chrono::year_month_day &date, int days) {
+  /**
+   * Going through sys_days does the rollover for us, so there is no
+   * carry logic to write by hand.
+   */
+  return std::chrono::year_month_day{
+      std::chrono::sys_days{date} + std::chrono::days{days}};
+}
+
+OptInstant dateByAddingMinutes(const OptInstant &date, double minutes) {
   return dateByAddingSeconds(date, minutes * 60);
 }
 
-DateTime dateByAddingSeconds(const DateTime &date, double seconds) {
-  if (!date.isValid()) {
-    return DateTime::invalid();
+OptInstant dateByAddingSeconds(const OptInstant &date, double seconds) {
+  if (!date) {
+    return std::nullopt;
   }
-  using namespace std::chrono;
-  auto delta = duration_cast<system_clock::duration>(duration<double>(seconds));
-  return DateTime(date.raw() + delta);
+
+  const double shift = seconds * 1000.0;
+  const double total =
+      static_cast<double>(date->time_since_epoch().count()) + shift;
+
+  /**
+   * Casting a NaN or an out of range double to an integer is undefined
+   * behaviour in C++, so both cases are caught before the cast. JS just
+   * hands back an Invalid Date instead.
+   */
+  if (!std::isfinite(total) || std::abs(total) > MAX_TIME_VALUE) {
+    return std::nullopt;
+  }
+
+  return Instant{
+      std::chrono::milliseconds{static_cast<long long>(total)}};
 }
 
-DateTime roundedMinute(const DateTime &date, Rounding rounding) {
-  if (!date.isValid()) {
-    return DateTime::invalid();
+OptInstant roundedMinute(const OptInstant &date, Rounding rounding) {
+  if (!date) {
+    return std::nullopt;
   }
 
-  int seconds = date.getUTCSeconds();
+  const auto dayStart = std::chrono::floor<std::chrono::days>(*date);
+  const auto secondOfDay =
+      std::chrono::floor<std::chrono::seconds>(*date - dayStart);
+  const int seconds =
+      static_cast<int>((secondOfDay % std::chrono::minutes{1}).count());
 
   int offset = (seconds >= 30) ? (60 - seconds) : (-seconds);
   if (rounding == Rounding::Up) {
@@ -57,22 +90,32 @@ bool isLeapYear(int year) {
   return true;
 }
 
-int dayOfYear(const DateTime &date) {
-  int year = date.getFullYear();
-  int feb = isLeapYear(year) ? 29 : 28;
-  std::array<int, 12> months = {31, feb, 31, 30, 31, 30,
-                                31, 31,  30, 31, 30, 31};
+int dayOfYear(const std::chrono::year_month_day &date) {
+  const int year = static_cast<int>(date.year());
+  const int feb = isLeapYear(year) ? 29 : 28;
+  const std::array<int, 12> months = {31, feb, 31, 30, 31, 30,
+                                      31, 31,  30, 31, 30, 31};
+
+  const auto monthIndex = static_cast<unsigned>(date.month()) - 1;
 
   int result = 0;
-  for (int i = 0; i < date.getMonth(); i++) {
+  for (unsigned i = 0; i < monthIndex; i++) {
     result += months.at(i);
   }
-  result += date.getDate();
+  result += static_cast<int>(static_cast<unsigned>(date.day()));
 
   return result;
 }
 
-bool isValidDate(const DateTime &date) {
-  return date.isValid();
+bool isValidDate(const OptInstant &date) {
+  return date.has_value();
 }
+
+double secondsBetween(const OptInstant &later, const OptInstant &earlier) {
+  if (!later || !earlier) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  return (*later - *earlier) / std::chrono::duration<double>{1};
+}
+
 } // namespace Adhan

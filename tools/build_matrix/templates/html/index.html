@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en" x-data="buildMatrix()" x-init="initialize()">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Build Matrix Report</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script src="app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+
+  <body
+    class="bg-slate-100"
+    :class="{ 'select-none cursor-col-resize': resizing }"
+  >
+    <div class="max-w-screen-2xl mx-auto p-6 flex flex-col h-screen">
+      <div class="mb-4 shrink-0">
+        <h1 class="text-4xl font-bold">Build Matrix Report</h1>
+
+        <div class="mt-2 text-gray-600" x-show="summary">
+          <span class="mr-6">
+            Total:
+            <span class="font-semibold" x-text="summary?.total"> </span>
+          </span>
+
+          <span class="mr-6 text-green-700">
+            Passed:
+            <span class="font-semibold" x-text="summary?.passed"> </span>
+          </span>
+
+          <span class="text-red-700">
+            Failed:
+            <span class="font-semibold" x-text="summary?.failed"> </span>
+          </span>
+
+          <span class="ml-6 text-amber-700" x-show="errorCount() > 0">
+            Errors:
+            <span class="font-semibold" x-text="errorCount()"> </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="mb-4 shrink-0">
+        <input
+          x-model="search"
+          type="text"
+          placeholder="Search cases..."
+          class="w-full rounded border px-4 py-2"
+        />
+      </div>
+
+      <!-- Cases (left) and log / details (right), side by side with a
+           drag-to-resize divider between them. -->
+      <div
+        class="flex flex-1 min-h-0 gap-0 rounded bg-white shadow overflow-hidden"
+      >
+        <div
+          class="overflow-y-auto border-r shrink-0"
+          :style="`width: ${leftWidth}px`"
+        >
+          <template x-for="entry in filteredCases()" :key="entry.name">
+            <button
+              @click="select(entry)"
+              class="w-full text-left px-3 py-2 border-b border-l-4 text-sm transition-colors"
+              :class="caseClasses(entry)"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono break-all" x-text="entry.name"></span>
+
+                <span
+                  class="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                  :class="badgeClasses(entry)"
+                  x-text="statusLabel(entry)"
+                ></span>
+              </div>
+            </button>
+          </template>
+
+          <div
+            class="p-4 text-sm text-gray-500"
+            x-show="filteredCases().length === 0"
+          >
+            No matching cases.
+          </div>
+        </div>
+
+        <div
+          class="w-1.5 shrink-0 cursor-col-resize bg-slate-200 hover:bg-blue-400 transition-colors"
+          :class="{ 'bg-blue-400': resizing }"
+          @mousedown="startResize"
+        ></div>
+
+        <div class="flex-1 min-w-0 overflow-y-auto p-6">
+          <template x-if="selected">
+            <div class="space-y-6">
+              <div>
+                <div class="flex items-center justify-between gap-4">
+                  <div
+                    class="text-xl font-semibold font-mono break-all"
+                    x-text="selected.name"
+                  ></div>
+
+                  <span
+                    class="shrink-0 rounded px-3 py-2 font-semibold"
+                    :class="badgeClasses(selected)"
+                    x-text="statusLabel(selected)"
+                  >
+                  </span>
+                </div>
+
+                <div
+                  class="mt-3 rounded border border-amber-300 bg-amber-50 text-amber-800 px-3 py-2 text-sm"
+                  x-show="selected.error"
+                >
+                  <span class="font-semibold"
+                    >This case did not finish normally:</span
+                  >
+                  <span x-text="selected.error"></span>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                  <template x-for="step in buildSteps()" :key="step.name">
+                    <div class="rounded border p-3">
+                      <div class="font-semibold" x-text="step.label"></div>
+
+                      <div class="mt-2" x-text="step.status"></div>
+
+                      <div
+                        class="text-sm text-gray-500 mt-1"
+                        x-text="step.time"
+                      ></div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <div
+                x-show="selected.artifacts.length > 0 || selected.examples.length > 0"
+                class="grid md:grid-cols-2 gap-6"
+              >
+                <div
+                  class="rounded border p-4"
+                  x-show="selected.artifacts.length > 0"
+                >
+                  <div class="font-semibold mb-3">Artifacts</div>
+
+                  <table class="table-auto w-full text-sm">
+                    <thead>
+                      <tr class="border-b">
+                        <th class="text-left py-1">Path</th>
+                        <th class="text-right py-1">Size</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <template
+                        x-for="artifact in selected.artifacts"
+                        :key="artifact.path"
+                      >
+                        <tr>
+                          <td
+                            class="py-1 font-mono"
+                            x-text="artifact.path"
+                          ></td>
+                          <td
+                            class="py-1 text-right"
+                            x-text="artifact.size"
+                          ></td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div
+                  class="rounded border p-4"
+                  x-show="selected.examples.length > 0"
+                >
+                  <div class="font-semibold mb-3">Examples</div>
+
+                  <table class="table-auto w-full text-sm">
+                    <thead>
+                      <tr class="border-b">
+                        <th class="text-left py-1">Example</th>
+                        <th class="text-center py-1">Status</th>
+                        <th class="text-right py-1">Time</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <template
+                        x-for="example in selected.examples"
+                        :key="example.name"
+                      >
+                        <tr>
+                          <td class="py-1" x-text="example.name"></td>
+
+                          <td class="text-center py-1">
+                            <span
+                              class="rounded px-2 py-0.5"
+                              :class="example.success
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700'"
+                              x-text="example.success
+                                                ? 'PASS'
+                                                : 'FAIL'"
+                            >
+                            </span>
+                          </td>
+
+                          <td
+                            class="text-right py-1"
+                            x-text="formatSeconds(example.elapsed)"
+                          ></td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="font-semibold">Build Log</div>
+
+                  <button
+                    class="rounded border px-3 py-1 text-sm hover:bg-slate-50"
+                    @click="copyLog()"
+                  >
+                    Copy
+                  </button>
+                </div>
+
+                <pre
+                  class="bg-slate-900 text-slate-100 rounded p-4 overflow-auto whitespace-pre-wrap text-xs"
+                  x-text="log"
+                ></pre>
+              </div>
+            </div>
+          </template>
+
+          <div class="text-gray-500 p-6" x-show="!selected">
+            Select a case on the left to see its details.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

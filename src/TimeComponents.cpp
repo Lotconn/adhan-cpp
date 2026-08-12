@@ -1,4 +1,5 @@
 #include <adhan/TimeComponents.hpp>
+
 #include <chrono>
 #include <cmath>
 
@@ -25,16 +26,18 @@ TimeComponents::TimeComponents(double num) : valid_(std::isfinite(num)) {
       static_cast<int>(std::floor((num - (hours + minutes / 60.0)) * 60 * 60));
 }
 
-DateTime TimeComponents::utcDate(int year, int month, int date) const {
+OptInstant TimeComponents::utcDate(const std::chrono::year_month_day &date) const {
   if (!valid_) {
-    return DateTime::invalid();
+    return std::nullopt;
   }
 
-  using namespace std::chrono;
-  auto tp =
-      std::chrono::sys_days{std::chrono::year{year} / (month + 1) / date} +
-      std::chrono::hours{hours} + std::chrono::minutes{minutes} +
-      std::chrono::seconds{seconds};
-  return DateTime(tp);
+  /**
+   * Adding the components as durations, rather than stuffing them into a
+   * calendar type, is what lets an out of range hour count roll into the
+   * next or previous day on its own.
+   */
+  return Instant{
+      std::chrono::sys_days{date} + std::chrono::hours{hours} +
+      std::chrono::minutes{minutes} + std::chrono::seconds{seconds}};
 }
 } // namespace Adhan

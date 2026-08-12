@@ -2,7 +2,7 @@
 #define ASTRONOMICAL_HPP
 
 #include "Coordinates.hpp"
-#include "DateTime.hpp"
+#include "DateUtils.hpp"
 #include "Shafaq.hpp"
 
 namespace Adhan {
@@ -91,11 +91,33 @@ double julianDay(int year, int month, int day, double hours = 0);
 /* Julian century from the epoch. */
 double julianCentury(double julianDay);
 
-DateTime seasonAdjustedMorningTwilight(double latitude, int dayOfYear, int year,
-                                     const DateTime &sunrise);
+/**
+ * @brief Fajr for the MoonsightingCommittee method, backed off from sunrise
+ *        by an amount that shifts with the season.
+ *
+ * @param latitude Observer latitude in degrees.
+ * @param dayOfYear Position of the date within its year.
+ * @param year Gregorian year, needed to spot a leap year.
+ * @param sunrise Sunrise for the same day, may be absent.
+ * @return The adjusted time, or nullopt if sunrise was absent.
+ */
+OptInstant seasonAdjustedMorningTwilight(double latitude, int dayOfYear,
+                                         int year, const OptInstant &sunrise);
 
-DateTime seasonAdjustedEveningTwilight(double latitude, int dayOfYear, int year,
-                                     const DateTime &sunset, Shafaq shafaq);
+/**
+ * @brief Isha for the MoonsightingCommittee method, pushed out from sunset
+ *        by an amount that shifts with the season and the chosen shafaq.
+ *
+ * @param latitude Observer latitude in degrees.
+ * @param dayOfYear Position of the date within its year.
+ * @param year Gregorian year, needed to spot a leap year.
+ * @param sunset Sunset for the same day, may be absent.
+ * @param shafaq Which twilight the method should track.
+ * @return The adjusted time, or nullopt if sunset was absent.
+ */
+OptInstant seasonAdjustedEveningTwilight(double latitude, int dayOfYear,
+                                         int year, const OptInstant &sunset,
+                                         Shafaq shafaq);
 
 int daysSinceSolstice(int dayOfYear, int year, double latitude);
 

@@ -18,8 +18,8 @@ bool isValidSolarTime(const SolarTime &solarTime) {
 }
 
 /**
- * Mirrors JS's Math.sign:
- * -1, 0, or 1 (unlike std::copysign, which treats 0 as positive).
+ * Same as Math.sign in JS. Returns -1, 0 or 1, unlike std::copysign,
+ * which calls 0 positive.
  */
 double jsSign(double x) {
   if (x > 0) {
@@ -32,14 +32,15 @@ double jsSign(double x) {
 }
 
 std::optional<PolarCircleResolver> aqrabYaumResolver(
-    const Coordinates &coordinates, const DateTime &date, int daysAdded = 1,
+    const Coordinates &coordinates, const std::chrono::year_month_day &date,
+    int daysAdded = 1,
     int direction = 1) {
   if (daysAdded > static_cast<int>(std::ceil(365 / 2.0))) {
     return std::nullopt;
   }
 
-  const DateTime testDate = dateByAddingDays(date, direction * daysAdded);
-  const DateTime tomorrow = dateByAddingDays(testDate, 1);
+  const auto testDate = dateByAddingDays(date, direction * daysAdded);
+  const auto tomorrow = dateByAddingDays(testDate, 1);
   SolarTime solarTime(testDate, coordinates);
   SolarTime tomorrowSolarTime(tomorrow, coordinates);
 
@@ -58,10 +59,11 @@ std::optional<PolarCircleResolver> aqrabYaumResolver(
 }
 
 std::optional<PolarCircleResolver> aqrabBaladResolver(
-    const Coordinates &coordinates, const DateTime &date, double latitude) {
+    const Coordinates &coordinates, const std::chrono::year_month_day &date,
+    double latitude) {
   const Coordinates adjusted(latitude, coordinates.longitude);
   SolarTime solarTime(date, adjusted);
-  const DateTime tomorrow = dateByAddingDays(date, 1);
+  const auto tomorrow = dateByAddingDays(date, 1);
   SolarTime tomorrowSolarTime(tomorrow, adjusted);
 
   if (!isValidSolarTime(solarTime) || !isValidSolarTime(tomorrowSolarTime)) {
@@ -85,7 +87,7 @@ std::optional<PolarCircleResolver> aqrabBaladResolver(
 } // namespace
 
 PolarCircleResolver polarCircleResolvedValues(
-    PolarCircleResolution resolver, const DateTime &date,
+    PolarCircleResolution resolver, const std::chrono::year_month_day &date,
     const Coordinates &coordinates) {
 
 #ifdef ADHAN_TESTING
@@ -93,7 +95,7 @@ PolarCircleResolver polarCircleResolvedValues(
 #endif
 
   auto makeDefault = [&]() {
-    const DateTime tomorrow = dateByAddingDays(date, 1);
+    const auto tomorrow = dateByAddingDays(date, 1);
     return PolarCircleResolver{
         .date = date,
         .tomorrow = tomorrow,

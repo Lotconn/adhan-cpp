@@ -1,0 +1,14 @@
+# Generated reports
+build-matrix-report/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini

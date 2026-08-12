@@ -37,23 +37,23 @@ constexpr std::string_view to_string(Shafaq sfq) {
   switch (sfq) {
 
   case Shafaq::General:
-    return "general";
+    return "General";
   case Shafaq::Ahmer:
-    return "ahmer";
+    return "Ahmer";
   case Shafaq::Abyad:
-    return "abyad";
+    return "Abyad";
   }
   throw std::logic_error("Invalid shafaq");
 }
 
 constexpr Shafaq from_string(std::string_view s) {
-  if (s == "general") {
+  if (s == "General") {
     return Shafaq::General;
   }
-  if (s == "ahmer") {
+  if (s == "Ahmer") {
     return Shafaq::Ahmer;
   }
-  if (s == "abyad") {
+  if (s == "Abyad") {
     return Shafaq::Abyad;
   }
 

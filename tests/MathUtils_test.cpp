@@ -1,6 +1,5 @@
 #include "doctest.h"
 
-#include <adhan/DateTime.hpp>
 #include <adhan/DateUtils.hpp>
 #include <adhan/MathUtils.hpp>
 #include <adhan/Rounding.hpp>
@@ -10,6 +9,25 @@
 #include <numbers>
 
 using namespace Adhan;
+using namespace std::chrono;
+
+namespace {
+
+/** Minutes past the hour of a UTC instant. */
+int utcMinute(const OptInstant &t) {
+  const auto day = floor<days>(t.value());
+  return static_cast<int>(
+      hh_mm_ss{floor<seconds>(t.value() - day)}.minutes().count());
+}
+
+/** Seconds past the minute of a UTC instant. */
+int utcSecond(const OptInstant &t) {
+  const auto day = floor<days>(t.value());
+  return static_cast<int>(
+      hh_mm_ss{floor<seconds>(t.value() - day)}.seconds().count());
+}
+
+} // namespace
 
 TEST_CASE("converting between degrees and radians") {
   CHECK(radiansToDegrees(std::numbers::pi) == 180);
@@ -81,35 +99,46 @@ TEST_CASE(
 }
 
 TEST_CASE("rounding a date to the closest minute") {
-  DateTime date1 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29));
-  CHECK(date1.getMinutes() == 2);
-  CHECK(date1.getSeconds() == 0);
+  const Instant at29{sys_days{2015y / January / 1d} + 10h + 2min + 29s};
+  const Instant at31{sys_days{2015y / January / 1d} + 10h + 2min + 31s};
 
-  DateTime date2 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 31));
-  CHECK(date2.getMinutes() == 3);
-  CHECK(date2.getSeconds() == 0);
+  const OptInstant date1 = roundedMinute(at29);
+  CHECK(utcMinute(date1) == 2);
+  CHECK(utcSecond(date1) == 0);
 
-  DateTime date3 = roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::Up);
-  CHECK(date3.getMinutes() == 3);
-  CHECK(date3.getSeconds() == 0);
+  const OptInstant date2 = roundedMinute(at31);
+  CHECK(utcMinute(date2) == 3);
+  CHECK(utcSecond(date2) == 0);
 
-  DateTime date4 =
-      roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::None);
-  CHECK(date4.getMinutes() == 2);
-  CHECK(date4.getSeconds() == 29);
+  const OptInstant date3 = roundedMinute(at29, Rounding::Up);
+  CHECK(utcMinute(date3) == 3);
+  CHECK(utcSecond(date3) == 0);
 
-  DateTime date5 =
-      roundedMinute(DateTime(2015, 0, 1, 10, 2, 29), Rounding::Nearest);
-  CHECK(date5.getMinutes() == 2);
-  CHECK(date5.getSeconds() == 0);
+  const OptInstant date4 = roundedMinute(at29, Rounding::None);
+  CHECK(utcMinute(date4) == 2);
+  CHECK(utcSecond(date4) == 29);
+
+  const OptInstant date5 = roundedMinute(at29, Rounding::Nearest);
+  CHECK(utcMinute(date5) == 2);
+  CHECK(utcSecond(date5) == 0);
+
+  CHECK_FALSE(roundedMinute(std::nullopt).has_value());
 }
 
 TEST_CASE("adding days to date") {
-  DateTime date1(2015, 10, 1, 0, 0, 0);
-  CHECK(date1.getDate() == 1);
+  const year_month_day date1{2015y / November / 1d};
+  CHECK(date1.day() == 1d);
 
-  DateTime date2 = dateByAddingDays(date1, 1);
-  CHECK(date2.getDate() == 2);
+  const year_month_day date2 = dateByAddingDays(date1, 1);
+  CHECK(date2.day() == 2d);
+
+  /* Rolling past the end of a month carries into the next one. */
+  const year_month_day date3 = dateByAddingDays(date1, 30);
+  CHECK(date3 == 2015y / December / 1d);
+
+  /* And a negative count walks backwards across a year boundary. */
+  const year_month_day date4 = dateByAddingDays(2016y / January / 1d, -1);
+  CHECK(date4 == 2015y / December / 31d);
 }
 
 TEST_CASE("determine if a year is a leap year") {

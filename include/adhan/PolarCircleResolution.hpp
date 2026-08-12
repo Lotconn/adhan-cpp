@@ -2,8 +2,9 @@
 #define POLARCIRCLERESOLUTION_HPP
 
 #include "Coordinates.hpp"
-#include "DateTime.hpp"
 #include "SolarTime.hpp"
+
+#include <chrono>
 #include <cstdint>
 
 namespace Adhan {
@@ -29,15 +30,25 @@ enum class PolarCircleResolution : std::int8_t {
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 struct PolarCircleResolver {
-  DateTime date;
-  DateTime tomorrow;
+  std::chrono::year_month_day date;
+  std::chrono::year_month_day tomorrow;
   Coordinates coordinates;
   SolarTime solarTime;
   SolarTime tomorrowSolarTime;
 };
 
+/**
+ * @brief Finds a nearby day or latitude where sunrise and sunset both exist.
+ *
+ * @param resolver Which strategy to use. Unresolved returns the original
+ *        day untouched.
+ * @param date The day being calculated.
+ * @param coordinates Observer position.
+ * @return Solar figures for the substitute day or place. Falls back to the
+ *         original values when no substitute is found.
+ */
 PolarCircleResolver polarCircleResolvedValues(
-    PolarCircleResolution resolver, const DateTime &date,
+    PolarCircleResolution resolver, const std::chrono::year_month_day &date,
     const Coordinates &coordinates);
 
 } // namespace Adhan

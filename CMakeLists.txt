@@ -2,9 +2,9 @@
 #  [adhan] Root level CMakeLists [START]
 # #######################################
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
-project("adhan" VERSION 0.1.3)
+project("adhan" VERSION 1.0.0)
 
 # #######################
 #  CMake Module Includes
@@ -70,6 +70,7 @@ target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -77,7 +78,7 @@ target_include_directories(
 #  BUILD TYPE DEFAULT
 # ####################
 
-set(default_build_type "Debug")
+set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
@@ -123,31 +124,33 @@ else()
   )
 endif()
 
-# ############
-#  CLANG_TIDY
-# ############
-
-find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
-if(CLANG_TIDY_EXE)
-  set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
-endif()
-
 # ###############################
 #  OPTIONS + COMPILE DEFINITIONS
 # ###############################
 
-# Fallback to use `<ctime>` functions instead of `<chrono>`'s `tzdb` for compatibility
-# Needed for unconventional systems that do not have `tzdb` as part of the stdlib,
-# e.g. for Termux on AndroidOS
-# 
+# Enable Clang Tidy if project is top level
 option(
-  ADHAN_USE_CTIME_FALLBACK
-  "Use localtime_r/mktime fallback instead of <chrono> tzdb"
-  OFF
+  ADHAN_ENABLE_CLANG_TIDY
+  "Run clang-tidy during build"
+  ${PROJECT_IS_TOP_LEVEL}
 )
-# 
-if(${ADHAN_USE_CTIME_FALLBACK})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ADHAN_USE_CTIME_FALLBACK)
+#
+if(ADHAN_ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY_EXE NAMES clang-tidy clang-tidy-18)
+  if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy was found")
+    set(ADHAN_TIDY_CMD "${CLANG_TIDY_EXE}")
+    if(MSVC)
+      list(APPEND ADHAN_TIDY_CMD "--extra-arg=/EHsc")
+    endif()
+    set_target_properties(
+      ${PROJECT_NAME}
+      PROPERTIES CXX_CLANG_TIDY
+      "${ADHAN_TIDY_CMD}"
+    )
+  else()
+    message(WARNING "ADHAN_ENABLE_CLANG_TIDY is ON but clang-tidy was not found")
+  endif()
 endif()
 
 # After we are done making the library, build the tests and run them
@@ -158,7 +161,8 @@ option(
   ON
 )
 #
-if(${ADHAN_BUILD_TESTS})
+if(ADHAN_BUILD_TESTS)
+  enable_testing()
   add_subdirectory(tests)
 endif()
 
@@ -170,7 +174,7 @@ option(
   OFF
 )
 #
-if(${ADHAN_BUILD_EXAMPLES})
+if(ADHAN_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 
@@ -182,6 +186,9 @@ endif()
 #
 install(TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}Targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 # The Headers (all *.hpp files should be contained in an `adhan` directory)
@@ -193,6 +200,12 @@ install(TARGETS ${PROJECT_NAME}
 #
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+# Install any configured files we want to export
+#
+install(
+  DIRECTORY "${CMAKE_BINARY_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 # Install the target file under `<LIBDIR>/cmake/adhan/`
 #

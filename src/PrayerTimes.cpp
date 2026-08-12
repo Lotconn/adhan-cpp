@@ -7,50 +7,55 @@
 #include <adhan/TimeComponents.hpp>
 
 #include <cmath>
-#include <limits>
 
 namespace Adhan {
 
 namespace {
+
 /**
- * Mirrors JS's `Number(someDate)` on an Invalid Date evaluating to NaN,
- * without tripping DateTime::getTime()'s assert on an invalid input.
+ * Less-than that reports false when either side is missing.
+ *
+ * Upstream gets this for free, since any comparison against an Invalid
+ * Date is false. Comparing two std::optionals directly would instead
+ * treat an empty one as the smaller value, which would quietly pick the
+ * wrong branch below. Every ordering test in this file goes through here.
  */
-double millisOrNaN(const DateTime &d) {
-  if (!d.isValid()) {
-    return std::numeric_limits<double>::quiet_NaN();
-  }
-  return static_cast<double>(d.getTime());
+bool before(const OptInstant &lhs, const OptInstant &rhs) {
+  return lhs && rhs && *lhs < *rhs;
 }
+
+/**
+ * Whether an instant has reached a prayer time. A missing prayer time
+ * counts as not reached.
+ */
+bool atOrAfter(Instant when, const OptInstant &time) {
+  return time && when >= *time;
+}
+
 } // namespace
 
 PrayerTimes::PrayerTimes(
-    const Coordinates &coordinates, const DateTime &date,
+    const Coordinates &coordinates, const std::chrono::year_month_day &date,
     const CalculationParameters &calculationParameters)
     : coordinates(coordinates), date(date),
       calculationParameters(calculationParameters) {
   SolarTime solarTime(date, coordinates);
 
-  DateTime fajrTime = DateTime::invalid();
-  DateTime sunriseTime = DateTime::invalid();
-  DateTime dhuhrTime = DateTime::invalid();
-  DateTime asrTime = DateTime::invalid();
-  DateTime sunsetTime = DateTime::invalid();
-  DateTime maghribTime = DateTime::invalid();
-  DateTime ishaTime = DateTime::invalid();
+  OptInstant fajrTime;
+  OptInstant sunriseTime;
+  OptInstant dhuhrTime;
+  OptInstant asrTime;
+  OptInstant sunsetTime;
+  OptInstant maghribTime;
+  OptInstant ishaTime;
 
   double nightFraction = 0;
 
-  dhuhrTime = TimeComponents(solarTime.transit)
-                  .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
-  sunriseTime =
-      TimeComponents(solarTime.sunrise)
-          .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
-  sunsetTime =
-      TimeComponents(solarTime.sunset)
-          .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
+  dhuhrTime = TimeComponents(solarTime.transit).utcDate(date);
+  sunriseTime = TimeComponents(solarTime.sunrise).utcDate(date);
+  sunsetTime = TimeComponents(solarTime.sunset).utcDate(date);
 
-  DateTime tomorrow = dateByAddingDays(date, 1);
+  const auto tomorrow = dateByAddingDays(date, 1);
   SolarTime tomorrowSolarTime(tomorrow, coordinates);
 
   PolarCircleResolution polarCircleResolver =
@@ -63,31 +68,22 @@ PrayerTimes::PrayerTimes(
     solarTime = resolved.solarTime;
     tomorrowSolarTime = resolved.tomorrowSolarTime;
 
-    dhuhrTime =
-        TimeComponents(solarTime.transit)
-            .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
-    sunriseTime =
-        TimeComponents(solarTime.sunrise)
-            .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
-    sunsetTime =
-        TimeComponents(solarTime.sunset)
-            .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
+    dhuhrTime = TimeComponents(solarTime.transit).utcDate(date);
+    sunriseTime = TimeComponents(solarTime.sunrise).utcDate(date);
+    sunsetTime = TimeComponents(solarTime.sunset).utcDate(date);
   }
 
   asrTime = TimeComponents(solarTime.afternoon(
                                shadow_length(calculationParameters.madhab)))
-                .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
+                .utcDate(date);
 
-  DateTime tomorrowSunrise =
-      TimeComponents(tomorrowSolarTime.sunrise)
-          .utcDate(
-              tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
-  double night =
-      (millisOrNaN(tomorrowSunrise) - millisOrNaN(sunsetTime)) / 1000;
+  const OptInstant tomorrowSunrise =
+      TimeComponents(tomorrowSolarTime.sunrise).utcDate(tomorrow);
+  const double night = secondsBetween(tomorrowSunrise, sunsetTime);
 
   fajrTime = TimeComponents(solarTime.hourAngle(
                                 -1 * calculationParameters.fajrAngle, false))
-                 .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
+                 .utcDate(date);
 
   // special case for moonsighting committee above latitude 55
   if (calculationParameters.method == "MoonsightingCommittee" &&
@@ -96,18 +92,18 @@ PrayerTimes::PrayerTimes(
     fajrTime = dateByAddingSeconds(sunriseTime, -nightFraction);
   }
 
-  DateTime safeFajr = [&]() {
+  const OptInstant safeFajr = [&]() {
     if (calculationParameters.method == "MoonsightingCommittee") {
       return Astronomical::seasonAdjustedMorningTwilight(
-          coordinates.latitude, dayOfYear(date), date.getFullYear(),
-          sunriseTime);
+          coordinates.latitude, dayOfYear(date),
+          static_cast<int>(date.year()), sunriseTime);
     }
     double portion = calculationParameters.nightPortions().fajr;
     nightFraction = portion * night;
     return dateByAddingSeconds(sunriseTime, -nightFraction);
   }();
 
-  if (!fajrTime.isValid() || safeFajr > fajrTime) {
+  if (!fajrTime || before(fajrTime, safeFajr)) {
     fajrTime = safeFajr;
   }
 
@@ -118,7 +114,7 @@ PrayerTimes::PrayerTimes(
     ishaTime =
         TimeComponents(
             solarTime.hourAngle(-1 * calculationParameters.ishaAngle, true))
-            .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
+            .utcDate(date);
 
     /* special case for moonsighting committee above latitude 55 */
     if (calculationParameters.method == "MoonsightingCommittee" &&
@@ -127,29 +123,31 @@ PrayerTimes::PrayerTimes(
       ishaTime = dateByAddingSeconds(sunsetTime, nightFraction);
     }
 
-    DateTime safeIsha = [&]() {
+    const OptInstant safeIsha = [&]() {
       if (calculationParameters.method == "MoonsightingCommittee") {
         return Astronomical::seasonAdjustedEveningTwilight(
-            coordinates.latitude, dayOfYear(date), date.getFullYear(),
-            sunsetTime, calculationParameters.shafaq);
+            coordinates.latitude, dayOfYear(date),
+            static_cast<int>(date.year()), sunsetTime,
+            calculationParameters.shafaq);
       }
       double portion = calculationParameters.nightPortions().isha;
       nightFraction = portion * night;
       return dateByAddingSeconds(sunsetTime, nightFraction);
     }();
 
-    if (!ishaTime.isValid() || safeIsha < ishaTime) {
+    if (!ishaTime || before(safeIsha, ishaTime)) {
       ishaTime = safeIsha;
     }
   }
 
   maghribTime = sunsetTime;
   if (calculationParameters.maghribAngle != 0) {
-    DateTime angleBasedMaghrib =
+    const OptInstant angleBasedMaghrib =
         TimeComponents(
             solarTime.hourAngle(-1 * calculationParameters.maghribAngle, true))
-            .utcDate(date.getFullYear(), date.getMonth(), date.getDate());
-    if (sunsetTime < angleBasedMaghrib && ishaTime > angleBasedMaghrib) {
+            .utcDate(date);
+    if (before(sunsetTime, angleBasedMaghrib) &&
+        before(angleBasedMaghrib, ishaTime)) {
       maghribTime = angleBasedMaghrib;
     }
   }
@@ -188,7 +186,7 @@ PrayerTimes::PrayerTimes(
       calculationParameters.rounding);
 }
 
-std::optional<DateTime> PrayerTimes::timeForPrayer(Prayer prayer) const {
+OptInstant PrayerTimes::timeForPrayer(Prayer prayer) const {
   if (prayer == Prayer::Fajr) {
     return fajr;
   }
@@ -210,45 +208,45 @@ std::optional<DateTime> PrayerTimes::timeForPrayer(Prayer prayer) const {
   return std::nullopt;
 }
 
-Prayer PrayerTimes::currentPrayer(const DateTime &_date) const {
-  if (_date >= isha) {
+Prayer PrayerTimes::currentPrayer(Instant when) const {
+  if (atOrAfter(when, isha)) {
     return Prayer::Isha;
   }
-  if (_date >= maghrib) {
+  if (atOrAfter(when, maghrib)) {
     return Prayer::Maghrib;
   }
-  if (_date >= asr) {
+  if (atOrAfter(when, asr)) {
     return Prayer::Asr;
   }
-  if (_date >= dhuhr) {
+  if (atOrAfter(when, dhuhr)) {
     return Prayer::Dhuhr;
   }
-  if (_date >= sunrise) {
+  if (atOrAfter(when, sunrise)) {
     return Prayer::Sunrise;
   }
-  if (_date >= fajr) {
+  if (atOrAfter(when, fajr)) {
     return Prayer::Fajr;
   }
   return Prayer::None;
 }
 
-Prayer PrayerTimes::nextPrayer(const DateTime &_date) const {
-  if (_date >= isha) {
+Prayer PrayerTimes::nextPrayer(Instant when) const {
+  if (atOrAfter(when, isha)) {
     return Prayer::None;
   }
-  if (_date >= maghrib) {
+  if (atOrAfter(when, maghrib)) {
     return Prayer::Isha;
   }
-  if (_date >= asr) {
+  if (atOrAfter(when, asr)) {
     return Prayer::Maghrib;
   }
-  if (_date >= dhuhr) {
+  if (atOrAfter(when, dhuhr)) {
     return Prayer::Asr;
   }
-  if (_date >= sunrise) {
+  if (atOrAfter(when, sunrise)) {
     return Prayer::Dhuhr;
   }
-  if (_date >= fajr) {
+  if (atOrAfter(when, fajr)) {
     return Prayer::Sunrise;
   }
   return Prayer::Fajr;

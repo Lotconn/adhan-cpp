@@ -75,9 +75,12 @@
   <body>
     <h1>Adhan JS — CLI Parity Test Harness</h1>
     <p class="hint">
-      Same inputs as the C++ CLI (<code>main.cpp</code>). Compare the output
-      below against a run of the CLI with matching arguments. All times shown in
-      UTC, matching the CLI's own output convention.
+      Same inputs as the C++ CLI (<code>main.cpp</code>), and the same output
+      format, so the two can be diffed directly. The Local column defaults to
+      this browser's own time zone, matching what the CLI does when you leave
+      off <code>--utc-offset</code>. It only shifts the display; the calculation
+      is unaffected. For a clean diff, pin both sides to the same explicit
+      offset.
     </p>
 
     <form id="form">
@@ -104,6 +107,15 @@
       <label
         >Date (YYYY-MM-DD)
         <input type="date" id="date" />
+      </label>
+      <label
+        >UTC offset for the Local column (auto = this browser's zone)
+        <input
+          type="text"
+          id="utcOffset"
+          value="auto"
+          placeholder="auto, +HH:MM, -HH:MM or Z"
+        />
       </label>
       <label
         >Method
@@ -193,10 +205,12 @@
         return String(n).padStart(2, "0");
       }
 
-      // Rounds to 4 decimal places of precision.
-      // Uses numeric rounding rather than toFixed(4) so trailing zeros are
-      // dropped the same way the C++ side's plain double output drops them
-      // (e.g. 90.368047 -> 90.368, not 90.3680).
+      /**
+       * Rounds to 4 decimal places of precision.
+       * Uses numeric rounding rather than toFixed(4) so trailing zeros are
+       * dropped the same way the C++ side's plain double output drops them
+       * (e.g. 90.368047 -> 90.368, not 90.3680).
+       */
       function round4(n) {
         return Math.round(n * 10000) / 10000;
       }
@@ -210,9 +224,10 @@
         return s.charAt(0).toUpperCase() + s.slice(1);
       }
 
-      // HighLatitudeRule's underlying values are lowercase (e.g.
-      // 'middleofthenight'), matching the original TS source. Map them to the
-      // CamelCase form used everywhere else (matching the C++ CLI's enum names).
+      /**
+       * HighLatitudeRule's underlying values are lowercase.
+       * Map them to CamelCase to match the CLI.
+       */
       const HIGH_LATITUDE_RULE_DISPLAY_NAMES = {
         middleofthenight: "MiddleOfTheNight",
         seventhofthenight: "SeventhOfTheNight",
@@ -223,8 +238,10 @@
         return HIGH_LATITUDE_RULE_DISPLAY_NAMES[value] || value;
       }
 
-      // Pre-fill the date field with today's date (system local time), matching
-      // the CLI's own default of DateTime::now() when no date argument is given.
+      /**
+       * Pre-fill the date field with today's date (system local time), matching
+       * the CLI's own default of DateTime::now() when no date argument is given.
+       */
       (function setDefaultDateToToday() {
         const today = new Date();
         const iso =
@@ -236,12 +253,36 @@
         document.getElementById("date").value = iso;
       })();
 
-      // Formats a Date in UTC, matching the C++ CLI's own formatUtc() output
-      // exactly, so the two can be diffed by eye.
+      /**
+       * Mirrors examples/adhan-cli/src/main.cpp: same column widths, same
+       * labels, same timestamp shape, no trailing whitespace. Change one
+       * side and you have to change the other or the diff stops working.
+       */
+      const LABEL_WIDTH = 24;
+      const UTC_WIDTH = 26;
+      const INVALID_MARKER = "(invalid)";
+
+      function padRight(text, width) {
+        return text.length >= width
+          ? text
+          : text + " ".repeat(width - text.length);
+      }
+
+      function rtrim(text) {
+        return text.replace(/ +$/, "");
+      }
+
+      function number(value, places) {
+        return value.toFixed(places);
+      }
+
+      function isValidDate(date) {
+        return date instanceof Date && !isNaN(date.valueOf());
+      }
+
+      // "YYYY-MM-DD HH:MM:SS UTC"
       function formatUtc(date) {
-        if (!(date instanceof Date) || isNaN(date.valueOf())) {
-          return "(invalid — likely a polar location/date needing resolution)";
-        }
+        if (!isValidDate(date)) return INVALID_MARKER;
         return (
           date.getUTCFullYear() +
           "-" +
@@ -256,6 +297,96 @@
           pad2(date.getUTCSeconds()) +
           " UTC"
         );
+      }
+
+      function formatOffset(minutes) {
+        const sign = minutes < 0 ? "-" : "+";
+        const absolute = Math.abs(minutes);
+        return (
+          sign + pad2(Math.floor(absolute / 60)) + ":" + pad2(absolute % 60)
+        );
+      }
+
+      /**
+       * "YYYY-MM-DD HH:MM:SS +HH:MM" — the instant shifted by a fixed
+       * offset. Arithmetic, not a zone lookup, so the browser's own zone
+       * stays out of it and the C++ side can match exactly.
+       */
+      function formatLocal(date, offsetMinutes) {
+        if (!isValidDate(date)) return INVALID_MARKER;
+        const shifted = new Date(date.getTime() + offsetMinutes * 60000);
+        return (
+          shifted.getUTCFullYear() +
+          "-" +
+          pad2(shifted.getUTCMonth() + 1) +
+          "-" +
+          pad2(shifted.getUTCDate()) +
+          " " +
+          pad2(shifted.getUTCHours()) +
+          ":" +
+          pad2(shifted.getUTCMinutes()) +
+          ":" +
+          pad2(shifted.getUTCSeconds()) +
+          " " +
+          formatOffset(offsetMinutes)
+        );
+      }
+
+      function row(label, value) {
+        return rtrim(padRight(label, LABEL_WIDTH) + value);
+      }
+
+      function timeRow(label, date, offsetMinutes) {
+        return rtrim(
+          padRight(label, LABEL_WIDTH) +
+            padRight(formatUtc(date), UTC_WIDTH) +
+            formatLocal(date, offsetMinutes),
+        );
+      }
+
+      /**
+       * Parses "+HH:MM", "-HH:MM", "+HH", "HH:MM" or "Z" into minutes east.
+       * "auto" and the empty string mean "ask the browser", the same thing
+       * the CLI does when you leave off --utc-offset.
+       */
+      function parseUtcOffset(text, date) {
+        const trimmed = text.trim();
+        if (trimmed === "" || trimmed.toLowerCase() === "auto") {
+          return -date.getTimezoneOffset();
+        }
+        if (trimmed === "Z" || trimmed === "z") return 0;
+        const m = /^([+-]?)(\d{1,2})(?::(\d{2}))?$/.exec(trimmed);
+        if (!m) return null;
+        const hours = parseInt(m[2], 10);
+        const minutes = m[3] ? parseInt(m[3], 10) : 0;
+        if (hours > 18 || minutes > 59) return null;
+        return (m[1] === "-" ? -1 : 1) * (hours * 60 + minutes);
+      }
+
+      /**
+       * CamelCase for display, to match the C++ CLI
+       */
+      function displayName(value) {
+        const map = {
+          shafi: "Shafi",
+          hanafi: "Hanafi",
+          general: "General",
+          ahmer: "Ahmer",
+          abyad: "Abyad",
+          nearest: "Nearest",
+          up: "Up",
+          none: "None",
+          middleofthenight: "MiddleOfTheNight",
+          seventhofthenight: "SeventhOfTheNight",
+          twilightangle: "TwilightAngle",
+          fajr: "Fajr",
+          sunrise: "Sunrise",
+          dhuhr: "Dhuhr",
+          asr: "Asr",
+          maghrib: "Maghrib",
+          isha: "Isha",
+        };
+        return map[String(value).toLowerCase()] ?? String(value);
       }
 
       function resolveMethod(name) {
@@ -299,28 +430,63 @@
         params.rounding = Rounding[rounding];
         params.polarCircleResolution = polarCircleResolution;
 
+        /**
+         * Resolved against the requested date, not against today, so a
+         * zone that changes offset over the year lands on the right one.
+         * getTimezoneOffset() reports the offset in effect at that
+         * instant, which is what the CLI's own default works out too.
+         */
+        const offset = parseUtcOffset(
+          document.getElementById("utcOffset").value,
+          date,
+        );
+        if (offset === null) {
+          document.getElementById("output").textContent =
+            "Invalid UTC offset (expected auto, +HH:MM, -HH:MM or Z)";
+          return;
+        }
+
         const lines = [];
 
         lines.push("=== Inputs ===");
         lines.push(
-          `Coordinates:      (${coordinates.latitude}, ${coordinates.longitude})`,
+          row(
+            "Coordinates",
+            number(coordinates.latitude, 6) +
+              ", " +
+              number(coordinates.longitude, 6),
+          ),
         );
-        lines.push(`Date:             ${formatUtc(date)}`);
-        lines.push(`Method:           ${method}`);
-        lines.push(`Madhab:           ${capitalize(params.madhab)}`);
-        lines.push(`Rounding:         ${params.rounding}`);
-        lines.push(`Shafaq:           ${params.shafaq}`);
+        lines.push(
+          row(
+            "Date",
+            date.getFullYear() +
+              "-" +
+              pad2(date.getMonth() + 1) +
+              "-" +
+              pad2(date.getDate()),
+          ),
+        );
+        lines.push(row("UTC offset", formatOffset(offset)));
+        lines.push(row("Method", method));
+        lines.push(row("Madhab", displayName(params.madhab)));
+        lines.push(
+          row("High latitude rule", displayName(params.highLatitudeRule)),
+        );
+        lines.push(row("Shafaq", displayName(params.shafaq)));
+        lines.push(row("Rounding", displayName(params.rounding)));
         lines.push("");
 
         const prayerTimes = new PrayerTimes(coordinates, date, params);
 
-        lines.push("=== Prayer Times (UTC) ===");
-        lines.push(`Fajr:             ${formatUtc(prayerTimes.fajr)}`);
-        lines.push(`Sunrise:          ${formatUtc(prayerTimes.sunrise)}`);
-        lines.push(`Dhuhr:            ${formatUtc(prayerTimes.dhuhr)}`);
-        lines.push(`Asr:              ${formatUtc(prayerTimes.asr)}`);
-        lines.push(`Maghrib:          ${formatUtc(prayerTimes.maghrib)}`);
-        lines.push(`Isha:             ${formatUtc(prayerTimes.isha)}`);
+        lines.push("=== Prayer Times ===");
+        lines.push(row("", padRight("UTC", UTC_WIDTH) + "Local"));
+        lines.push(timeRow("Fajr", prayerTimes.fajr, offset));
+        lines.push(timeRow("Sunrise", prayerTimes.sunrise, offset));
+        lines.push(timeRow("Dhuhr", prayerTimes.dhuhr, offset));
+        lines.push(timeRow("Asr", prayerTimes.asr, offset));
+        lines.push(timeRow("Maghrib", prayerTimes.maghrib, offset));
+        lines.push(timeRow("Isha", prayerTimes.isha, offset));
         lines.push("");
 
         lines.push("=== Convenience Utilities ===");
@@ -333,35 +499,41 @@
           Prayer.Isha,
         ]) {
           const t = prayerTimes.timeForPrayer(p);
-          lines.push(`timeForPrayer(${p}):  ${t ? formatUtc(t) : "(none)"}`);
-        }
-        const current = prayerTimes.currentPrayer();
-        const next = prayerTimes.nextPrayer();
-        lines.push(`currentPrayer():  ${current}`);
-        lines.push(`nextPrayer():     ${next}`);
-        const nextTime = prayerTimes.timeForPrayer(next);
-        if (nextTime) {
-          lines.push(`Time of next:     ${formatUtc(nextTime)}`);
+          const label = `timeForPrayer(${displayName(p)})`;
+          lines.push(t ? timeRow(label, t, offset) : row(label, "(none)"));
         }
         lines.push("");
 
         const sunnahTimes = new SunnahTimes(prayerTimes);
-        lines.push("=== Sunnah Times (UTC) ===");
+        lines.push("=== Sunnah Times ===");
+        lines.push(row("", padRight("UTC", UTC_WIDTH) + "Local"));
         lines.push(
-          `Middle of the night:    ${formatUtc(sunnahTimes.middleOfTheNight)}`,
+          timeRow("Middle of the night", sunnahTimes.middleOfTheNight, offset),
         );
         lines.push(
-          `Last third of the night: ${formatUtc(sunnahTimes.lastThirdOfTheNight)}`,
+          timeRow(
+            "Last third of night",
+            sunnahTimes.lastThirdOfTheNight,
+            offset,
+          ),
         );
         lines.push("");
 
         lines.push("=== Qibla ===");
-        lines.push(`Direction from North: ${Qibla(coordinates)} degrees`);
+        lines.push(
+          row(
+            "Direction from North",
+            number(Qibla(coordinates), 6) + " degrees",
+          ),
+        );
         lines.push("");
 
         lines.push("=== Recommendations ===");
         lines.push(
-          `Recommended high latitude rule for this location: ${displayHighLatitudeRule(HighLatitudeRule.recommended(coordinates))}`,
+          row(
+            "Recommended rule",
+            displayName(HighLatitudeRule.recommended(coordinates)),
+          ),
         );
 
         currentOutput = lines.join("\n");

@@ -1,0 +1,31 @@
+name: Adhan CI
+
+on:
+  push:
+    branches: [v1.0.0]
+
+jobs:
+  build-library:
+    strategy:
+      fail-fast:  false
+      matrix:
+        os:   [ubuntu-latest, windows-latest, macos-latest]
+    runs-on:  ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ilammy/msvc-dev-cmd@v1.13.0
+        if:   runner.os == 'Windows'
+      - name: configure
+        run:  >
+          cmake -S ${{ github.workspace }} -B build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DADHAN_BUILD_TESTS=ON
+      - name: build
+        run: |
+          cmake --build build --parallel
+      - name: test
+        run: >
+          ctest --test-dir build
+          --output-on-failure
+          --no-tests=error

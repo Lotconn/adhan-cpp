@@ -2,7 +2,7 @@
 
 #include <adhan/CalculationMethod.hpp>
 #include <adhan/Coordinates.hpp>
-#include <adhan/DateTime.hpp>
+#include <adhan/DateUtils.hpp>
 #include <adhan/HighLatitudeRule.hpp>
 #include <adhan/Madhab.hpp>
 #include <adhan/PrayerTimes.hpp>
@@ -14,13 +14,6 @@
 #include <fstream>
 #include <string>
 
-/**
- * TODO: If similar JSON reading is needed elsewhere, we can consider
- * refactoring the `ParsedDate` and similar JSON date parsing logic
- * into a different module for easier re-use. But for now, this is fine,
- * as this JSON date parsing logic does not bleed into another test.
- */
-
 using json = nlohmann::json;
 
 using namespace Adhan;
@@ -28,95 +21,54 @@ using namespace Adhan;
 namespace {
 
 /**
- * date/time string parsing helpers, mirroring moment's
- * format strings used in the TS test
+ * Reads a "YYYY-MM-DD HH:MM" UTC stamp out of a generated fixture.
+ *
+ * The fixtures under Shared/Times record local wall clock readings and name
+ * an IANA zone. The ones under Shared/Times/UTC are those same readings
+ * already converted, which is why nothing here has to resolve a zone. See
+ * tools/fixtures/generate_utc_fixtures.py.
  */
+Instant parseUtc(const std::string &stamp) {
+  const int year = std::stoi(stamp.substr(0, 4));
+  const int month = std::stoi(stamp.substr(5, 2));
+  const int day = std::stoi(stamp.substr(8, 2));
+  const int hour = std::stoi(stamp.substr(11, 2));
+  const int minute = std::stoi(stamp.substr(14, 2));
 
-struct ParsedDate {
-  int year;
-  int month; // 1-indexed, as it appears in a "YYYY-MM-DD" string
-  int day;
-};
+  const std::chrono::year_month_day date{
+      std::chrono::year{year}, std::chrono::month{static_cast<unsigned>(month)},
+      std::chrono::day{static_cast<unsigned>(day)}};
 
-/* Parses a fixed-width "YYYY-MM-DD" string */
-ParsedDate parseDateStr(const std::string &s) {
-  return {
-      .year = std::stoi(s.substr(0, 4)),
-      .month = std::stoi(s.substr(5, 2)),
-      .day = std::stoi(s.substr(8, 2)),
-  };
-}
-
-struct ParsedTime {
-  int hour24;
-  int minute;
-};
-
-/* Parses a "h:mm A" string (non-padded hour, e.g. "6:33 AM" or "12:57 PM") */
-ParsedTime parseTimeOfDay(const std::string &s) {
-  size_t colonPos = s.find(':');
-  size_t spacePos = s.find(' ', colonPos);
-
-  int hour12 = std::stoi(s.substr(0, colonPos));
-  int minute = std::stoi(s.substr(colonPos + 1, spacePos - colonPos - 1));
-  std::string ampm = s.substr(spacePos + 1);
-
-  int hour24 = hour12 % 12;
-  if (ampm == "PM") {
-    hour24 += 12;
-  }
-  return {.hour24 = hour24, .minute = minute};
+  return std::chrono::sys_days{date} + std::chrono::hours{hour} +
+         std::chrono::minutes{minute};
 }
 
 /**
- * Mirrors `moment(dateStr, 'YYYY-MM-DD').toDate()` — parsed as local
- * (system) time at midnight, with no explicit time zone. This matches
- * DateTime's own local-time constructor semantics directly.
+ * The day being calculated is a bare calendar date, which is what the
+ * library takes. No zone is involved on this side.
  */
-DateTime parseLocalDate(const std::string &dateStr) {
-  ParsedDate d = parseDateStr(dateStr);
-  return DateTime(d.year, d.month - 1, d.day);
+std::chrono::year_month_day parseFixtureDate(const std::string &dateStr) {
+  return std::chrono::year_month_day{
+      std::chrono::year{std::stoi(dateStr.substr(0, 4))},
+      std::chrono::month{
+          static_cast<unsigned>(std::stoi(dateStr.substr(5, 2)))},
+      std::chrono::day{static_cast<unsigned>(std::stoi(dateStr.substr(8, 2)))}};
 }
-
-#ifndef ADHAN_USE_CTIME_FALLBACK
-
-/**
- * Mirrors `moment.tz(dateStr + ' ' + timeStr, 'YYYY-MM-DD h:mm A',
- * tzName).toDate()` — parses the date/time as wall-clock time in the given
- * named zone.
- */
-DateTime parseInZone(
-    const std::string &tzName, const std::string &dateStr,
-    const std::string &timeStr) {
-  using namespace std::chrono;
-
-  ParsedDate d = parseDateStr(dateStr);
-  ParsedTime t = parseTimeOfDay(timeStr);
-
-  auto localTime =
-      local_days{std::chrono::year{d.year} /
-                 std::chrono::month{static_cast<unsigned>(d.month)} /
-                 std::chrono::day{static_cast<unsigned>(d.day)}} +
-      std::chrono::hours{t.hour24} + std::chrono::minutes{t.minute};
-
-  const time_zone *zone = locate_zone(tzName);
-  zoned_time<system_clock::duration> zt{zone, localTime, choose::earliest};
-  return DateTime(zt.get_sys_time());
-}
-
-#endif
 
 /**
  * Mirrors the custom `toBeWithinRange(comparisonDate, variance)` Jest matcher:
  * passes if actual is within `variance` minutes of expected, inclusive.
+ * An absent time never passes.
  */
 bool withinRange(
-    const DateTime &actual, const DateTime &expected, double varianceMinutes) {
-  long long actualMs = actual.getTime();
-  long long expectedMs = expected.getTime();
-  auto varianceMs = static_cast<long long>(varianceMinutes * 60 * 1000);
-  return actualMs >= (expectedMs - varianceMs) &&
-         actualMs <= (expectedMs + varianceMs);
+    const OptInstant &actual, const Instant &expected, double varianceMinutes) {
+  if (!actual) {
+    return false;
+  }
+
+  const auto variance = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::duration<double>{varianceMinutes * 60});
+  return *actual >= (expected - variance) && *actual <= (expected + variance);
 }
 
 /* Mirrors parseParams() from the TS test file */
@@ -184,10 +136,8 @@ CalculationParameters parseParams(const json &data) {
 
 } // namespace
 
-#ifndef ADHAN_USE_CTIME_FALLBACK
-
 TEST_CASE("compare calculated times against the shared prayer time fixtures") {
-  const std::string dir = "tests/Shared/Times";
+  const std::string dir = ADHAN_FIXTURE_DIR;
 
   for (const auto &entry : std::filesystem::directory_iterator(dir)) {
     if (!entry.is_regular_file() || entry.path().extension() != ".json") {
@@ -208,25 +158,17 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
           paramsJson["longitude"].get<double>());
       CalculationParameters params = parseParams(paramsJson);
       double variance = data.value("variance", 0.0);
-      std::string timezone = paramsJson["timezone"].get<std::string>();
 
       for (const auto &timeEntry : data["times"]) {
         std::string dateStr = timeEntry["date"].get<std::string>();
-        DateTime date = parseLocalDate(dateStr);
-        PrayerTimes p(coordinates, date, params);
+        PrayerTimes p(coordinates, parseFixtureDate(dateStr), params);
 
-        DateTime testFajr = parseInZone(
-            timezone, dateStr, timeEntry["fajr"].get<std::string>());
-        DateTime testSunrise = parseInZone(
-            timezone, dateStr, timeEntry["sunrise"].get<std::string>());
-        DateTime testDhuhr = parseInZone(
-            timezone, dateStr, timeEntry["dhuhr"].get<std::string>());
-        DateTime testAsr =
-            parseInZone(timezone, dateStr, timeEntry["asr"].get<std::string>());
-        DateTime testMaghrib = parseInZone(
-            timezone, dateStr, timeEntry["maghrib"].get<std::string>());
-        DateTime testIsha = parseInZone(
-            timezone, dateStr, timeEntry["isha"].get<std::string>());
+        Instant testFajr = parseUtc(timeEntry["fajr"].get<std::string>());
+        Instant testSunrise = parseUtc(timeEntry["sunrise"].get<std::string>());
+        Instant testDhuhr = parseUtc(timeEntry["dhuhr"].get<std::string>());
+        Instant testAsr = parseUtc(timeEntry["asr"].get<std::string>());
+        Instant testMaghrib = parseUtc(timeEntry["maghrib"].get<std::string>());
+        Instant testIsha = parseUtc(timeEntry["isha"].get<std::string>());
 
         CHECK(withinRange(p.fajr, testFajr, variance));
         CHECK(withinRange(p.sunrise, testSunrise, variance));
@@ -238,5 +180,3 @@ TEST_CASE("compare calculated times against the shared prayer time fixtures") {
     }
   }
 }
-
-#endif
