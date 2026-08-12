@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import threading
 import time
@@ -51,11 +52,13 @@ class Logger:
         cwd: Path,
         logfile: Path,
         *,
+        env_changed: bool = False,
         case_name: str | None = None,
         step_name: str | None = None,
         expected_returncodes: tuple[int, ...] = (0,),
         expect_stdout_contains: Sequence[str] = (),
         timeout: float | None = None,
+        env: dict[str, str] | None = None,
     ) -> CommandResult:
         """
         Run `command` and record the result.
@@ -99,6 +102,7 @@ class Logger:
                 encoding="utf-8",
                 errors="replace",
                 timeout=timeout,
+                env=env,
             )
 
             stdout = process.stdout
@@ -166,6 +170,12 @@ class Logger:
             fp.write(
                 f"Working directory : {cwd}\n"
             )
+
+            if env_changed:
+                path_prefix = env["PATH"].split(os.pathsep)[0]
+                fp.write(
+                    f"PATH prefix       : {path_prefix}\n"
+                )
 
             fp.write(
                 f"Elapsed           : {elapsed:.3f} s\n"

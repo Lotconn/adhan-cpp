@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import time
 from pathlib import Path
@@ -378,6 +379,14 @@ def run_case(
                 preferred_name="consumer",
             )
 
+            env = os.environ.copy()
+            env_changed = False
+
+            if os.name == "nt":
+                bin_dir = install_dir / "bin"
+                env["PATH"] = os.pathsep.join([str(bin_dir), env["PATH"]])
+                env_changed = True
+
             consumer_run = logger.run(
                 _run_command(
                     consumer,
@@ -385,6 +394,8 @@ def run_case(
                 cwd=consumer.parent,
                 logfile=logfile,
                 case_name=case.name,
+                env=env,
+                env_changed=env_changed,
             )
 
             result.consumer_run = consumer_run

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+r"""
 Build the landing page that ties several build-matrix reports together.
 
 The sweep runs once per platform, and each run uploads its own
