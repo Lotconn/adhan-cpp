@@ -1,5 +1,9 @@
 # Adhan C++
 
+[![CI](https://github.com/lotconn/adhan-cpp/actions/workflows/ci.yml/badge.svg?branch=v1.0.0)](https://github.com/lotconn/adhan-cpp/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/lotconn/adhan-cpp)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/lotconn/adhan-cpp)](https://github.com/lotconn/adhan-cpp/releases)
+
 Adhan C++ is a C++20 port of [adhan-js](https://github.com/batoulapps/adhan-js) 💜
 for calculating Islamic prayer times.
 
