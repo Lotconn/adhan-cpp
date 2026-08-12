@@ -3,9 +3,8 @@ name: Build matrix sweep
 on:
   schedule:
     - cron: '0 18 * * *'
-  push:
-    branches: [master]
-
+  # Enable manual triggering 
+  workflow_dispatch:
 
 jobs:
   # Run build matrix, then upload the report

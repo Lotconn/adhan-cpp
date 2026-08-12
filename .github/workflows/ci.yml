@@ -2,7 +2,7 @@ name: Adhan CI
 
 on:
   push:
-    branches: [v1.0.0]
+    branches: [master]
 
 jobs:
   build-library:

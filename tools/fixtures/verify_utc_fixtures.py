@@ -24,7 +24,7 @@ from zoneinfo import ZoneInfo
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_DIR = REPO_ROOT / "tests" / "Shared" / "Times"
-OUTPUT_DIR = SOURCE_DIR / "UTC"
+OUTPUT_DIR = REPO_ROOT / "tests" / "generated" / "Times"
 
 TIME_KEYS = ("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")
 

@@ -40,7 +40,7 @@ This Adhan C++ library is made to be minimal, cross-platform, and dependency-fre
 
 ## Requirements
 
-- You must use CMake 3.20 or a later version.
+- You must use CMake 3.21 or a later version.
 
 - You must use a C++20 compiler with `<chrono>` calendar support.
   `Suggested:` GCC 13 or later, or Clang 17 or later.
@@ -90,10 +90,14 @@ See [available options](#cmake-options).
   Build the examples in the examples directory. This includes
   adhan-cli.
 
+- `-DADHAN_ENABLE_CLANG_TIDY=OFF` (default: `ON` when this project is the
+  top level one, `OFF` when it is pulled in by another project)
+  Run clang-tidy on the library sources during the build. If the option is
+  on and clang-tidy is not found, the build carries on and prints a warning.
+
 - `-DCMAKE_BUILD_TYPE=Release`
   Use this option for an optimized build. This option uses the `-O2`
-  flag and defines `NDEBUG`. If you do not set `CMAKE_BUILD_TYPE`,
-  CMake does not add optimization flags.
+  flag and defines `NDEBUG`.
 
 - `-DCMAKE_BUILD_TYPE=Debug`
   Use this option for a build with no optimization. This option keeps
@@ -332,8 +336,8 @@ double direction = Adhan::qibla(coordinates);
 
 The tests use [doctest](https://github.com/doctest/doctest).
 The tests are in the `tests` directory.
-The build process compiles the test executable from the source files of the library.
-The test executable does not link to `libadhan`.
+The test executable links to `libadhan` rather than compiling the library
+sources a second time.
 Some fixture tests also use [nlohmann/json](https://github.com/nlohmann/json).
 This library is in the `tests/vendor` directory.
 
@@ -341,18 +345,20 @@ The build process builds the tests by default. The `ADHAN_BUILD_TESTS` option
 has the default value `ON`. After you build the project, run one of these commands.
 
 ```bash
-cmake --build build --target test --parallel
+ctest --test-dir build --output-on-failure
+# which does the same thing as:
+cmake --build build --target test
 ```
 
-Use this command to also print the assertions that pass.
+To run the test executable itself and see its own output, use the `libtest`
+target. Add `-s` to also print the assertions that pass. Example:
 
 ```bash
-cmake --build build --target test-verbose --parallel
+cmake --build build --target libtest --parallel
+./build/tests/run-tests -s
 ```
 
-Both commands write output to a log file in the project root directory.
-The files are `test.log` and `test-verbose.log`. Both commands also print
-output to the terminal. Go to the `tests` directory for the test files.
+Go to the `tests` directory for the test files.
 Most files correspond to one file in the adhan-js test suite. Use these files
 to check the behavior of this port against the original implementation.
 
