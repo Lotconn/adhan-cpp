@@ -2,8 +2,9 @@ name: Build matrix sweep
 
 on:
   schedule:
-    - cron: '0 18 * * *'
-  # Enable manual triggering 
+    - cron: '30 0 * * *'
+      timezone: 'Asia/Dhaka'
+
   workflow_dispatch:
 
 jobs:
