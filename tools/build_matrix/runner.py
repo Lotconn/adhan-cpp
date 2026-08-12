@@ -341,6 +341,7 @@ def run_case(
                 project.package_name,
                 project.link_target,
                 project.cmake_minimum_version,
+                case.build_type.value,
             )
 
             consumer_configure = logger.run(

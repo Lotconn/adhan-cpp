@@ -11,6 +11,7 @@ def create_consumer_project(
     package_name: str,
     link_target: str,
     cmake_minimum_version: str,
+    build_type: str,
 ) -> None:
     """
     Create a temporary CMake project used to verify that the installed
@@ -44,6 +45,7 @@ def create_consumer_project(
         "@PACKAGE_NAME@": package_name,
         "@LINK_TARGET@": link_target,
         "@INSTALL_PREFIX@": prefix,
+        "@CASE_BUILD_TYPE@": build_type,
     }
 
     for token, value in replacements.items():

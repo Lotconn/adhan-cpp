@@ -9,6 +9,7 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_BUILD_TYPE @CASE_BUILD_TYPE@ CACHE STRING "" FORCE)
 
 find_package(
   @PACKAGE_NAME@
@@ -16,6 +17,8 @@ find_package(
   PATHS "@INSTALL_PREFIX@"
   NO_DEFAULT_PATH
 )
+
+message(STATUS "Detecting build type: ${CMAKE_BUILD_TYPE}")
 
 add_executable(
   consumer
