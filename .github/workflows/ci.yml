@@ -5,7 +5,7 @@ on:
     branches: [v1.0.0]
 
 jobs:
-  build:
+  build-library:
     strategy:
       fail-fast:  false
       matrix:
@@ -29,4 +29,3 @@ jobs:
           ctest --test-dir build
           --output-on-failure
           --no-tests=error
-          -VV

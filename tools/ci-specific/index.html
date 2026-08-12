@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@PROJECT_NAME@ &middot; Build Matrix</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-100">
+    <div class="max-w-screen-2xl mx-auto p-6">
+      <div class="mb-4">
+        <h1 class="text-4xl font-bold">@PROJECT_NAME@ build matrix</h1>
+
+        <div class="mt-2 text-gray-600">
+          <span class="mr-6">
+            Total:
+            <span class="font-semibold">@TOTAL_CASES@</span>
+          </span>
+
+          <span class="mr-6 text-green-700">
+            Passed:
+            <span class="font-semibold">@TOTAL_PASSED@</span>
+          </span>
+
+          <span class="mr-6 text-red-700">
+            Failed:
+            <span class="font-semibold">@TOTAL_FAILED@</span>
+          </span>
+
+          <span class="text-amber-700">
+            Unavailable:
+            <span class="font-semibold">@TOTAL_UNAVAILABLE@</span>
+          </span>
+        </div>
+
+        <div class="mt-2 text-sm text-gray-500">
+          Commit
+          <span class="font-mono">@COMMIT@</span>
+          on
+          <span class="font-mono">@REF@</span>
+          &middot; published @GENERATED@
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        @PLATFORM_CARDS@
+      </div>
+
+      <div class="mt-6 text-sm text-gray-500">
+        Every platform ran the same sweep. Open a report to browse its
+        cases and their configure, build, test, install and consumer
+        logs. A platform marked unavailable produced no readable report:
+        check that job's own logs in the Actions tab.
+      </div>
+    </div>
+  </body>
+</html>
