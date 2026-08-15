@@ -17,11 +17,17 @@
   "options": [
     {
       "id": "build_tests",
-      "cmake_var": "ADHAN_BUILD_TESTS"
+      "cmake_var": "ADHAN_BUILD_TESTS",
+      "values": [
+        true
+      ]
     },
     {
       "id": "build_examples",
-      "cmake_var": "ADHAN_BUILD_EXAMPLES"
+      "cmake_var": "ADHAN_BUILD_EXAMPLES",
+      "values": [
+        true
+      ]
     }
   ],
   "examples": [

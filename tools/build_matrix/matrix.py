@@ -81,11 +81,10 @@ def generate_build_matrix(
 
     option_order = project.option_ids()
 
-    # One (False, True) pair per configured option, in order.
-    option_choices = [
-        (False, True)
-        for _ in option_order
-    ]
+    # The values each option sweeps, in the same order as option_order.
+    # Defaults to both, but an option pinned in project.json contributes
+    # only the value it was pinned to.
+    option_choices = project.option_choices()
 
     matrix: list[BuildCase] = []
 

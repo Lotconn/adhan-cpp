@@ -34,10 +34,20 @@ DEFAULT_PROJECT_CONFIG_PATH = (
 
 @dataclass(slots=True)
 class OptionSpec:
-    """A single boolean CMake option that becomes an axis of the matrix."""
+    """
+    A single boolean CMake option that becomes an axis of the matrix.
+
+    `values` is which settings the sweep covers for this option. It
+    defaults to both, which is the historical behaviour. Pin it to a
+    single value in project.json when the other setting only builds a
+    subset of what the pinned one builds, and so cannot fail on its own.
+    """
 
     id: str
     cmake_var: str
+    values: list[bool] = field(
+        default_factory=lambda: [False, True]
+    )
 
 
 @dataclass(slots=True)
@@ -138,6 +148,16 @@ class ProjectConfig:
     def option_ids(self) -> list[str]:
         return [option.id for option in self.options]
 
+    def option_choices(self) -> list[list[bool]]:
+        """
+        The values each option sweeps, in the same order as option_ids().
+
+        Kept parallel to option_ids() rather than returned together, so
+        that existing callers of option_ids() keep working unchanged.
+        """
+
+        return [option.values for option in self.options]
+
     def example_for(self, stem: str) -> ExampleSpec:
         """
         Look up the spec for a discovered executable by its stem, falling
@@ -216,14 +236,18 @@ def _parse_build_types(value: object) -> list[BuildType]:
     return resolved
 
 
-def _parse_install(value: object) -> list[bool]:
+def _parse_bool_axis(value: object, where: str) -> list[bool]:
     """
-    Resolve the 'install' field to the set of values that axis takes.
+    Resolve a boolean matrix axis to the set of values it takes.
 
-    Accepts a single boolean to pin the axis, or a two-element list to
-    sweep both. Anything else is an error, for the same reason as
-    'build_types': a config that quietly covers less than intended is
-    worse than one that refuses to load.
+    Accepts a single boolean to pin the axis, or a list to sweep. Used by
+    the top-level 'install' field and by each option's 'values' field, so
+    both spell the same idea the same way.
+
+    Anything else is an error, for the same reason as 'build_types': a
+    config that quietly covers less than intended is worse than one that
+    refuses to load. `where` names the field in the message so a typo
+    says which one is wrong.
     """
 
     if isinstance(value, bool):
@@ -237,13 +261,13 @@ def _parse_install(value: object) -> list[bool]:
 
             if not isinstance(entry, bool):
                 raise ValueError(
-                    f"'install': expected true or false, got "
+                    f"{where}: expected true or false, got "
                     f"{type(entry).__name__}."
                 )
 
             if entry in resolved:
                 raise ValueError(
-                    f"'install': duplicate entry {str(entry).lower()}."
+                    f"{where}: duplicate entry {str(entry).lower()}."
                 )
 
             resolved.append(entry)
@@ -251,8 +275,46 @@ def _parse_install(value: object) -> list[bool]:
         return resolved
 
     raise ValueError(
-        "'install' must be true, false, or a non-empty list of booleans. "
-        "Omit the field entirely to sweep both."
+        f"{where} must be true, false, or a non-empty list of booleans. "
+        f"Omit the field entirely to sweep both."
+    )
+
+
+def _parse_option(entry: object) -> OptionSpec:
+    """
+    Build one OptionSpec from an entry in the 'options' array.
+
+    A missing 'values' means "sweep both"; a present one is validated
+    strictly, so absence and a typo do not lead to the same place.
+    """
+
+    if not isinstance(entry, dict):
+        raise ValueError(
+            f"'options': expected an object, got {type(entry).__name__}."
+        )
+
+    for required in ("id", "cmake_var"):
+
+        if required not in entry:
+            raise ValueError(
+                f"'options': entry is missing '{required}'."
+            )
+
+    option_id = entry["id"]
+
+    values = (
+        OptionSpec(id="", cmake_var="").values
+        if "values" not in entry
+        else _parse_bool_axis(
+            entry["values"],
+            f"'options[{option_id}].values'",
+        )
+    )
+
+    return OptionSpec(
+        id=option_id,
+        cmake_var=entry["cmake_var"],
+        values=values,
     )
 
 
@@ -406,10 +468,7 @@ def load_project_config(
     )
 
     options = [
-        OptionSpec(
-            id=option["id"],
-            cmake_var=option["cmake_var"],
-        )
+        _parse_option(option)
         for option in data.get("options", [])
     ]
 
@@ -431,7 +490,7 @@ def load_project_config(
     install_choices = (
         defaults.install_choices
         if "install" not in data
-        else _parse_install(data["install"])
+        else _parse_bool_axis(data["install"], "'install'")
     )
 
     return ProjectConfig(
