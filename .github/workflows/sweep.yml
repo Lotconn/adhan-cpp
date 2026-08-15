@@ -42,7 +42,7 @@ jobs:
           path: |
             report-${{ matrix.os }}
             !report-${{ matrix.os }}/builds
-          retention-days: 7
+          retention-days: 30
 
   # Deploy the root-level webpage that links to the platform-specific reports
   deploy:
