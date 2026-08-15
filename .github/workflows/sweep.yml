@@ -1,8 +1,11 @@
 name: Build matrix sweep
 
 on:
+  push:
+    tags: ['v*']
   schedule:
-    - cron: '30 0 * * *'
+    # Monthly
+    - cron: '30 0 1 * *'
       timezone: 'Asia/Dhaka'
 
   workflow_dispatch:
@@ -15,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os:   [ubuntu-latest, windows-latest, macos-latest]
-    
+
     runs-on:  ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -33,8 +36,14 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: report-${{ matrix.os }}
-          path: report-${{ matrix.os }}
-  
+          # `builds/` holds object files and binaries for every case.
+          # Nothing in the report reads them, and they account for
+          # almost all of the artifact size, so they are excluded.
+          path: |
+            report-${{ matrix.os }}
+            !report-${{ matrix.os }}/builds
+          retention-days: 7
+
   # Deploy the root-level webpage that links to the platform-specific reports
   deploy:
     needs:  sweep
@@ -65,8 +74,7 @@ jobs:
             && status=0 || status=$?
           if [ "$status" -eq 1 ]; then exit 1; fi
         
-
-        # 
+        #
         # the last run line above means "also accept exit code 2 as a success"
         # exit code 1 => nothing was written (i.e. no index / input error)
         # exit code 2 => index written, but cases failed / reports missed
@@ -81,5 +89,3 @@ jobs:
       - name: Deploy to Github Pages
         id:   deployment
         uses:  actions/deploy-pages@v5
-
-

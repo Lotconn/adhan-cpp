@@ -158,7 +158,7 @@ endif()
 option(
   ADHAN_BUILD_TESTS
   "Build test binary and run test cases on build"
-  ON
+  ${PROJECT_IS_TOP_LEVEL}
 )
 #
 if(ADHAN_BUILD_TESTS)

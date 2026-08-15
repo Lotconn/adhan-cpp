@@ -83,7 +83,8 @@ See [available options](#cmake-options).
 - `-DBUILD_SHARED_LIBS=OFF` (default: `ON`)
   Build `libadhan` as a static library instead of a shared library.
 
-- `-DADHAN_BUILD_TESTS=OFF` (default: `ON`)
+- `-DADHAN_BUILD_TESTS=OFF` (default: `ON` when this project is the
+  top level one, `OFF` when it is pulled in by another project)
   Do not build the test suite.
 
 - `-DADHAN_BUILD_EXAMPLES=ON` (default: `OFF`)
