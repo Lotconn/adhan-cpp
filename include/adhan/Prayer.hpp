@@ -21,40 +21,40 @@ namespace PrayerUtils {
 constexpr std::string_view to_string(Prayer prayer) {
   switch (prayer) {
   case Prayer::Fajr:
-    return "fajr";
+    return "Fajr";
   case Prayer::Sunrise:
-    return "sunrise";
+    return "Sunrise";
   case Prayer::Dhuhr:
-    return "dhuhr";
+    return "Dhuhr";
   case Prayer::Asr:
-    return "asr";
+    return "Asr";
   case Prayer::Maghrib:
-    return "maghrib";
+    return "Maghrib";
   case Prayer::Isha:
-    return "isha";
+    return "Isha";
   case Prayer::None:
   default:
-    return "none";
+    return "None";
   }
 }
 
 constexpr Prayer from_string(std::string_view value) {
-  if (value == "fajr") {
+  if (value == "Fajr") {
     return Prayer::Fajr;
   }
-  if (value == "sunrise") {
+  if (value == "Sunrise") {
     return Prayer::Sunrise;
   }
-  if (value == "dhuhr") {
+  if (value == "Dhuhr") {
     return Prayer::Dhuhr;
   }
-  if (value == "asr") {
+  if (value == "Asr") {
     return Prayer::Asr;
   }
-  if (value == "maghrib") {
+  if (value == "Maghrib") {
     return Prayer::Maghrib;
   }
-  if (value == "isha") {
+  if (value == "Isha") {
     return Prayer::Isha;
   }
 
