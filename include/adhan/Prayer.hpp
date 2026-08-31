@@ -7,13 +7,13 @@
 namespace Adhan {
 
 enum class Prayer : std::int8_t {
-  Fajr,
-  Sunrise,
-  Dhuhr,
-  Asr,
-  Maghrib,
-  Isha,
-  None,
+  Fajr = 0,
+  Sunrise = 1,
+  Dhuhr = 2,
+  Asr = 3,
+  Maghrib = 4,
+  Isha = 5,
+  None = 6,
 };
 
 namespace PrayerUtils {

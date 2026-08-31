@@ -26,6 +26,7 @@ This Adhan C++ library is made to be minimal, cross-platform, and dependency-fre
   - [Date](#date)
   - [Time zones](#time-zones)
   - [Calculation parameters](#calculation-parameters)
+  - [Prayers](#prayers)
   - [Prayer times](#prayer-times)
   - [Convenience utilities](#convenience-utilities)
   - [Sunnah times](#sunnah-times)
@@ -277,6 +278,28 @@ Go to `CalculationMethod.hpp` for the full list of preset methods, which include
 
 `MuslimWorldLeague`, `Egyptian`, `Karachi`, `UmmAlQura`, `Dubai`, `MoonsightingCommittee`,
 `NorthAmerica`, `Kuwait`, `Qatar`, `Singapore`, `Turkey`, `Tehran`, and `Other`.
+
+### Prayers
+
+`Adhan::Prayers` is an `std::int8`-type enum that indexes all the available
+prayer-times in this library. `::to_string(Adhan::Prayer prayer)` and
+`::from_string(std::string_view prayerName)` are two convenience utilities to
+map and reverse-map the enums with string values.
+
+| Enum                     | Value | String Map (`std::string_view`) |
+| ------------------------ | ----- | ------------------------------- |
+| `Adhan::Prayer::Fajr`    | `0`   | `Fajr`                          |
+| `Adhan::Prayer::Sunrise` | `1`   | `Sunrise`                       |
+| `Adhan::Prayer::Dhuhr`   | `2`   | `Dhuhr`                         |
+| `Adhan::Prayer::Asr`     | `3`   | `Asr`                           |
+| `Adhan::Prayer::Maghrib` | `4`   | `Maghrib`                       |
+| `Adhan::Prayer::Isha`    | `5`   | `Isha`                          |
+| `Adhan::Prayer::None`    | `6`   | `None`                          |
+
+```cpp
+using Prayer = Adhan::Prayer;
+cout << "Prayer name: " << Adhan::to_string(Adhan::Prayer::Asr);
+```
 
 ### Prayer times
 

@@ -28,6 +28,7 @@ build*/
 # Personal/dev tools
 TODO.md
 todo.txt
+commit-msg.md
 
 # Junk
 *.zip
